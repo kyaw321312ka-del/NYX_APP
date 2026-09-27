@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:nyxproject/services/session_service.dart';
-import 'package:nyxproject/services/cart_service.dart';
-import 'pages/splash_screen.dart'; // Add this import
+import 'package:nyxproject/core/storage/session_manager.dart';
+import 'package:nyxproject/core/theme/app_theme.dart';
+import 'package:nyxproject/features/cart/domain/cart_service.dart';
+import 'package:nyxproject/features/dashboard/presentation/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,7 +36,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Nyx Project',
-        theme: ThemeData(primarySwatch: Colors.blue),
+        theme: AppTheme.light,
         home: SplashScreen(
           //  Show splash screen first
           sessionService: sessionService,
