@@ -1,13 +1,12 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:nyxproject/core/constants/app_constants.dart';
 import 'package:nyxproject/features/dashboard/domain/HomeBanner.dart';
 
 class HomeBannerApi {
-  static const String _url = 'http://130.94.99.9:5001/api/banner';
-
   static Future<List<HomeBanner>> getBanners() async {
-    final response = await http.get(Uri.parse(_url));
+    final response = await http.get(Uri.parse('${Constant.API_URL}/banner'));
 
     if (response.statusCode != 200) {
       throw Exception('Failed to load banners: ${response.statusCode}');

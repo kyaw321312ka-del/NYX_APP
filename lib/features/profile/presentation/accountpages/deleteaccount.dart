@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:nyxproject/features/profile/presentation/account.dart';
 import 'package:nyxproject/core/storage/session_manager.dart';
+import 'package:nyxproject/core/constants/app_constants.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class DeleteAccount extends StatefulWidget {
   final SessionService sessionService;
 
-  const DeleteAccount({
-    super.key,
-    required this.sessionService,
-  });
+  const DeleteAccount({super.key, required this.sessionService});
 
   @override
   State<DeleteAccount> createState() => _DeleteAccountState();
@@ -27,13 +25,13 @@ class _DeleteAccountState extends State<DeleteAccount> {
 
     try {
       final token = widget.sessionService.getToken();
-      
+
       if (token == null) {
         throw Exception('No authentication token found');
       }
 
       final response = await http.put(
-        Uri.parse('http://130.94.99.9:5001/api/auth/delete_acc'),
+        Uri.parse('${Constant.API_URL}/auth/delete_acc'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -42,11 +40,12 @@ class _DeleteAccountState extends State<DeleteAccount> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = json.decode(response.body);
-        
-        if (responseData['status'] == 'success' && responseData['result'] == true) {
+
+        if (responseData['status'] == 'success' &&
+            responseData['result'] == true) {
           // Clear session data
           await widget.sessionService.clearSession();
-          
+
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -54,7 +53,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
                 backgroundColor: Colors.green,
               ),
             );
-            
+
             // Navigate back to account page (which will show logged out state)
             Navigator.pushAndRemoveUntil(
               context,
@@ -100,10 +99,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
         return AlertDialog(
           title: const Text(
             'Delete Account',
-            style: TextStyle(
-              color: Colors.red,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
           ),
           content: const Column(
             mainAxisSize: MainAxisSize.min,
@@ -269,7 +265,10 @@ class _DeleteAccountState extends State<DeleteAccount> {
                       ),
                       child: const Text(
                         'Delete My Account',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),

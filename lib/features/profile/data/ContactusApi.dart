@@ -1,28 +1,25 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:nyxproject/core/constants/app_constants.dart';
 import 'package:nyxproject/features/profile/domain/Contactus.dart';
 
 class ContactusApi {
-  static const String baseUrl = 'http://130.94.99.9:5001/api';
-  
   static Future<Map<String, dynamic>> getGeneralInfo() async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/contactus/showgeneral'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        Uri.parse('${Constant.API_URL}/contactus/showgeneral'),
+        headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
-        
+
         if (responseData['status'] == 'success') {
           final List<dynamic> dataList = responseData['data'];
-          
+
           if (dataList.isNotEmpty) {
             final Map<String, dynamic> generalData = dataList[0];
-            
+
             final contactData = ContactUsData(
               logoImageUrl: generalData['logo_image_url']?.toString(),
               shopName: generalData['shop_name']?.toString(),
@@ -30,16 +27,10 @@ class ContactusApi {
               address: generalData['address']?.toString(),
               socialLink: generalData['social_link']?.toString(),
             );
-            
-            return {
-              'success': true,
-              'data': contactData,
-            };
+
+            return {'success': true, 'data': contactData};
           } else {
-            return {
-              'success': false,
-              'message': 'No data found',
-            };
+            return {'success': false, 'message': 'No data found'};
           }
         } else {
           return {
@@ -54,10 +45,7 @@ class ContactusApi {
         };
       }
     } catch (e) {
-      return {
-        'success': false,
-        'message': 'Connection error: $e',
-      };
+      return {'success': false, 'message': 'Connection error: $e'};
     }
   }
 }
