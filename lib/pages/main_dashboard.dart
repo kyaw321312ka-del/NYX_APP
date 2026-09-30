@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nyxproject/pages/detailsPages/servicepages/walkin.dart';
+import 'package:nyxproject/pages/tournamentPages/tournamentHome.dart';
+import 'package:nyxproject/pages/tournamentPages/tournamentMain.dart';
 import 'package:provider/provider.dart';
 import 'package:nyxproject/pages/detailsPages/dashboard.dart';
 import 'package:nyxproject/pages/detailsPages/services.dart';
@@ -148,6 +151,21 @@ class _MainDashboardState extends State<MainDashboard> {
               //   onPressed: () {},
               //   icon: const Icon(Icons.notifications_none, color: Colors.white),
               // ),
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const tournamentMain(),
+                    ),
+                  );
+                },
+                icon: FaIcon(
+                  FontAwesomeIcons.trophy,
+                  size: 20,
+                  color: Colors.white,
+                ),
+              ),
               Stack(
                 children: [
                   IconButton(
