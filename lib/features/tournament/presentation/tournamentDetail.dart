@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nyxproject/pages/tournamentPages/tournamentEnroll.dart';
+import 'package:nyxproject/features/tournament/presentation/tournamentEnroll.dart';
 
 class TournamentDetailsPage extends StatelessWidget {
   const TournamentDetailsPage({super.key});

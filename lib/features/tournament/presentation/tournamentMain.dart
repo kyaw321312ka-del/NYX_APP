@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:nyxproject/pages/tournamentPages/tournamentSchedule.dart';
-import 'package:nyxproject/pages/tournamentPages/tournamentHome.dart';
-import 'package:nyxproject/pages/tournamentPages/tournamentRank.dart';
+import 'package:nyxproject/features/tournament/presentation/tournamentSchedule.dart';
+import 'package:nyxproject/features/tournament/presentation/tournamentHome.dart';
+import 'package:nyxproject/features/tournament/presentation/tournamentRank.dart';
 
 class tournamentMain extends StatefulWidget {
   const tournamentMain({super.key});

@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nyxproject/features/rental/presentation/walkin/walkin.dart';
-import 'package:nyxproject/pages/tournamentPages/tournamentHome.dart';
-import 'package:nyxproject/pages/tournamentPages/tournamentMain.dart';
+import 'package:nyxproject/features/tournament/presentation/tournamentMain.dart';
 import 'package:provider/provider.dart';
 import 'package:nyxproject/features/dashboard/presentation/dashboard.dart';
 import 'package:nyxproject/features/dashboard/presentation/services.dart';
-import 'package:nyxproject/features/cart/presentation/cart.dart';
 import 'package:nyxproject/features/shop/presentation/shop.dart';
 import 'package:nyxproject/features/profile/presentation/account.dart';
 import 'package:nyxproject/core/storage/session_manager.dart';
