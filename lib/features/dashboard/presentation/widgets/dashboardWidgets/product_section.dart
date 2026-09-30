@@ -1,6 +1,6 @@
 // lib/pages/dashboardWidgets/product_section.dart
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/shop/domain/product.dart';
+import 'package:nyxproject/features/shop/domain/entities/product.dart';
 import 'package:nyxproject/features/dashboard/presentation/widgets/dashboardWidgets/product_card.dart';
 import 'package:nyxproject/features/dashboard/presentation/widgets/dashboardWidgets/section_header.dart';
 

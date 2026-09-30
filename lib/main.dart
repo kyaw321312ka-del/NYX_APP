@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:nyxproject/core/storage/session_manager.dart';
-import 'package:nyxproject/core/theme/app_theme.dart';
-import 'package:nyxproject/features/cart/domain/cart_service.dart';
-import 'package:nyxproject/features/dashboard/presentation/splash_screen.dart';
+import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
+import 'package:nyxproject/core/utils/app_theme.dart';
+import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
+import 'package:nyxproject/features/dashboard/presentation/pages/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

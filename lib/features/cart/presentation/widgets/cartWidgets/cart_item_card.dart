@@ -1,6 +1,6 @@
 // lib/widgets/cartWidgets/cart_item_card.dart
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/cart/domain/cart_service.dart';
+import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 
 class CartItemCard extends StatelessWidget {
   final CartItem item;

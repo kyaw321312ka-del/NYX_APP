@@ -1,6 +1,6 @@
 // lib/pages/detailsPages/widgets/classesWidgets/canteen_grid.dart
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/dashboard/domain/Canteen.dart';
+import 'package:nyxproject/features/dashboard/domain/entities/Canteen.dart';
 import 'package:nyxproject/features/dashboard/presentation/widgets/servicesWidgets/canteen_card.dart';
 
 class CanteenGrid extends StatelessWidget {

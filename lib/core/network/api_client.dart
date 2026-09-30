@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:nyxproject/features/shop/domain/Category.dart';
-import 'package:nyxproject/features/shop/domain/Tag.dart';
-import 'package:nyxproject/core/constants/app_constants.dart';
+import 'package:nyxproject/features/shop/domain/entities/Category.dart';
+import 'package:nyxproject/features/shop/domain/entities/Tag.dart';
+import 'package:nyxproject/core/utils/app_constants.dart';
 
 class Api {
   // Login user - returns complete response data

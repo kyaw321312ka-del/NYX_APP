@@ -1,7 +1,7 @@
 // lib/pages/detailsPages/classesWidgets/trainings_widget.dart
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/training/domain/Training.dart';
-import 'package:nyxproject/features/training/presentation/classes/class_details.dart';
+import 'package:nyxproject/features/training/domain/entities/Training.dart';
+import 'package:nyxproject/features/training/presentation/pages/classes/class_details.dart';
 
 class TrainingsWidget extends StatelessWidget {
   final List<Training> trainings;

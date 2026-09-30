@@ -1,7 +1,7 @@
 // lib/pages/dashboardWidgets/product_card.dart
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/shop/domain/product.dart';
-import 'package:nyxproject/features/shop/presentation/shoppages/details.dart';
+import 'package:nyxproject/features/shop/domain/entities/product.dart';
+import 'package:nyxproject/features/shop/presentation/pages/shoppages/details.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;

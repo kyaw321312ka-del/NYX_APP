@@ -1,8 +1,8 @@
 // lib/widgets/cartWidgets/login_dialog.dart
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/auth/presentation/login.dart';
-import 'package:nyxproject/features/cart/domain/cart_service.dart';
-import 'package:nyxproject/core/storage/session_manager.dart';
+import 'package:nyxproject/features/user/presentation/pages/login.dart';
+import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
+import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:provider/provider.dart';
 
 class LoginDialog {
