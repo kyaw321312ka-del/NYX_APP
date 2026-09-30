@@ -1,18 +1,17 @@
 // import 'package:flutter/foundation.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/user/domain/entities/user.dart';
 import 'package:nyxproject/features/user/presentation/pages/forgetpassword.dart';
-import 'package:nyxproject/features/user/presentation/pages/signup.dart';// Add this import
+import 'package:nyxproject/features/user/presentation/pages/signup.dart'; // Add this import
 import 'package:nyxproject/features/dashboard/presentation/pages/main_dashboard.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
-import 'package:nyxproject/core/network/api_client.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
+import 'package:nyxproject/features/user/presentation/bloc/login_controller.dart';
 
 class LoginPage extends StatefulWidget {
   final SessionService sessionService;
   final CartService? cartService;
-  
+
   const LoginPage({super.key, required this.sessionService, this.cartService});
 
   @override
@@ -27,11 +26,19 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isLoading = false;
+  late final LoginController _loginController;
+
+  @override
+  void initState() {
+    super.initState();
+    _loginController = LoginController.forSession(widget.sessionService);
+  }
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+    _loginController.dispose();
     super.dispose();
   }
 
@@ -191,13 +198,15 @@ class _LoginPageState extends State<LoginPage> {
         child: GestureDetector(
           onTap: () {
             final email = emailController.text.trim();
-            
+
             // Navigate to ForgetPassword page with email
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => ForgetPassword(
-                  email: email.isNotEmpty ? email : '', // Pass email if entered, else empty
+                  email: email.isNotEmpty
+                      ? email
+                      : '', // Pass email if entered, else empty
                 ),
               ),
             );
@@ -214,15 +223,6 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
-  }
-
-  bool _isValidToken(String token) {
-    if (token.isEmpty) return false;
-    if (token == "Invalid password") return false;
-    // Check if token is a valid JWT format (has 3 parts separated by dots)
-    final parts = token.split('.');
-    if (parts.length != 3) return false;
-    return true;
   }
 
   Widget _login() {
@@ -262,22 +262,21 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     final email = emailController.text.trim();
-    final password = passwordController.text;
 
     try {
-      final Map<String, dynamic> loginResult = await Api.loginUser(
-        emailOrphone: email,
-        password: password,
+      final authenticatedUser = await _loginController.login(
+        emailOrPhone: email,
+        password: passwordController.text,
       );
 
       if (!mounted) return;
 
-      final bool success = loginResult['success'] == true;
-
-      if (!success) {
+      if (authenticatedUser == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(loginResult['message']?.toString() ?? "Invalid email or password"),
+            content: Text(
+              _loginController.errorMessage ?? "Invalid email or password",
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -286,90 +285,6 @@ class _LoginPageState extends State<LoginPage> {
         });
         return;
       }
-
-      final dynamic rawData = loginResult['data'];
-      Map<String, dynamic> responseMap = <String, dynamic>{};
-      if (rawData is Map<String, dynamic>) {
-        responseMap = rawData;
-      }
-
-      final String token = responseMap['token']?.toString() ?? '';
-
-      // Validate token
-      if (!_isValidToken(token)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Invalid response from server. Please try again.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        setState(() {
-          _isLoading = false;
-        });
-        return;
-      }
-
-      // Fetch user profile
-      final profileResult = await Api.getMyProfile(token: token);
-
-      User user;
-
-      if (profileResult['success'] == true) {
-        final userData = profileResult['data'] as Map<String, dynamic>;
-        print("Profile data: $userData");
-
-        user = User(
-          id: userData['id'] != null ? int.tryParse(userData['id'].toString()) : null,
-          name: userData['name']?.toString(),
-          email: userData['email']?.toString() ?? email,
-          phone: userData['phone']?.toString(),
-          imageUrl: userData['image_url']?.toString(),
-          dateOfBirth: userData['dateOfBirth']?.toString(),
-          address: userData['address']?.toString(),
-        );
-      } else {
-        final dynamic rawUser = responseMap['user'];
-        Map<String, dynamic> userJson = {};
-
-        if (rawUser is Map<String, dynamic>) {
-          userJson = rawUser;
-        } else {
-          userJson = responseMap;
-        }
-
-        print("Login response user data: $userJson");
-
-        user = User(
-          id: userJson['id'] != null ? int.tryParse(userJson['id'].toString()) : null,
-          name: userJson['name']?.toString(),
-          email: userJson['email']?.toString() ?? email,
-          phone: userJson['phone']?.toString(),
-          imageUrl: userJson['image_url']?.toString(),
-          dateOfBirth: userJson['dateOfBirth']?.toString(),
-          address: userJson['address']?.toString(),
-        );
-      }
-
-      // Validate user has an ID
-      if (user.id == null || user.id == 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Invalid user data received'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        setState(() {
-          _isLoading = false;
-        });
-        return;
-      }
-
-      print("User to save - ID: ${user.id}, Name: ${user.name}, Email: ${user.email}");
-
-      await widget.sessionService.saveSession(user, token);
-
-      final savedUser = widget.sessionService.getStoredUser();
-      print("Verified saved user - ID: ${savedUser?.id}, Name: ${savedUser?.name}");
 
       if (!mounted) return;
 
@@ -392,61 +307,12 @@ class _LoginPageState extends State<LoginPage> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
       );
       setState(() {
         _isLoading = false;
       });
     }
-  }
-
-  Widget _continuewith(String title) {
-    return Center(
-      child: Text(title, style: const TextStyle(fontFamily: "Custom", fontSize: 15)),
-    );
-  }
-
-  Widget _choice() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        ElevatedButton.icon(
-          onPressed: () {},
-          icon: const Icon(Icons.facebook_rounded),
-          label: const Text(
-            "Facebook",
-            style: TextStyle(
-              fontFamily: "Custom",
-              fontSize: 15,
-              color: Colors.white,
-            ),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color.fromARGB(255, 13, 27, 42),
-            iconColor: Colors.white,
-          ),
-        ),
-        ElevatedButton.icon(
-          onPressed: () {},
-          icon: const FaIcon(FontAwesomeIcons.google),
-          label: const Text(
-            "Google",
-            style: TextStyle(
-              fontFamily: "Custom",
-              fontSize: 15,
-              color: Colors.white,
-            ),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color.fromARGB(255, 13, 27, 42),
-            iconColor: Colors.white,
-          ),
-        ),
-      ],
-    );
   }
 
   Widget _MainIcon() {
