@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nyxproject/features/rental/presentation/pages/walkin/walkin.dart';
 import 'package:nyxproject/features/tournament/presentation/pages/tournamentMain.dart';
@@ -27,6 +28,7 @@ class MainDashboard extends StatefulWidget {
 class _MainDashboardState extends State<MainDashboard> {
   int currentPageIndex = 0;
   String? language;
+  bool _isExitDialogOpen = false;
   late final List<Widget> _pages;
 
   @override
@@ -46,41 +48,83 @@ class _MainDashboardState extends State<MainDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            _header(),
-            const SizedBox(height: 0),
-            Expanded(
-              child: IndexedStack(index: currentPageIndex, children: _pages),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          _confirmExit();
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              _header(),
+              const SizedBox(height: 0),
+              Expanded(
+                child: IndexedStack(index: currentPageIndex, children: _pages),
+              ),
+            ],
+          ),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: const Color.fromARGB(255, 13, 27, 42),
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.grey,
+          type: BottomNavigationBarType.fixed,
+          currentIndex: currentPageIndex,
+          onTap: (index) {
+            setState(() {
+              currentPageIndex = index;
+            });
+          },
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+            BottomNavigationBarItem(icon: Icon(Icons.store), label: "Shop"),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.class_),
+              label: "Services",
             ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.directions_walk_outlined),
+              label: "Walk-In",
+            ),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: "Account"),
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color.fromARGB(255, 13, 27, 42),
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        currentIndex: currentPageIndex,
-        onTap: (index) {
-          setState(() {
-            currentPageIndex = index;
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.store), label: "Shop"),
-          BottomNavigationBarItem(icon: Icon(Icons.class_), label: "Services"),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.directions_walk_outlined),
-            label: "Walk-In",
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Account"),
-        ],
-      ),
     );
+  }
+
+  Future<void> _confirmExit() async {
+    if (_isExitDialogOpen) return;
+    _isExitDialogOpen = true;
+
+    try {
+      final shouldExit = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Exit app?'),
+          content: const Text('Are you sure you want to exit?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Exit'),
+            ),
+          ],
+        ),
+      );
+
+      if (shouldExit == true) {
+        await SystemNavigator.pop();
+      }
+    } finally {
+      _isExitDialogOpen = false;
+    }
   }
 
   Widget _header() {

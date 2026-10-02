@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:nyxproject/features/dashboard/presentation/widgets/dashboardWidgets/banner_widget.dart';
+import 'package:nyxproject/features/tournament/presentation/bloc/tournament_banner_controller.dart';
 import 'package:nyxproject/features/tournament/presentation/pages/tournamentDetail.dart';
 import 'package:nyxproject/features/tournament/presentation/pages/tournamentEnroll.dart';
 
@@ -12,41 +15,88 @@ class tournamentHome extends StatefulWidget {
 
 class _tournamentHomeState extends State<tournamentHome> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<TournamentBannerController>().load();
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final bannerController = context.watch<TournamentBannerController>();
+
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          spacing: 5,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Container(
-              height: 50,
-              decoration: BoxDecoration(color: Color.fromARGB(255, 13, 27, 42)),
-              child: Row(
-                spacing: 10,
-                children: [
-                  SizedBox(width: 10),
-                  FaIcon(
-                    FontAwesomeIcons.trophy,
-                    color: Colors.amber,
-                    size: 28,
-                  ),
-                  Text(
-                    "Tournament",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+        child: SingleChildScrollView(
+          child: Column(
+            spacing: 5,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Color.fromARGB(255, 13, 27, 42),
+                ),
+                child: Row(
+                  spacing: 10,
+                  children: [
+                    const BackButton(color: Colors.white),
+                    FaIcon(
+                      FontAwesomeIcons.trophy,
+                      color: Colors.amber,
+                      size: 28,
                     ),
-                  ),
-                ],
+                    Text(
+                      "Tournament",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            _tornamentCard("Badminton Solo Tournament"),
-            _tornamentCard("Badminton Team Tournament"),
-          ],
+              _buildBannerSection(bannerController),
+              _tornamentCard("Badminton Solo Tournament"),
+              _tornamentCard("Badminton Team Tournament"),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildBannerSection(TournamentBannerController controller) {
+    if (controller.isLoading) {
+      return const SizedBox(
+        height: 180,
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (controller.errorMessage != null) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          children: [
+            Text(
+              'Could not load tournament banners: ${controller.errorMessage}',
+            ),
+            TextButton(onPressed: controller.load, child: const Text('Retry')),
+          ],
+        ),
+      );
+    }
+
+    if (controller.banners.isEmpty) return const SizedBox.shrink();
+
+    return BannerWidget(
+      images: controller.banners.map((banner) => banner.imagePath).toList(),
+      onPageChanged: (_) {},
     );
   }
 

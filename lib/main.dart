@@ -4,6 +4,10 @@ import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:nyxproject/core/utils/app_theme.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 import 'package:nyxproject/features/dashboard/presentation/pages/splash_screen.dart';
+import 'package:nyxproject/features/tournament/data/datasources/tournament_banner_remote_data_source.dart';
+import 'package:nyxproject/features/tournament/data/repositories/tournament_banner_repository_impl.dart';
+import 'package:nyxproject/features/tournament/domain/usecases/get_tournament_banners.dart';
+import 'package:nyxproject/features/tournament/presentation/bloc/tournament_banner_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,6 +36,18 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<SessionService>.value(value: sessionService),
         ChangeNotifierProvider<CartService>.value(value: cartService),
+        Provider<GetTournamentBanners>(
+          create: (_) => GetTournamentBanners(
+            TournamentBannerRepositoryImpl(
+              TournamentBannerRemoteDataSourceImpl(),
+            ),
+          ),
+        ),
+        ChangeNotifierProvider<TournamentBannerController>(
+          create: (context) => TournamentBannerController(
+            context.read<GetTournamentBanners>(),
+          ),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
