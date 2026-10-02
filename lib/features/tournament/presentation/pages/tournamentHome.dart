@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/dashboard/presentation/widgets/dashboardWidgets/banner_widget.dart';
 import 'package:nyxproject/features/tournament/presentation/bloc/tournament_banner_controller.dart';
 import 'package:nyxproject/features/tournament/presentation/pages/tournamentDetail.dart';
@@ -79,16 +80,10 @@ class _tournamentHomeState extends State<tournamentHome> {
     }
 
     if (controller.errorMessage != null) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          children: [
-            Text(
-              'Could not load tournament banners: ${controller.errorMessage}',
-            ),
-            TextButton(onPressed: controller.load, child: const Text('Retry')),
-          ],
-        ),
+      return AppErrorView(
+        message: controller.errorMessage!,
+        onRetry: controller.load,
+        compact: true,
       );
     }
 

@@ -1,5 +1,7 @@
 // lib/pages/dashboard.dart
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/error/app_error_message.dart';
+import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/dashboard/data/datasources/HomeBannerApi.dart';
 import 'package:nyxproject/features/shop/data/datasources/GetallproductApi.dart';
 import 'package:nyxproject/features/shop/domain/entities/Category.dart';
@@ -85,7 +87,7 @@ class _DashBoardState extends State<DashBoard> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _bannersError = 'Error loading banners: $e';
+        _bannersError = AppErrorMessage.from(e);
         _isLoadingBanners = false;
       });
     }
@@ -112,14 +114,16 @@ class _DashBoardState extends State<DashBoard> {
         print(' Loaded ${_categoriesList.length} categories');
       } else {
         setState(() {
-          _categoriesError = result['message'] ?? 'Failed to load categories';
+          _categoriesError = AppErrorMessage.from(
+            result['message'] ?? 'Failed to load categories',
+          );
           _isLoadingCategories = false;
         });
       }
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _categoriesError = 'Error loading categories: $e';
+        _categoriesError = AppErrorMessage.from(e);
         _isLoadingCategories = false;
       });
     }
@@ -146,14 +150,16 @@ class _DashBoardState extends State<DashBoard> {
         print(' Loaded ${_allProducts.length} products');
       } else {
         setState(() {
-          _productsError = result['message'] ?? 'Failed to load products';
+          _productsError = AppErrorMessage.from(
+            result['message'] ?? 'Failed to load products',
+          );
           _isLoadingProducts = false;
         });
       }
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _productsError = 'Error loading products: $e';
+        _productsError = AppErrorMessage.from(e);
         _isLoadingProducts = false;
       });
     }
@@ -195,7 +201,11 @@ class _DashBoardState extends State<DashBoard> {
                   child: Center(child: CircularProgressIndicator()),
                 )
               else if (_bannersError != null)
-                const SizedBox(height: 40)
+                AppErrorView(
+                  message: _bannersError!,
+                  onRetry: _loadBanners,
+                  compact: true,
+                )
               else if (_banners.isNotEmpty)
                 BannerWidget(
                   images: _banners.map((banner) => banner.imagePath).toList(),
@@ -240,14 +250,9 @@ class _DashBoardState extends State<DashBoard> {
     }
 
     if (_productsError != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Text(
-            _productsError!,
-            style: const TextStyle(color: Colors.red),
-          ),
-        ),
+      return AppErrorView(
+        message: _productsError!,
+        onRetry: _loadProducts,
       );
     }
 

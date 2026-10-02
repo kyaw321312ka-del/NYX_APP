@@ -1,5 +1,6 @@
 // lib/pages/detailsPages/widgets/classesWidgets/canteen_grid.dart
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/dashboard/domain/entities/Canteen.dart';
 import 'package:nyxproject/features/dashboard/presentation/widgets/servicesWidgets/canteen_card.dart';
 
@@ -33,27 +34,9 @@ class CanteenGrid extends StatelessWidget {
     }
 
     if (error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              Text(
-                error!,
-                style: const TextStyle(color: Colors.red),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: onRetry,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                ),
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
-        ),
+      return AppErrorView(
+        message: error!,
+        onRetry: onRetry,
       );
     }
 

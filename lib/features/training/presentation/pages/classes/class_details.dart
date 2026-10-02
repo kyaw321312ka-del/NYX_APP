@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/error/app_error_message.dart';
+import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/user/data/datasources/ContactusApi.dart';
 import 'package:nyxproject/features/user/data/models/Contactus.dart';
 import 'package:nyxproject/features/training/domain/entities/TrainingDetail.dart';
@@ -95,7 +97,7 @@ class _ClassDetailsState extends State<ClassDetails> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = 'Error loading training detail: $e';
+        _error = AppErrorMessage.from(e);
         _isLoading = false;
       });
     }
@@ -134,26 +136,9 @@ class _ClassDetailsState extends State<ClassDetails> {
 
     if (_error != null && _trainingDetail == null) {
       return Scaffold(
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  _error!,
-                  style: const TextStyle(color: Colors.red),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: _loadTrainingDetail,
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                  child: const Text('Retry'),
-                ),
-              ],
-            ),
-          ),
+        body: AppErrorView(
+          message: _error!,
+          onRetry: _loadTrainingDetail,
         ),
       );
     }

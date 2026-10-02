@@ -1,5 +1,6 @@
 // lib/pages/detailsPages/widgets/servicesWidgets/rentals_widget.dart
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/rental/domain/entities/Venue.dart';
 import 'package:nyxproject/features/rental/presentation/pages/rental/Courts.dart';
 
@@ -72,26 +73,9 @@ class RentalsWidget extends StatelessWidget {
     }
 
     if (venuesError != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              Text(
-                venuesError!,
-                style: const TextStyle(color: Colors.red),
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: onRetryVenues,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                ),
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
-        ),
+      return AppErrorView(
+        message: venuesError!,
+        onRetry: onRetryVenues,
       );
     }
 

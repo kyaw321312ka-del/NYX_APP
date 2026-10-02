@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/error/app_error_message.dart';
+import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/rental/data/datasources/RentelApi/CourtApi.dart';
 import 'package:nyxproject/features/rental/domain/entities/Court.dart';
 import 'package:nyxproject/features/rental/presentation/pages/rental/court_details.dart';
@@ -50,14 +52,16 @@ class _CourtsState extends State<Courts> {
         print('Loaded ${_courts.length} courts for venue ${widget.venueId}');
       } else {
         setState(() {
-          _error = result['message'] ?? 'Failed to load courts';
+          _error = AppErrorMessage.from(
+            result['message'] ?? 'Failed to load courts',
+          );
           _isLoading = false;
         });
       }
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = 'Error loading courts: $e';
+        _error = AppErrorMessage.from(e);
         _isLoading = false;
       });
     }
@@ -108,27 +112,9 @@ class _CourtsState extends State<Courts> {
     }
 
     if (_error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              Text(
-                _error!,
-                style: const TextStyle(color: Colors.red),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: _loadCourts,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                ),
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
-        ),
+      return AppErrorView(
+        message: _error!,
+        onRetry: _loadCourts,
       );
     }
 

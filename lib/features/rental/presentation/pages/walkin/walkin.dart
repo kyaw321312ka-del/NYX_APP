@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/error/app_error_message.dart';
+import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/rental/data/datasources/RentelApi/WalkInCourtApi.dart';
 import 'package:nyxproject/features/rental/domain/entities/WalkInCourt.dart';
 import 'package:nyxproject/features/rental/presentation/pages/walkin/walkinCourt.dart'
@@ -29,21 +31,31 @@ class _WalkInScreenState extends State<WalkInScreen> {
       errorMessage = null;
     });
 
-    final result = await WalkInCourtApi.getWalkInCourts();
-    if (!mounted) return;
+    try {
+      final result = await WalkInCourtApi.getWalkInCourts();
+      if (!mounted) return;
 
-    setState(() {
-      isLoading = false;
-      if (result['success'] == true) {
-        courts = List<WalkInCourt>.from(result['data'] ?? []);
-        if (selectedVenue != null &&
-            !courts.any((court) => court.venueName == selectedVenue)) {
-          selectedVenue = null;
+      setState(() {
+        isLoading = false;
+        if (result['success'] == true) {
+          courts = List<WalkInCourt>.from(result['data'] ?? []);
+          if (selectedVenue != null &&
+              !courts.any((court) => court.venueName == selectedVenue)) {
+            selectedVenue = null;
+          }
+        } else {
+          errorMessage = AppErrorMessage.from(
+            result['message']?.toString() ?? 'Failed to load courts',
+          );
         }
-      } else {
-        errorMessage = result['message']?.toString() ?? 'Failed to load courts';
-      }
-    });
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+        errorMessage = AppErrorMessage.from(error);
+      });
+    }
   }
 
   @override
@@ -135,14 +147,9 @@ class _WalkInScreenState extends State<WalkInScreen> {
     }
 
     if (errorMessage != null) {
-      return Center(
-        child: Column(
-          children: [
-            Text(errorMessage!, style: const TextStyle(color: Colors.red)),
-            const SizedBox(height: 10),
-            ElevatedButton(onPressed: _loadCourts, child: const Text('Retry')),
-          ],
-        ),
+      return AppErrorView(
+        message: errorMessage!,
+        onRetry: _loadCourts,
       );
     }
 

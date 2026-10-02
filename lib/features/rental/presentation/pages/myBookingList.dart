@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/error/app_error_message.dart';
+import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/rental/data/datasources/RentelApi/BookingOrderListApi.dart';
 import 'package:nyxproject/features/rental/domain/entities/BookingOrderList.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
@@ -80,14 +82,16 @@ class _myBookingListState extends State<myBookingList> {
         });
       } else {
         setState(() {
-          _errorMessage = result['message'] ?? 'Failed to load bookings';
+          _errorMessage = AppErrorMessage.from(
+            result['message'] ?? 'Failed to load bookings',
+          );
           _isLoading = false;
         });
       }
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'Error: $e';
+        _errorMessage = AppErrorMessage.from(e);
         _isLoading = false;
       });
     }
@@ -161,21 +165,9 @@ class _myBookingListState extends State<myBookingList> {
     }
 
     if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
-            Text(_errorMessage!),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _fetchBookings,
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
+      return AppErrorView(
+        message: _errorMessage!,
+        onRetry: _fetchBookings,
       );
     }
 

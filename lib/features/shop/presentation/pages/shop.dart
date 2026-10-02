@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/error/app_error_message.dart';
+import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/shop/data/datasources/GetallproductApi.dart';
 import 'package:nyxproject/features/shop/domain/entities/product.dart';
 import 'package:nyxproject/features/shop/presentation/pages/shoppages/details.dart';
@@ -69,7 +71,9 @@ class _ShopPageState extends State<ShopPage> {
       } else {
         print("❌ API Error: ${result['message']}");
         setState(() {
-          _errorMessage = result['message'] ?? 'Failed to load products';
+          _errorMessage = AppErrorMessage.from(
+            result['message'] ?? 'Failed to load products',
+          );
           _isLoading = false;
         });
       }
@@ -77,7 +81,7 @@ class _ShopPageState extends State<ShopPage> {
       print("❌ Exception: $e");
       if (!mounted) return; // ✅ Check before using setState
       setState(() {
-        _errorMessage = 'Error loading products: $e';
+        _errorMessage = AppErrorMessage.from(e);
         _isLoading = false;
       });
     }
@@ -224,24 +228,9 @@ class _ShopPageState extends State<ShopPage> {
     }
 
     if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline, size: 64, color: colorScheme.error),
-            const SizedBox(height: 16),
-            Text(
-              _errorMessage!,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: colorScheme.error),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadProducts,
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
+      return AppErrorView(
+        message: _errorMessage!,
+        onRetry: _loadProducts,
       );
     }
 

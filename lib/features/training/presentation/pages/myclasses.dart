@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/error/app_error_message.dart';
+import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/training/domain/entities/StudentEnrollment.dart';
 import 'package:nyxproject/features/training/data/datasources/ClassApi/StudentEnrollmentApi.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
@@ -57,14 +59,16 @@ class _ClassesState extends State<Classes> {
         print('✅ Loaded ${_enrollments.length} enrollments');
       } else {
         setState(() {
-          _error = result['message'] ?? 'Failed to load enrollments';
+          _error = AppErrorMessage.from(
+            result['message'] ?? 'Failed to load enrollments',
+          );
           _isLoading = false;
         });
       }
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = 'Error loading enrollments: $e';
+        _error = AppErrorMessage.from(e);
         _isLoading = false;
       });
     }
@@ -105,30 +109,17 @@ class _ClassesState extends State<Classes> {
     }
 
     if (_error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 60, color: Colors.red),
-              const SizedBox(height: 16),
-              Text(
-                _error!,
-                style: const TextStyle(color: Colors.red),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _loadEnrollments,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                ),
-                child: const Text('Retry'),
-              ),
-            ],
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          SizedBox(
+            height: MediaQuery.sizeOf(context).height * 0.55,
+            child: AppErrorView(
+              message: _error!,
+              onRetry: _loadEnrollments,
+            ),
           ),
-        ),
+        ],
       );
     }
 

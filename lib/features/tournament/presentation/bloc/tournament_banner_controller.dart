@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:nyxproject/core/error/app_error_message.dart';
 import 'package:nyxproject/features/tournament/domain/entities/tournament_banner.dart';
 import 'package:nyxproject/features/tournament/domain/usecases/get_tournament_banners.dart';
 
@@ -19,7 +20,7 @@ class TournamentBannerController extends ChangeNotifier {
     try {
       banners = await _getTournamentBanners();
     } catch (error) {
-      errorMessage = error.toString();
+      errorMessage = AppErrorMessage.from(error);
     } finally {
       isLoading = false;
       notifyListeners();

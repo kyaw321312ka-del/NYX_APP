@@ -1,5 +1,6 @@
 // lib/pages/dashboardWidgets/categories_widget.dart
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/shop/domain/entities/Category.dart';
 import 'package:nyxproject/features/shop/presentation/pages/shoppages/categoryPage.dart';
 
@@ -29,11 +30,10 @@ class CategoriesWidget extends StatelessWidget {
     if (error != null) {
       return SizedBox(
         height: 100,
-        child: Center(
-          child: Text(
-            error!,
-            style: const TextStyle(color: Colors.red),
-          ),
+        child: AppErrorView(
+          message: error!,
+          onRetry: onRetry,
+          compact: true,
         ),
       );
     }

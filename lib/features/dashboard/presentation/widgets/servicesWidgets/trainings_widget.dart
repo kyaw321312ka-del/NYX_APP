@@ -1,5 +1,6 @@
 // lib/pages/detailsPages/classesWidgets/trainings_widget.dart
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/training/domain/entities/Training.dart';
 import 'package:nyxproject/features/training/presentation/pages/classes/class_details.dart';
 
@@ -29,27 +30,9 @@ class TrainingsWidget extends StatelessWidget {
     }
 
     if (error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              Text(
-                error!,
-                style: const TextStyle(color: Colors.red),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: onRetry,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                ),
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
-        ),
+      return AppErrorView(
+        message: error!,
+        onRetry: onRetry,
       );
     }
 

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:nyxproject/core/error/app_error_message.dart';
+import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/orders/data/datasources/OrderApi.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
@@ -87,14 +89,16 @@ class _orderHistoryState extends State<orderHistory> {
         });
       } else {
         setState(() {
-          _errorMessage = result['message'] ?? 'Failed to load orders';
+          _errorMessage = AppErrorMessage.from(
+            result['message'] ?? 'Failed to load orders',
+          );
           _isLoading = false;
         });
       }
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'Error: $e';
+        _errorMessage = AppErrorMessage.from(e);
         _isLoading = false;
       });
     }
@@ -201,21 +205,9 @@ class _orderHistoryState extends State<orderHistory> {
     }
 
     if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
-            Text(_errorMessage!),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _fetchOrders,
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
+      return AppErrorView(
+        message: _errorMessage!,
+        onRetry: _fetchOrders,
       );
     }
 
