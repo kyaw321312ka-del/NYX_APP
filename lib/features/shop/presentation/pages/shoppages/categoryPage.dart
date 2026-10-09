@@ -8,10 +8,10 @@ import 'package:nyxproject/core/network/api_client.dart';
 class CategoryPage extends StatefulWidget {
   final String? categoryName;
   final int? categoryId;
-  final int? index;  // Make this optional
+  final int? index; // Make this optional
 
   const CategoryPage({
-    super.key, 
+    super.key,
     this.categoryName,
     this.categoryId,
     this.index,
@@ -22,28 +22,27 @@ class CategoryPage extends StatefulWidget {
 }
 
 class _CategoryPageState extends State<CategoryPage> {
-  
   List<Category> _categoriesList = [];
   List<Product> _allProducts = [];
   List<Product> _filteredProducts = [];
-  
+
   bool _isLoadingCategories = true;
   bool _isLoadingProducts = true;
-  
+
   String? _categoriesError;
   String? _productsError;
-  
+
   String _selectedCategory = "All";
   String _searchQuery = "";
   String _selectedSort = "None";
-  
+
   final TextEditingController _controller = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _loadData();
-    
+
     // If categoryName is passed, set it as selected
     if (widget.categoryName != null) {
       _selectedCategory = widget.categoryName!;
@@ -136,15 +135,14 @@ class _CategoryPageState extends State<CategoryPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              title: const Text("Price: Low to High"),
-              onTap: () {
-                setState(() {
-                  _selectedSort = "low";
-                });
-                _applyFilters();
-                Navigator.pop(context);
-              }
-            ),
+                title: const Text("Price: Low to High"),
+                onTap: () {
+                  setState(() {
+                    _selectedSort = "low";
+                  });
+                  _applyFilters();
+                  Navigator.pop(context);
+                }),
             ListTile(
               title: const Text("Price: High to Low"),
               onTap: () {
@@ -222,7 +220,13 @@ class _CategoryPageState extends State<CategoryPage> {
             const SizedBox(height: 5),
             _searchBar(),
             _filterBar(),
-            Expanded(child: _gridCards())
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: _loadData,
+                color: const Color(0xFF0D1B2A),
+                child: _gridCards(),
+              ),
+            )
           ],
         ),
       ),
@@ -232,7 +236,7 @@ class _CategoryPageState extends State<CategoryPage> {
   Widget _header() {
     // Use the category name if provided, otherwise use "Categories"
     final title = widget.categoryName ?? "Categories";
-    
+
     return Container(
       color: const Color.fromARGB(255, 13, 27, 42),
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
@@ -243,9 +247,9 @@ class _CategoryPageState extends State<CategoryPage> {
           IconButton(
             onPressed: () {
               Navigator.pop(context);
-            }, 
+            },
             icon: const Icon(
-              Icons.arrow_back_ios_new_rounded, 
+              Icons.arrow_back_ios_new_rounded,
               color: Colors.white,
             ),
           ),
@@ -253,18 +257,17 @@ class _CategoryPageState extends State<CategoryPage> {
             child: Text(
               title,
               style: const TextStyle(
-                fontFamily: "Custom",
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.w600
-              ),
+                  fontFamily: "Custom",
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600),
             ),
           ),
           // SizedBox(
           //   child: IconButton(
-          //     onPressed: (){}, 
+          //     onPressed: (){},
           //     icon: const Icon(
-          //       Icons.message, 
+          //       Icons.message,
           //       color: Colors.white,
           //     ),
           //   ),
@@ -379,12 +382,12 @@ class _CategoryPageState extends State<CategoryPage> {
 
   Widget _gridCards() {
     if (_isLoadingProducts) {
-      return const Center(child: CircularProgressIndicator());
+      return _scrollableState(const CircularProgressIndicator());
     }
 
     if (_productsError != null) {
-      return Center(
-        child: Text(
+      return _scrollableState(
+        Text(
           _productsError!,
           style: const TextStyle(color: Colors.red),
         ),
@@ -392,14 +395,12 @@ class _CategoryPageState extends State<CategoryPage> {
     }
 
     if (_filteredProducts.isEmpty) {
-      return const Center(
-        child: Text('No products found'),
-      );
+      return _scrollableState(const Text('No products found'));
     }
 
     return GridView.builder(
       shrinkWrap: true,
-      physics: const BouncingScrollPhysics(),
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(10),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
@@ -443,7 +444,8 @@ class _CategoryPageState extends State<CategoryPage> {
                               return Container(
                                 color: Colors.grey[200],
                                 child: const Center(
-                                  child: Icon(Icons.image, size: 50, color: Colors.grey),
+                                  child: Icon(Icons.image,
+                                      size: 50, color: Colors.grey),
                                 ),
                               );
                             },
@@ -451,7 +453,8 @@ class _CategoryPageState extends State<CategoryPage> {
                         : Container(
                             color: Colors.grey[200],
                             child: const Center(
-                              child: Icon(Icons.image, size: 50, color: Colors.grey),
+                              child: Icon(Icons.image,
+                                  size: 50, color: Colors.grey),
                             ),
                           ),
                   ),
@@ -494,6 +497,13 @@ class _CategoryPageState extends State<CategoryPage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _scrollableState(Widget child) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [SizedBox(height: 320, child: Center(child: child))],
     );
   }
 }

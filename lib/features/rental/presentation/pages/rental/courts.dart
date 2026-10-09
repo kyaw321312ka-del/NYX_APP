@@ -81,20 +81,25 @@ class _CourtsState extends State<Courts> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    
+
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _header(screenWidth, screenHeight),
-              SizedBox(height: screenHeight * 0.01),
-              _courtHeader(screenWidth, screenHeight),
-              SizedBox(height: screenHeight * 0.015),
-              _buildCourtList(screenWidth, screenHeight),
-              SizedBox(height: screenHeight * 0.02),
-            ],
+        child: RefreshIndicator(
+          onRefresh: _loadCourts,
+          color: const Color.fromARGB(255, 13, 27, 42),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _header(screenWidth, screenHeight),
+                SizedBox(height: screenHeight * 0.01),
+                _courtHeader(screenWidth, screenHeight),
+                SizedBox(height: screenHeight * 0.015),
+                _buildCourtList(screenWidth, screenHeight),
+                SizedBox(height: screenHeight * 0.02),
+              ],
+            ),
           ),
         ),
       ),
@@ -143,7 +148,7 @@ class _CourtsState extends State<Courts> {
     return Container(
       color: const Color.fromARGB(255, 13, 27, 42),
       padding: EdgeInsets.symmetric(
-        horizontal: screenWidth * 0.02, 
+        horizontal: screenWidth * 0.02,
         vertical: screenHeight * 0.01,
       ),
       child: Row(
@@ -153,9 +158,9 @@ class _CourtsState extends State<Courts> {
           IconButton(
             onPressed: () {
               Navigator.pop(context);
-            }, 
+            },
             icon: Icon(
-              Icons.arrow_back_ios_new_rounded, 
+              Icons.arrow_back_ios_new_rounded,
               color: Colors.white,
               size: screenWidth * 0.055,
             ),
@@ -226,7 +231,8 @@ class _CourtsState extends State<Courts> {
     print("DEBUG CourtCard: widget.venueId = ${widget.venueId}");
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.025, vertical: screenHeight * 0.01),
+      margin: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.025, vertical: screenHeight * 0.01),
       decoration: BoxDecoration(
         color: const Color.fromARGB(255, 13, 27, 42),
         borderRadius: BorderRadius.circular(15),
@@ -270,7 +276,7 @@ class _CourtsState extends State<Courts> {
                     ),
                   ),
           ),
-          
+
           // Court Info
           Padding(
             padding: EdgeInsets.all(screenWidth * 0.04),
@@ -288,11 +294,12 @@ class _CourtsState extends State<Courts> {
                   ),
                 ),
                 SizedBox(height: screenHeight * 0.01),
-                
+
                 // Operating Hours
                 Row(
                   children: [
-                    Icon(Icons.access_time, color: Colors.white70, size: screenWidth * 0.04),
+                    Icon(Icons.access_time,
+                        color: Colors.white70, size: screenWidth * 0.04),
                     SizedBox(width: screenWidth * 0.02),
                     Text(
                       "$openTime - $closeTime",
@@ -305,11 +312,12 @@ class _CourtsState extends State<Courts> {
                   ],
                 ),
                 SizedBox(height: screenHeight * 0.008),
-                
+
                 // Price
                 Row(
                   children: [
-                    Icon(Icons.attach_money, color: Colors.red, size: screenWidth * 0.04),
+                    Icon(Icons.attach_money,
+                        color: Colors.red, size: screenWidth * 0.04),
                     SizedBox(width: screenWidth * 0.02),
                     Text(
                       "${court.hourlyPrice.toString()} Ks / hour",
@@ -323,7 +331,7 @@ class _CourtsState extends State<Courts> {
                   ],
                 ),
                 SizedBox(height: screenHeight * 0.015),
-                
+
                 // Buttons
                 Row(
                   children: [
@@ -333,8 +341,9 @@ class _CourtsState extends State<Courts> {
                         onTap: () {
                           // Ensure venueId is not null
                           int venueIdToPass = widget.venueId;
-                          print("DEBUG: Passing venueId = $venueIdToPass to CourtDetails");
-                          
+                          print(
+                              "DEBUG: Passing venueId = $venueIdToPass to CourtDetails");
+
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -370,7 +379,8 @@ class _CourtsState extends State<Courts> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          _showCourtDetailsDialog(context, court, screenWidth, screenHeight);
+                          _showCourtDetailsDialog(
+                              context, court, screenWidth, screenHeight);
                         },
                         child: Container(
                           height: screenHeight * 0.045,
@@ -402,10 +412,11 @@ class _CourtsState extends State<Courts> {
     );
   }
 
-  void _showCourtDetailsDialog(BuildContext context, Court court, double screenWidth, double screenHeight) {
+  void _showCourtDetailsDialog(BuildContext context, Court court,
+      double screenWidth, double screenHeight) {
     String openTime = _formatTime(court.openAt);
     String closeTime = _formatTime(court.closeAt);
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -429,11 +440,13 @@ class _CourtsState extends State<Courts> {
               ),
               const SizedBox(height: 5),
               Text(
-                court.aboutCourt.isNotEmpty ? court.aboutCourt : "No description available",
+                court.aboutCourt.isNotEmpty
+                    ? court.aboutCourt
+                    : "No description available",
                 style: TextStyle(fontSize: screenWidth * 0.035),
               ),
               const SizedBox(height: 15),
-              
+
               // Price
               Row(
                 children: [
@@ -446,7 +459,7 @@ class _CourtsState extends State<Courts> {
                 ],
               ),
               const SizedBox(height: 10),
-              
+
               // Operating Hours
               Row(
                 children: [
@@ -456,7 +469,7 @@ class _CourtsState extends State<Courts> {
                 ],
               ),
               const SizedBox(height: 15),
-              
+
               // Pros
               if (court.pros != null && court.pros!.isNotEmpty) ...[
                 Text(
@@ -469,12 +482,12 @@ class _CourtsState extends State<Courts> {
                 ),
                 const SizedBox(height: 5),
                 ...court.pros!.map((p) => Padding(
-                  padding: const EdgeInsets.only(left: 8, bottom: 4),
-                  child: Text("✓ ${p.name}"),
-                )),
+                      padding: const EdgeInsets.only(left: 8, bottom: 4),
+                      child: Text("✓ ${p.name}"),
+                    )),
                 const SizedBox(height: 10),
               ],
-              
+
               // Cons
               if (court.cons != null && court.cons!.isNotEmpty) ...[
                 Text(
@@ -487,12 +500,12 @@ class _CourtsState extends State<Courts> {
                 ),
                 const SizedBox(height: 5),
                 ...court.cons!.map((c) => Padding(
-                  padding: const EdgeInsets.only(left: 8, bottom: 4),
-                  child: Text("✗ ${c.name}"),
-                )),
+                      padding: const EdgeInsets.only(left: 8, bottom: 4),
+                      child: Text("✗ ${c.name}"),
+                    )),
                 const SizedBox(height: 10),
               ],
-              
+
               // Rules
               if (court.rules != null && court.rules!.isNotEmpty) ...[
                 Text(
@@ -505,12 +518,12 @@ class _CourtsState extends State<Courts> {
                 ),
                 const SizedBox(height: 5),
                 ...court.rules!.map((r) => Padding(
-                  padding: const EdgeInsets.only(left: 8, bottom: 4),
-                  child: Text("• ${r.name}: ${r.detail}"),
-                )),
+                      padding: const EdgeInsets.only(left: 8, bottom: 4),
+                      child: Text("• ${r.name}: ${r.detail}"),
+                    )),
                 const SizedBox(height: 10),
               ],
-              
+
               // Services
               if (court.services != null && court.services!.isNotEmpty) ...[
                 Text(
@@ -523,9 +536,9 @@ class _CourtsState extends State<Courts> {
                 ),
                 const SizedBox(height: 5),
                 ...court.services!.map((s) => Padding(
-                  padding: const EdgeInsets.only(left: 8, bottom: 4),
-                  child: Text("• ${s.name}"),
-                )),
+                      padding: const EdgeInsets.only(left: 8, bottom: 4),
+                      child: Text("• ${s.name}"),
+                    )),
               ],
             ],
           ),

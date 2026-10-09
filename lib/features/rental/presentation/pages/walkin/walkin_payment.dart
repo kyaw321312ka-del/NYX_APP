@@ -154,8 +154,12 @@ class _WalkinPaymentState extends State<WalkinPayment> {
         setState(() {
           _paymentMethods = result['data'];
           _isLoadingPayments = false;
-          if (_paymentMethods.isNotEmpty) {
-            selectedPaymentId = _paymentMethods[0].id.toString();
+          if (!_paymentMethods.any(
+            (method) => method.id.toString() == selectedPaymentId,
+          )) {
+            selectedPaymentId = _paymentMethods.isEmpty
+                ? null
+                : _paymentMethods[0].id.toString();
           }
         });
       } else {
@@ -352,11 +356,14 @@ class _WalkinPaymentState extends State<WalkinPayment> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _header(),
+        child: RefreshIndicator(
+          onRefresh: _loadPaymentMethods,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _header(),
               const SizedBox(height: 5),
               _section("Information"),
               const SizedBox(height: 5),
@@ -395,7 +402,8 @@ class _WalkinPaymentState extends State<WalkinPayment> {
               const SizedBox(height: 20),
               _confirm(),
               const SizedBox(height: 30),
-            ],
+              ],
+            ),
           ),
         ),
       ),

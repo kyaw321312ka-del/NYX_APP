@@ -31,40 +31,45 @@ class _tournamentHomeState extends State<tournamentHome> {
 
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            spacing: 5,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Container(
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Color.fromARGB(255, 13, 27, 42),
-                ),
-                child: Row(
-                  spacing: 10,
-                  children: [
-                    const BackButton(color: Colors.white),
-                    FaIcon(
-                      FontAwesomeIcons.trophy,
-                      color: Colors.amber,
-                      size: 28,
-                    ),
-                    Text(
-                      "Tournament",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+        child: RefreshIndicator(
+          onRefresh: () => context.read<TournamentBannerController>().load(),
+          color: Colors.amber,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              spacing: 5,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: Color.fromARGB(255, 13, 27, 42),
+                  ),
+                  child: Row(
+                    spacing: 10,
+                    children: [
+                      const BackButton(color: Colors.white),
+                      FaIcon(
+                        FontAwesomeIcons.trophy,
+                        color: Colors.amber,
+                        size: 28,
                       ),
-                    ),
-                  ],
+                      Text(
+                        "Tournament",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              _buildBannerSection(bannerController),
-              _tornamentCard("Badminton Solo Tournament"),
-              _tornamentCard("Badminton Team Tournament"),
-            ],
+                _buildBannerSection(bannerController),
+                _tornamentCard("Badminton Solo Tournament"),
+                _tornamentCard("Badminton Team Tournament"),
+              ],
+            ),
           ),
         ),
       ),

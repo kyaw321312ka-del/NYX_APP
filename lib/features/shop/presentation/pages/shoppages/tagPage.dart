@@ -24,13 +24,13 @@ class TagPage extends StatefulWidget {
 class _TagPageState extends State<TagPage> {
   List<Product> _allProducts = [];
   List<Product> _filteredProducts = [];
-  
+
   bool _isLoadingProducts = true;
   String? _productsError;
-  
+
   String _searchQuery = "";
   String _selectedSort = "None";
-  
+
   final TextEditingController _controller = TextEditingController();
 
   @override
@@ -47,7 +47,7 @@ class _TagPageState extends State<TagPage> {
 
   Future<void> _loadProducts() async {
     if (!mounted) return;
-    
+
     setState(() {
       _isLoadingProducts = true;
       _productsError = null;
@@ -57,7 +57,7 @@ class _TagPageState extends State<TagPage> {
       final result = await GetallproductApi.getAllProducts();
 
       if (!mounted) return;
-      
+
       if (result['success'] == true) {
         setState(() {
           _allProducts = result['data'] ?? [];
@@ -96,15 +96,14 @@ class _TagPageState extends State<TagPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              title: const Text("Price: Low to High"),
-              onTap: () {
-                setState(() {
-                  _selectedSort = "low";
-                });
-                _applyFilters();
-                Navigator.pop(context);
-              }
-            ),
+                title: const Text("Price: Low to High"),
+                onTap: () {
+                  setState(() {
+                    _selectedSort = "low";
+                  });
+                  _applyFilters();
+                  Navigator.pop(context);
+                }),
             ListTile(
               title: const Text("Price: High to Low"),
               onTap: () {
@@ -133,23 +132,29 @@ class _TagPageState extends State<TagPage> {
 
   void _applyFilters() {
     if (_allProducts.isEmpty) return;
-    
+
     List<Product> results = List.from(_allProducts);
 
     // Filter by tag (if a specific tag is passed)
-    if (widget.tagName != null && widget.tagName!.isNotEmpty && widget.tagName != "All") {
+    if (widget.tagName != null &&
+        widget.tagName!.isNotEmpty &&
+        widget.tagName != "All") {
       results = results.where((product) {
         return product.tags != null && product.tags == widget.tagName;
       }).toList();
-      print('Filtering by tag: ${widget.tagName}, found ${results.length} products');
+      print(
+          'Filtering by tag: ${widget.tagName}, found ${results.length} products');
     }
-    
+
     // Filter by category (if a specific category is passed)
-    else if (widget.categoryName != null && widget.categoryName!.isNotEmpty && widget.categoryName != "All") {
+    else if (widget.categoryName != null &&
+        widget.categoryName!.isNotEmpty &&
+        widget.categoryName != "All") {
       results = results.where((product) {
         return product.category == widget.categoryName;
       }).toList();
-      print('Filtering by category: ${widget.categoryName}, found ${results.length} products');
+      print(
+          'Filtering by category: ${widget.categoryName}, found ${results.length} products');
     }
 
     // Filter by search query
@@ -179,9 +184,13 @@ class _TagPageState extends State<TagPage> {
   Widget build(BuildContext context) {
     // Determine title based on what filter is applied
     String title;
-    if (widget.tagName != null && widget.tagName!.isNotEmpty && widget.tagName != "All") {
+    if (widget.tagName != null &&
+        widget.tagName!.isNotEmpty &&
+        widget.tagName != "All") {
       title = widget.tagName!;
-    } else if (widget.categoryName != null && widget.categoryName!.isNotEmpty && widget.categoryName != "All") {
+    } else if (widget.categoryName != null &&
+        widget.categoryName!.isNotEmpty &&
+        widget.categoryName != "All") {
       title = widget.categoryName!;
     } else {
       title = "Products";
@@ -196,7 +205,13 @@ class _TagPageState extends State<TagPage> {
             _header(title),
             // _searchBar(),
             // _filterInfo(),
-            Expanded(child: _gridCards())
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: _loadProducts,
+                color: const Color(0xFF0D1B2A),
+                child: _gridCards(),
+              ),
+            )
           ],
         ),
       ),
@@ -214,9 +229,9 @@ class _TagPageState extends State<TagPage> {
           IconButton(
             onPressed: () {
               Navigator.pop(context);
-            }, 
+            },
             icon: const Icon(
-              Icons.arrow_back_ios_new_rounded, 
+              Icons.arrow_back_ios_new_rounded,
               color: Colors.white,
             ),
           ),
@@ -224,18 +239,17 @@ class _TagPageState extends State<TagPage> {
             child: Text(
               title,
               style: const TextStyle(
-                fontFamily: "Custom",
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.w600
-              ),
+                  fontFamily: "Custom",
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600),
             ),
           ),
           SizedBox(
             child: IconButton(
-              onPressed: (){}, 
+              onPressed: () {},
               icon: const Icon(
-                Icons.message, 
+                Icons.message,
                 color: Colors.white,
               ),
             ),
@@ -305,8 +319,10 @@ class _TagPageState extends State<TagPage> {
                 value: _selectedSort,
                 items: const [
                   DropdownMenuItem(value: "None", child: Text("None")),
-                  DropdownMenuItem(value: "low", child: Text("Price: Low to High")),
-                  DropdownMenuItem(value: "high", child: Text("Price: High to Low")),
+                  DropdownMenuItem(
+                      value: "low", child: Text("Price: Low to High")),
+                  DropdownMenuItem(
+                      value: "high", child: Text("Price: High to Low")),
                   DropdownMenuItem(value: "az", child: Text("Name: A-Z")),
                 ],
                 onChanged: (value) {
@@ -326,12 +342,12 @@ class _TagPageState extends State<TagPage> {
 
   Widget _gridCards() {
     if (_isLoadingProducts) {
-      return const Center(child: CircularProgressIndicator());
+      return _scrollableState(const CircularProgressIndicator());
     }
 
     if (_productsError != null) {
-      return Center(
-        child: Text(
+      return _scrollableState(
+        Text(
           _productsError!,
           style: const TextStyle(color: Colors.red),
         ),
@@ -339,8 +355,8 @@ class _TagPageState extends State<TagPage> {
     }
 
     if (_filteredProducts.isEmpty) {
-      return Center(
-        child: Column(
+      return _scrollableState(
+        Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.inventory, size: 80, color: Colors.grey[400]),
@@ -360,6 +376,7 @@ class _TagPageState extends State<TagPage> {
     }
 
     return GridView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(10),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
@@ -411,7 +428,8 @@ class _TagPageState extends State<TagPage> {
                               if (loadingProgress == null) return child;
                               return Center(
                                 child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes != null
+                                  value: loadingProgress.expectedTotalBytes !=
+                                          null
                                       ? loadingProgress.cumulativeBytesLoaded /
                                           loadingProgress.expectedTotalBytes!
                                       : null,
@@ -422,7 +440,8 @@ class _TagPageState extends State<TagPage> {
                               return Container(
                                 color: Colors.grey[200],
                                 child: const Center(
-                                  child: Icon(Icons.image, size: 50, color: Colors.grey),
+                                  child: Icon(Icons.image,
+                                      size: 50, color: Colors.grey),
                                 ),
                               );
                             },
@@ -430,7 +449,8 @@ class _TagPageState extends State<TagPage> {
                         : Container(
                             color: Colors.grey[200],
                             child: const Center(
-                              child: Icon(Icons.image, size: 50, color: Colors.grey),
+                              child: Icon(Icons.image,
+                                  size: 50, color: Colors.grey),
                             ),
                           ),
                   ),
@@ -469,14 +489,16 @@ class _TagPageState extends State<TagPage> {
                       if (product.tags != null && product.tags!.isNotEmpty)
                         Container(
                           margin: const EdgeInsets.only(top: 4),
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: Colors.orange[100],
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
                             product.tags!,
-                            style: const TextStyle(fontSize: 8, color: Colors.orange),
+                            style: const TextStyle(
+                                fontSize: 8, color: Colors.orange),
                           ),
                         ),
                     ],
@@ -487,6 +509,13 @@ class _TagPageState extends State<TagPage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _scrollableState(Widget child) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [SizedBox(height: 320, child: Center(child: child))],
     );
   }
 }

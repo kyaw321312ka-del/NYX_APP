@@ -165,8 +165,8 @@ class _ShopPageState extends State<ShopPage> {
     if (_searchQuery.trim().isNotEmpty) {
       results = results.where((product) {
         return product.productName.toLowerCase().contains(
-          _searchQuery.toLowerCase(),
-        );
+              _searchQuery.toLowerCase(),
+            );
       }).toList();
     }
 
@@ -203,7 +203,13 @@ class _ShopPageState extends State<ShopPage> {
             const SizedBox(height: 5),
             _searchBar(),
             _filterBar(),
-            Expanded(child: _buildContent()),
+            Expanded(
+              child: RefreshIndicator(
+                color: Theme.of(context).colorScheme.primary,
+                onRefresh: _loadProducts,
+                child: _buildContent(),
+              ),
+            ),
           ],
         ),
       ),
@@ -215,8 +221,8 @@ class _ShopPageState extends State<ShopPage> {
     final colorScheme = theme.colorScheme;
 
     if (_isLoading) {
-      return Center(
-        child: Column(
+      return _scrollableState(
+        Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircularProgressIndicator(color: colorScheme.primary),
@@ -228,15 +234,14 @@ class _ShopPageState extends State<ShopPage> {
     }
 
     if (_errorMessage != null) {
-      return AppErrorView(
-        message: _errorMessage!,
-        onRetry: _loadProducts,
+      return _scrollableState(
+        AppErrorView(message: _errorMessage!, onRetry: _loadProducts),
       );
     }
 
     if (_filteredProducts.isEmpty) {
-      return Center(
-        child: Column(
+      return _scrollableState(
+        Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
@@ -258,161 +263,160 @@ class _ShopPageState extends State<ShopPage> {
       );
     }
 
-    return RefreshIndicator(
-      color: colorScheme.primary,
-      onRefresh: _loadProducts,
-      child: GridView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: 0.70,
-        ),
-        itemCount: _filteredProducts.length,
-        itemBuilder: (context, index) {
-          final product = _filteredProducts[index];
-          final hasDiscount = product.cost > product.price && product.cost > 0;
-
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ProductDetails(product: product),
-                ),
-              );
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                color: colorScheme.surface,
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
-                    blurRadius: 6,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  /// IMAGE
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(14),
-                      ),
-                      child: product.images.isNotEmpty
-                          ? Image.network(
-                              product.images,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                              loadingBuilder:
-                                  (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-
-                                    return Center(
-                                      child: CircularProgressIndicator(
-                                        value:
-                                            loadingProgress
-                                                    .expectedTotalBytes !=
-                                                null
-                                            ? loadingProgress
-                                                      .cumulativeBytesLoaded /
-                                                  loadingProgress
-                                                      .expectedTotalBytes!
-                                            : null,
-                                      ),
-                                    );
-                                  },
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  color: colorScheme.surfaceContainerHighest,
-                                  child: Icon(
-                                    Icons.image_outlined,
-                                    size: 50,
-                                    color: colorScheme.onSurfaceVariant,
-                                  ),
-                                );
-                              },
-                            )
-                          : Container(
-                              color: colorScheme.surfaceContainerHighest,
-                              child: Icon(
-                                Icons.image_outlined,
-                                size: 50,
-                                color: colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                    ),
-                  ),
-
-                  /// INFO
-                  Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          product.productName,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-
-                        const SizedBox(height: 4),
-
-                        Text(
-                          product.brand,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-
-                        const SizedBox(height: 6),
-
-                        /// PRICE
-                        Text(
-                          "${product.price} Ks",
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.primary,
-                          ),
-                        ),
-
-                        /// DISCOUNT
-                        if (hasDiscount)
-                          Container(
-                            margin: const EdgeInsets.only(top: 6),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 3,
-                            ),
-                            // decoration: BoxDecoration(
-                            //   color: colorScheme.error,
-                            //   borderRadius: BorderRadius.circular(6),
-                            // ),
-                            child: Text(
-                              "${(product.cost - product.price)} Ks",
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                decoration: TextDecoration.lineThrough,
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
+    return GridView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        childAspectRatio: 0.70,
       ),
+      itemCount: _filteredProducts.length,
+      itemBuilder: (context, index) {
+        final product = _filteredProducts[index];
+        final hasDiscount = product.cost > product.price && product.cost > 0;
+
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ProductDetails(product: product),
+              ),
+            );
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: colorScheme.surface,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// IMAGE
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(14),
+                    ),
+                    child: product.images.isNotEmpty
+                        ? Image.network(
+                            product.images,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  value: loadingProgress.expectedTotalBytes !=
+                                          null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                      : null,
+                                ),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                color: colorScheme.surfaceContainerHighest,
+                                child: Icon(
+                                  Icons.image_outlined,
+                                  size: 50,
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              );
+                            },
+                          )
+                        : Container(
+                            color: colorScheme.surfaceContainerHighest,
+                            child: Icon(
+                              Icons.image_outlined,
+                              size: 50,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                  ),
+                ),
+
+                /// INFO
+                Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        product.productName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+
+                      const SizedBox(height: 4),
+
+                      Text(
+                        product.brand,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+
+                      const SizedBox(height: 6),
+
+                      /// PRICE
+                      Text(
+                        "${product.price} Ks",
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.primary,
+                        ),
+                      ),
+
+                      /// DISCOUNT
+                      if (hasDiscount)
+                        Container(
+                          margin: const EdgeInsets.only(top: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 3,
+                          ),
+                          // decoration: BoxDecoration(
+                          //   color: colorScheme.error,
+                          //   borderRadius: BorderRadius.circular(6),
+                          // ),
+                          child: Text(
+                            "${(product.cost - product.price)} Ks",
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              decoration: TextDecoration.lineThrough,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _scrollableState(Widget child) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [SizedBox(height: 320, child: Center(child: child))],
     );
   }
 

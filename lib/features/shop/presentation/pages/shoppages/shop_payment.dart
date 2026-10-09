@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nyxproject/core/utils/app_constants.dart';
+import 'package:nyxproject/features/orders/data/datasources/OrderApi.dart';
 import 'package:nyxproject/features/orders/data/datasources/PaymentApi.dart';
 import 'package:nyxproject/features/shop/data/datasources/TaxApi.dart'; // Add this import
 import 'package:nyxproject/features/orders/domain/entities/Payment.dart';
@@ -107,6 +108,10 @@ class _PaymentState extends State<Payment> {
       });
       print("Error: $e");
     }
+  }
+
+  Future<void> _refreshPaymentData() async {
+    await Future.wait([_fetchPaymentMethods(), _fetchTax()]);
   }
 
   // Calculate tax amount
@@ -216,11 +221,14 @@ class _PaymentState extends State<Payment> {
 
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _header(),
+        child: RefreshIndicator(
+          onRefresh: _refreshPaymentData,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _header(),
               const SizedBox(height: 5),
               _section("Contact Information"),
               const SizedBox(height: 5),
@@ -258,7 +266,8 @@ class _PaymentState extends State<Payment> {
               const SizedBox(height: 20),
               _confirm(),
               const SizedBox(height: 30),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -743,11 +752,13 @@ class _PaymentState extends State<Payment> {
 
       final Uri uri = Uri.parse("${Constant.API_URL}/cart/order");
       final request = http.MultipartRequest('POST', uri);
+      final idempotencyKey = OrderApi.generateIdempotencyKey(userId: userId);
 
       if (token != null && token.isNotEmpty) {
         request.headers['Authorization'] = 'Bearer $token';
       }
       request.headers['Accept'] = 'application/json';
+      request.headers['Idempotency-Key'] = idempotencyKey;
 
       request.fields['user_id'] = userId.toString();
       request.fields['customer_name'] = contactInfo['name'] ?? '';

@@ -28,7 +28,7 @@ class _classesPaymentState extends State<classesPayment> {
   String? _paymentsError;
   final ImagePicker _picker = ImagePicker();
 
-  List<PaymentMethod> _paymentMethods = [];  // Changed to List<PaymentMethod>
+  List<PaymentMethod> _paymentMethods = []; // Changed to List<PaymentMethod>
 
   // Enrollment data
   String fullname = "";
@@ -53,7 +53,7 @@ class _classesPaymentState extends State<classesPayment> {
 
   void _loadEnrollmentData() {
     final data = widget.enrollmentData ?? {};
-    
+
     setState(() {
       fullname = data['fullname'] ?? "N/A";
       gender = data['gender'] ?? "N/A";
@@ -88,17 +88,22 @@ class _classesPaymentState extends State<classesPayment> {
       if (result['success']) {
         // result['data'] is already List<PaymentMethod>
         final List<PaymentMethod> methods = result['data'];
-        
+
         setState(() {
           _paymentMethods = methods;
           _isLoadingPayments = false;
-          if (_paymentMethods.isNotEmpty) {
-            selectedPaymentId = _paymentMethods[0].id.toString();
+          if (!_paymentMethods.any(
+            (method) => method.id.toString() == selectedPaymentId,
+          )) {
+            selectedPaymentId = _paymentMethods.isEmpty
+                ? null
+                : _paymentMethods[0].id.toString();
           }
         });
       } else {
         setState(() {
-          _paymentsError = result['message'] ?? 'Failed to load payment methods';
+          _paymentsError =
+              result['message'] ?? 'Failed to load payment methods';
           _isLoadingPayments = false;
         });
       }
@@ -231,16 +236,24 @@ class _classesPaymentState extends State<classesPayment> {
       );
       final token = sessionService.getToken();
 
-      final Uri uri = Uri.parse("${Constant.API_URL}/training/addstudenttraining");
+      final Uri uri = Uri.parse(
+        "${Constant.API_URL}/training/addstudenttraining",
+      );
       // Validate training IDs before sending
-      if ((trainingProgramId == null || trainingProgramId == 0) || (trainingLevelId == null || trainingLevelId == 0)) {
+      if ((trainingProgramId == null || trainingProgramId == 0) ||
+          (trainingLevelId == null || trainingLevelId == 0)) {
         setState(() {
           _isProcessing = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid training program or level selected'), backgroundColor: Colors.red),
+          const SnackBar(
+            content: Text('Invalid training program or level selected'),
+            backgroundColor: Colors.red,
+          ),
         );
-        print('Enrollment aborted: trainingProgramId=$trainingProgramId, trainingLevelId=$trainingLevelId');
+        print(
+          'Enrollment aborted: trainingProgramId=$trainingProgramId, trainingLevelId=$trainingLevelId',
+        );
         return;
       }
       final request = http.MultipartRequest('POST', uri);
@@ -281,7 +294,7 @@ class _classesPaymentState extends State<classesPayment> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
-        
+
         if (mounted) {
           Navigator.pushReplacement(
             context,
@@ -299,9 +312,10 @@ class _classesPaymentState extends State<classesPayment> {
         String errorMessage = 'Failed to submit enrollment';
         try {
           final errorData = jsonDecode(response.body);
-          errorMessage = errorData['message'] ?? errorData['error'] ?? errorMessage;
+          errorMessage =
+              errorData['message'] ?? errorData['error'] ?? errorMessage;
         } catch (e) {}
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
         );
@@ -323,47 +337,51 @@ class _classesPaymentState extends State<classesPayment> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _header(),
-              const SizedBox(height: 5),
-              _section("Registration Information"),
-              const SizedBox(height: 5),
-              _information("Name", fullname),
-              const SizedBox(height: 1),
-              _information("Gender", gender),
-              const SizedBox(height: 1),
-              _information("Age", age),
-              const SizedBox(height: 1),
-              _information("Address", address),
-              const SizedBox(height: 1),
-              _information("Phone Number", phone),
-              const SizedBox(height: 1),
-              _information("Email", email),
-              const SizedBox(height: 1),
-              _information("Training Program", trainingTitle),
-              const SizedBox(height: 1),
-              _information("Training Level", trainingLevel),
-              const SizedBox(height: 1),
-              _information("Training Schedule", trainingSchedule),
-              const SizedBox(height: 1),
-              _information("Price", "$price Ks/month"),
-              const SizedBox(height: 10),
-              _section("Select Payment Method"),
-              const SizedBox(height: 5),
-              _paymentMethod(),
-              const SizedBox(height: 5),
-              _paymentInfo(),
-              // const SizedBox(height: 10),
-              // _input("Enter transaction number"),
-              const SizedBox(height: 10),
-              _imageUploadSection(),
-              const SizedBox(height: 20),
-              _confirm(),
-              const SizedBox(height: 30),
-            ],
+        child: RefreshIndicator(
+          onRefresh: _loadPaymentMethods,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _header(),
+                const SizedBox(height: 5),
+                _section("Registration Information"),
+                const SizedBox(height: 5),
+                _information("Name", fullname),
+                const SizedBox(height: 1),
+                _information("Gender", gender),
+                const SizedBox(height: 1),
+                _information("Age", age),
+                const SizedBox(height: 1),
+                _information("Address", address),
+                const SizedBox(height: 1),
+                _information("Phone Number", phone),
+                const SizedBox(height: 1),
+                _information("Email", email),
+                const SizedBox(height: 1),
+                _information("Training Program", trainingTitle),
+                const SizedBox(height: 1),
+                _information("Training Level", trainingLevel),
+                const SizedBox(height: 1),
+                _information("Training Schedule", trainingSchedule),
+                const SizedBox(height: 1),
+                _information("Price", "$price Ks/month"),
+                const SizedBox(height: 10),
+                _section("Select Payment Method"),
+                const SizedBox(height: 5),
+                _paymentMethod(),
+                const SizedBox(height: 5),
+                _paymentInfo(),
+                // const SizedBox(height: 10),
+                // _input("Enter transaction number"),
+                const SizedBox(height: 10),
+                _imageUploadSection(),
+                const SizedBox(height: 20),
+                _confirm(),
+                const SizedBox(height: 30),
+              ],
+            ),
           ),
         ),
       ),
@@ -550,10 +568,7 @@ class _classesPaymentState extends State<classesPayment> {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              Text(
-                _paymentsError!,
-                style: const TextStyle(color: Colors.red),
-              ),
+              Text(_paymentsError!, style: const TextStyle(color: Colors.red)),
               const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: _loadPaymentMethods,
@@ -615,7 +630,7 @@ class _classesPaymentState extends State<classesPayment> {
 
   Widget _paymentInfo() {
     final method = selectedPaymentMethod;
-    
+
     if (method == null) {
       return const SizedBox.shrink();
     }
@@ -708,9 +723,7 @@ class _classesPaymentState extends State<classesPayment> {
             hintText: text,
             filled: true,
             fillColor: const Color.fromARGB(255, 13, 27, 42),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
           ),
         ),
       ),

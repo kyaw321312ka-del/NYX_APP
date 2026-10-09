@@ -5,6 +5,15 @@ import 'package:http/http.dart' as http;
 import 'package:nyxproject/core/utils/app_constants.dart';
 
 class OrderApi {
+  static String generateIdempotencyKey({
+    required int userId,
+    String prefix = 'cart-order',
+  }) {
+    final utcNow = DateTime.now().toUtc();
+    final randomPart = utcNow.microsecondsSinceEpoch.toRadixString(36);
+    return '$prefix-${utcNow.toIso8601String()}-$userId-$randomPart';
+  }
+
   // Place order
   static Future<Map<String, dynamic>> placeOrder({
     required int userId,
@@ -20,6 +29,7 @@ class OrderApi {
     File? transactionImage,
     String? transactionNumber,
     String? token,
+    String? idempotencyKey,
   }) async {
     final Uri uri = Uri.parse("${Constant.API_URL}/cart/order");
 
@@ -29,6 +39,10 @@ class OrderApi {
       request.headers['Authorization'] = 'Bearer $token';
     }
     request.headers['Accept'] = 'application/json';
+    request.headers['Idempotency-Key'] =
+        (idempotencyKey != null && idempotencyKey.isNotEmpty)
+            ? idempotencyKey
+            : generateIdempotencyKey(userId: userId);
 
     request.fields['user_id'] = userId.toString();
     request.fields['customer_name'] = customerName;

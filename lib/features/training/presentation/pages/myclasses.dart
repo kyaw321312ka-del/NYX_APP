@@ -26,7 +26,7 @@ class _ClassesState extends State<Classes> {
 
   Future<void> _loadEnrollments() async {
     if (!mounted) return;
-    
+
     setState(() {
       _isLoading = true;
       _error = null;
@@ -47,7 +47,8 @@ class _ClassesState extends State<Classes> {
         return;
       }
 
-      final result = await StudentEnrollmentApi.getStudentEnrollments(token: token);
+      final result =
+          await StudentEnrollmentApi.getStudentEnrollments(token: token);
 
       if (!mounted) return;
 
@@ -100,11 +101,19 @@ class _ClassesState extends State<Classes> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(20),
-          child: CircularProgressIndicator(),
-        ),
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          SizedBox(
+            height: MediaQuery.sizeOf(context).height * 0.55,
+            child: const Center(
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          ),
+        ],
       );
     }
 
@@ -124,30 +133,46 @@ class _ClassesState extends State<Classes> {
     }
 
     if (_enrollments.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.school_outlined, size: 80, color: Colors.grey.shade400),
-              const SizedBox(height: 16),
-              const Text(
-                "No classes found",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          SizedBox(
+            height: MediaQuery.sizeOf(context).height * 0.55,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.school_outlined,
+                      size: 80,
+                      color: Colors.grey.shade400,
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      "No classes found",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "Your enrolled classes will appear here",
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                "Your enrolled classes will appear here",
-                style: TextStyle(color: Colors.grey.shade600),
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       );
     }
 
     return ListView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(12),
       itemCount: _enrollments.length,
       itemBuilder: (context, index) {
@@ -159,8 +184,10 @@ class _ClassesState extends State<Classes> {
 
   Widget _enrollmentCard(StudentEnrollment enrollment) {
     final student = enrollment.studentInfo;
-    final schedule = enrollment.scheduleData.isNotEmpty ? enrollment.scheduleData.first : null;
-    
+    final schedule = enrollment.scheduleData.isNotEmpty
+        ? enrollment.scheduleData.first
+        : null;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -200,7 +227,8 @@ class _ClassesState extends State<Classes> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.green.shade700,
                     borderRadius: BorderRadius.circular(12),
@@ -307,7 +335,8 @@ class _ClassesState extends State<Classes> {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today, size: 14, color: Colors.grey),
+                      const Icon(Icons.calendar_today,
+                          size: 14, color: Colors.grey),
                       const SizedBox(width: 6),
                       Text(
                         _getDayName(schedule.day),
@@ -318,7 +347,8 @@ class _ClassesState extends State<Classes> {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      const Icon(Icons.access_time, size: 14, color: Colors.grey),
+                      const Icon(Icons.access_time,
+                          size: 14, color: Colors.grey),
                       const SizedBox(width: 6),
                       Text(
                         "${_formatTime(schedule.startTime)} - ${_formatTime(schedule.endTime)}",
@@ -332,7 +362,8 @@ class _ClassesState extends State<Classes> {
                   ),
                   const SizedBox(height: 6),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.red.shade50,
                       borderRadius: BorderRadius.circular(12),
@@ -391,14 +422,22 @@ class _ClassesState extends State<Classes> {
 
   String _getDayName(String day) {
     switch (day.toLowerCase()) {
-      case 'mon': return 'Monday';
-      case 'tue': return 'Tuesday';
-      case 'wed': return 'Wednesday';
-      case 'thu': return 'Thursday';
-      case 'fri': return 'Friday';
-      case 'sat': return 'Saturday';
-      case 'sun': return 'Sunday';
-      default: return day;
+      case 'mon':
+        return 'Monday';
+      case 'tue':
+        return 'Tuesday';
+      case 'wed':
+        return 'Wednesday';
+      case 'thu':
+        return 'Thursday';
+      case 'fri':
+        return 'Friday';
+      case 'sat':
+        return 'Saturday';
+      case 'sun':
+        return 'Sunday';
+      default:
+        return day;
     }
   }
 

@@ -118,31 +118,36 @@ class _ProductDetailsState extends State<ProductDetails> {
           children: [
             _header(cartService),
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 12),
-                    _imageSpace(),
-                    const SizedBox(height: 12),
-                    _priceTag(),
-                    _name(),
-                    const SizedBox(height: 10),
-                    _color(),
-                    const SizedBox(height: 10),
-                    _size(),
-                    const SizedBox(height: 6),
-                    _quantitySelector(),
-                    const SizedBox(height: 12),
-                    _buildTabs(),
-                    const SizedBox(height: 12),
-                    selectedIndex == 0 ? _description() : _specification(),
-                    const SizedBox(height: 8),
-                    _section("Related Products"),
-                    const SizedBox(height: 8),
-                    _relatedProductsGrid(),
-                    const SizedBox(height: 20),
-                  ],
+              child: RefreshIndicator(
+                onRefresh: _loadRelatedProducts,
+                color: _navy,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 12),
+                      _imageSpace(),
+                      const SizedBox(height: 12),
+                      _priceTag(),
+                      _name(),
+                      const SizedBox(height: 10),
+                      _color(),
+                      const SizedBox(height: 10),
+                      _size(),
+                      const SizedBox(height: 6),
+                      _quantitySelector(),
+                      const SizedBox(height: 12),
+                      _buildTabs(),
+                      const SizedBox(height: 12),
+                      selectedIndex == 0 ? _description() : _specification(),
+                      const SizedBox(height: 8),
+                      _section("Related Products"),
+                      const SizedBox(height: 8),
+                      _relatedProductsGrid(),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -278,7 +283,8 @@ class _ProductDetailsState extends State<ProductDetails> {
   }
 
   Widget _priceTag() {
-    bool hasDiscount = widget.product.cost > widget.product.price && widget.product.cost > 0;
+    bool hasDiscount =
+        widget.product.cost > widget.product.price && widget.product.cost > 0;
     int? discountPercent;
     if (hasDiscount) {
       discountPercent = ((widget.product.cost - widget.product.price) /
@@ -427,7 +433,8 @@ class _ProductDetailsState extends State<ProductDetails> {
     );
   }
 
-  Widget _circleAction({required IconData icon, required VoidCallback onPressed}) {
+  Widget _circleAction(
+      {required IconData icon, required VoidCallback onPressed}) {
     return Material(
       color: Colors.white.withOpacity(0.08),
       shape: const CircleBorder(),
@@ -496,9 +503,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                           : RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                               side: BorderSide(
-                                color: isSelected
-                                    ? Colors.white
-                                    : Colors.white24,
+                                color:
+                                    isSelected ? Colors.white : Colors.white24,
                               ),
                             ),
                     ),
@@ -609,7 +615,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                       : null,
                   icon: const Icon(Icons.remove, size: 18),
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                  constraints:
+                      const BoxConstraints(minWidth: 36, minHeight: 36),
                 ),
                 SizedBox(
                   width: 40,
@@ -634,7 +641,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                       : null,
                   icon: const Icon(Icons.add, size: 18),
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                  constraints:
+                      const BoxConstraints(minWidth: 36, minHeight: 36),
                 ),
               ],
             ),
@@ -742,7 +750,8 @@ class _ProductDetailsState extends State<ProductDetails> {
           _specRow("Type", widget.product.types),
           _specDivider(),
           _specRow("Weight", widget.product.weights),
-          if (widget.product.tags != null && widget.product.tags!.isNotEmpty) ...[
+          if (widget.product.tags != null &&
+              widget.product.tags!.isNotEmpty) ...[
             _specDivider(),
             _specRow("Tags", widget.product.tags!),
           ],
@@ -832,7 +841,10 @@ class _ProductDetailsState extends State<ProductDetails> {
           padding: const EdgeInsets.all(20),
           child: Text(
             "No related products found",
-            style: TextStyle(fontFamily: "Custom", fontSize: 14, color: Colors.grey.shade500),
+            style: TextStyle(
+                fontFamily: "Custom",
+                fontSize: 14,
+                color: Colors.grey.shade500),
           ),
         ),
       );
@@ -885,7 +897,8 @@ class _ProductDetailsState extends State<ProductDetails> {
             Expanded(
               flex: 3,
               child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(15)),
                 child: SizedBox(
                   width: double.infinity,
                   child: product.images.isNotEmpty
@@ -1041,7 +1054,8 @@ class _ProductDetailsState extends State<ProductDetails> {
   }
 
   void _addToCart(CartService cartService) {
-    if (!_isInStock || (_availableStock != null && _quantity > _remainingStock)) {
+    if (!_isInStock ||
+        (_availableStock != null && _quantity > _remainingStock)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('This quantity exceeds the available stock.'),

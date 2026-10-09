@@ -54,12 +54,15 @@ class _ContactUsState extends State<ContactUs> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _header(),
-              const SizedBox(height: 10),
+        child: RefreshIndicator(
+          onRefresh: _fetchContactInfo,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _header(),
+                const SizedBox(height: 10),
               
               if (_isLoading)
                 const Center(
@@ -130,7 +133,8 @@ class _ContactUsState extends State<ContactUs> {
                     ),
                   ],
                 ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

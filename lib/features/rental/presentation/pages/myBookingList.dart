@@ -55,14 +55,15 @@ class _myBookingListState extends State<myBookingList> {
 
   Future<void> _fetchBookings() async {
     if (!mounted) return;
-    
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     try {
-      final sessionService = Provider.of<SessionService>(context, listen: false);
+      final sessionService =
+          Provider.of<SessionService>(context, listen: false);
       final token = sessionService.getToken();
 
       if (token == null) {
@@ -143,7 +144,12 @@ class _myBookingListState extends State<myBookingList> {
             const SizedBox(height: 10),
             _filterBar(),
             const SizedBox(height: 10),
-            Expanded(child: _buildContent()),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: _fetchBookings,
+                child: _buildContent(),
+              ),
+            ),
           ],
         ),
       ),
@@ -152,46 +158,50 @@ class _myBookingListState extends State<myBookingList> {
 
   Widget _buildContent() {
     if (_isLoading) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Loading bookings...'),
-          ],
+      return _scrollableState(
+        const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Loading bookings...'),
+            ],
+          ),
         ),
       );
     }
 
     if (_errorMessage != null) {
-      return AppErrorView(
-        message: _errorMessage!,
-        onRetry: _fetchBookings,
+      return _scrollableState(
+        AppErrorView(message: _errorMessage!, onRetry: _fetchBookings),
       );
     }
 
     if (_filteredBookings.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.inbox_outlined, size: 64, color: Colors.grey),
-            const SizedBox(height: 16),
-            Text(_selectedStatus == "All" 
-                ? 'No bookings found' 
-                : 'No $_selectedStatus bookings found'),
-            const SizedBox(height: 8),
-            const Text(
-              'Your booking history will appear here',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-          ],
+      return _scrollableState(
+        Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.inbox_outlined, size: 64, color: Colors.grey),
+              const SizedBox(height: 16),
+              Text(_selectedStatus == "All"
+                  ? 'No bookings found'
+                  : 'No $_selectedStatus bookings found'),
+              const SizedBox(height: 8),
+              const Text(
+                'Your booking history will appear here',
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ],
+          ),
         ),
       );
     }
 
     return ListView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       itemCount: _filteredBookings.length,
       itemBuilder: (context, index) {
@@ -202,7 +212,7 @@ class _myBookingListState extends State<myBookingList> {
         final itemCount = booking.items.length;
         // Status can be added later to the model
         final status = "Completed";
-        
+
         return _bookingCard(
           bookingId: bookingId,
           date: date,
@@ -212,6 +222,13 @@ class _myBookingListState extends State<myBookingList> {
           onTap: () => _navigateToBookingDetails(booking),
         );
       },
+    );
+  }
+
+  Widget _scrollableState(Widget child) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [SizedBox(height: 320, child: Center(child: child))],
     );
   }
 
@@ -227,7 +244,8 @@ class _myBookingListState extends State<myBookingList> {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: Colors.white),
           ),
           const Expanded(
             child: Text(
@@ -353,7 +371,8 @@ class _myBookingListState extends State<myBookingList> {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: statusColor.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(12),
@@ -373,7 +392,8 @@ class _myBookingListState extends State<myBookingList> {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today, size: 12, color: Colors.grey),
+                      const Icon(Icons.calendar_today,
+                          size: 12, color: Colors.grey),
                       const SizedBox(width: 4),
                       Text(
                         date,
@@ -435,18 +455,20 @@ class _myBookingListState extends State<myBookingList> {
               _detailRow("Payment Method", booking.paymentMethod),
               _detailRow("Customer", booking.customer),
               const Divider(),
-              const Text("Rental Items", style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text("Rental Items",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               ...booking.items.map((item) => Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("${item.equipment ?? 'Item'} x ${item.quantity ?? 0}"),
-                    Text("${(item.total ?? 0).toString()} Ks"),
-                  ],
-                ),
-              )),
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                            "${item.equipment ?? 'Item'} x ${item.quantity ?? 0}"),
+                        Text("${(item.total ?? 0).toString()} Ks"),
+                      ],
+                    ),
+                  )),
               const Divider(),
               _detailRow("Court Fee", "${booking.courtFee} Ks"),
               _detailRow("Total", "${booking.total} Ks", isBold: true),

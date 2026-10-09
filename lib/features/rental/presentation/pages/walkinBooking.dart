@@ -33,53 +33,73 @@ class _WalkinbookingState extends State<Walkinbooking> {
     return List<WalkinBookingList>.from(response['data'] as List);
   }
 
-  void _reload() {
+  Future<void> _reload() async {
+    final bookingsFuture = _fetchBookings();
     setState(() {
-      _bookingsFuture = _fetchBookings();
+      _bookingsFuture = bookingsFuture;
     });
+    try {
+      await bookingsFuture;
+    } catch (_) {
+      // FutureBuilder displays the failure state; refresh should still finish.
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Walk-in Booking List')),
-      body: FutureBuilder<List<WalkinBookingList>>(
-        future: _bookingsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return _MessageState(
-              icon: Icons.error_outline,
-              message: snapshot.error.toString().replaceFirst(
-                'Exception: ',
-                '',
-              ),
-              action: _reload,
-            );
-          }
+      body: RefreshIndicator(
+        onRefresh: _reload,
+        child: FutureBuilder<List<WalkinBookingList>>(
+          future: _bookingsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return _scrollableMessage(
+                const Center(child: CircularProgressIndicator()),
+              );
+            }
+            if (snapshot.hasError) {
+              return _scrollableMessage(
+                _MessageState(
+                  icon: Icons.error_outline,
+                  message: snapshot.error.toString().replaceFirst(
+                        'Exception: ',
+                        '',
+                      ),
+                  action: _reload,
+                ),
+              );
+            }
 
-          final bookings = snapshot.data ?? const <WalkinBookingList>[];
-          if (bookings.isEmpty) {
-            return const _MessageState(
-              icon: Icons.event_busy_outlined,
-              message: 'No walk-in bookings found',
-            );
-          }
+            final bookings = snapshot.data ?? const <WalkinBookingList>[];
+            if (bookings.isEmpty) {
+              return _scrollableMessage(
+                const _MessageState(
+                  icon: Icons.event_busy_outlined,
+                  message: 'No walk-in bookings found',
+                ),
+              );
+            }
 
-          return RefreshIndicator(
-            onRefresh: () async => _reload(),
-            child: ListView.separated(
+            return ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16),
               itemCount: bookings.length,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) =>
                   _BookingCard(booking: bookings[index]),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
+    );
+  }
+
+  Widget _scrollableMessage(Widget child) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [SizedBox(height: 320, child: child)],
     );
   }
 }

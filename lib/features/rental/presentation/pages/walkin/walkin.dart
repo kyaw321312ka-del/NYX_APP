@@ -4,7 +4,7 @@ import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/rental/data/datasources/RentelApi/WalkInCourtApi.dart';
 import 'package:nyxproject/features/rental/domain/entities/WalkInCourt.dart';
 import 'package:nyxproject/features/rental/presentation/pages/walkin/walkinCourt.dart'
-  as walkin_details;
+    as walkin_details;
 
 class WalkInScreen extends StatefulWidget {
   const WalkInScreen({super.key});
@@ -60,8 +60,12 @@ class _WalkInScreenState extends State<WalkInScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
+    return RefreshIndicator(
+      onRefresh: _loadCourts,
+      color: const Color.fromARGB(255, 13, 27, 42),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 10),
@@ -94,6 +98,7 @@ class _WalkInScreenState extends State<WalkInScreen> {
             const SizedBox(height: 10),
           ],
         ),
+      ),
     );
   }
 
@@ -147,10 +152,7 @@ class _WalkInScreenState extends State<WalkInScreen> {
     }
 
     if (errorMessage != null) {
-      return AppErrorView(
-        message: errorMessage!,
-        onRetry: _loadCourts,
-      );
+      return AppErrorView(message: errorMessage!, onRetry: _loadCourts);
     }
 
     if (courts.isEmpty) {
@@ -239,11 +241,7 @@ class _WalkInScreenState extends State<WalkInScreen> {
               right: 0,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(15),
-                child: _buildCourtImage(
-                  court,
-                  screenWidth,
-                  screenHeight,
-                ),
+                child: _buildCourtImage(court, screenWidth, screenHeight),
               ),
             ),
             Positioned(
@@ -317,13 +315,13 @@ class _WalkInScreenState extends State<WalkInScreen> {
 
     return Image.network(
       imageUrl,
-                  fit: BoxFit.cover,
-                  height: screenHeight * 0.25,
-                  width: screenWidth,
-                  errorBuilder: (context, error, stackTrace) {
-                    return _buildImageFallback(screenWidth, screenHeight);
-                  },
-                );
+      fit: BoxFit.cover,
+      height: screenHeight * 0.25,
+      width: screenWidth,
+      errorBuilder: (context, error, stackTrace) {
+        return _buildImageFallback(screenWidth, screenHeight);
+      },
+    );
   }
 
   Widget _buildImageFallback(double screenWidth, double screenHeight) {
@@ -337,11 +335,7 @@ class _WalkInScreenState extends State<WalkInScreen> {
           height: screenHeight * 0.25,
           width: screenWidth,
           color: Colors.grey,
-          child: const Icon(
-            Icons.sports,
-            size: 50,
-            color: Colors.white54,
-          ),
+          child: const Icon(Icons.sports, size: 50, color: Colors.white54),
         );
       },
     );

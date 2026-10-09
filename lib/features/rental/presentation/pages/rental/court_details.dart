@@ -203,6 +203,17 @@ class _CourtDetailsState extends State<CourtDetails> {
     }
   }
 
+  Future<void> _refreshData() async {
+    final refreshTasks = <Future<void>>[];
+    if (widget.selectedCourt != null) {
+      refreshTasks.add(_loadAvailableSlots());
+    }
+    if (widget.selectedCourt == null && widget.selectedVenue == null) {
+      refreshTasks.add(_loadVenues());
+    }
+    await Future.wait(refreshTasks);
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -210,27 +221,32 @@ class _CourtDetailsState extends State<CourtDetails> {
 
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _header(screenWidth, screenHeight),
-              _banner(screenWidth, screenHeight),
-              // _location(screenWidth, screenHeight),
-              SizedBox(height: screenHeight * 0.01),
-              _bookDate(screenWidth, screenHeight),
-              SizedBox(height: screenHeight * 0.01),
-              _timeSchedule(screenWidth, screenHeight),
-              if (widget.selectedCourt == null && widget.selectedVenue == null)
-                _venueSelection(screenWidth, screenHeight),
-              _schedule(screenWidth, screenHeight),
-              SizedBox(height: screenHeight * 0.01),
-              _rentalSection(screenWidth, screenHeight),
-              SizedBox(height: screenHeight * 0.01),
-              _valid(screenWidth, screenHeight),
-              _confirm(screenWidth, screenHeight),
-              SizedBox(height: screenHeight * 0.02),
-            ],
+        child: RefreshIndicator(
+          onRefresh: _refreshData,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _header(screenWidth, screenHeight),
+                _banner(screenWidth, screenHeight),
+                // _location(screenWidth, screenHeight),
+                SizedBox(height: screenHeight * 0.01),
+                _bookDate(screenWidth, screenHeight),
+                SizedBox(height: screenHeight * 0.01),
+                _timeSchedule(screenWidth, screenHeight),
+                if (widget.selectedCourt == null &&
+                    widget.selectedVenue == null)
+                  _venueSelection(screenWidth, screenHeight),
+                _schedule(screenWidth, screenHeight),
+                SizedBox(height: screenHeight * 0.01),
+                _rentalSection(screenWidth, screenHeight),
+                SizedBox(height: screenHeight * 0.01),
+                _valid(screenWidth, screenHeight),
+                _confirm(screenWidth, screenHeight),
+                SizedBox(height: screenHeight * 0.02),
+              ],
+            ),
           ),
         ),
       ),
