@@ -57,14 +57,14 @@ class _SignupPageState extends State<SignupPage> {
       return "Please enter a valid Myanmar phone number (e.g., 09XXXXXXXXX or 959XXXXXXXX)";
     }
     
-    // Check length (Myanmar phone numbers are usually 9-11 digits including 09)
+    // Myanmar mobile numbers may be 9-11 digits including the local 09 prefix.
     if (cleanedNumber.startsWith('09')) {
-      if (cleanedNumber.length != 10 && cleanedNumber.length != 11) {
-        return "Myanmar phone number must be 10-11 digits including '09'";
+      if (cleanedNumber.length < 9 || cleanedNumber.length > 11) {
+        return "Myanmar phone number must be 9-11 digits including '09'";
       }
     } else if (cleanedNumber.startsWith('959')) {
-      if (cleanedNumber.length != 11 && cleanedNumber.length != 12) {
-        return "Myanmar phone number must be 11-12 digits including '959'";
+      if (cleanedNumber.length < 10 || cleanedNumber.length > 12) {
+        return "Myanmar phone number must be 10-12 digits including '959'";
       }
     }
     
@@ -221,7 +221,7 @@ class _SignupPageState extends State<SignupPage> {
                   borderSide: BorderSide.none,
                 ),
                 prefixIcon: const Icon(Icons.phone, color: Colors.white70),
-                helperText: "Example: 0971234567 or 95971234567",
+                helperText: "Example: 092225305, 0971234567, or 95971234567",
                 helperStyle: const TextStyle(color: Colors.grey, fontSize: 12),
               ),
               keyboardType: TextInputType.phone,
