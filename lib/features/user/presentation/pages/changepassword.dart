@@ -15,10 +15,12 @@ class Changepassword extends StatefulWidget {
 }
 
 class _ChangepasswordState extends State<Changepassword> {
-  final TextEditingController currentPasswordController = TextEditingController();
+  final TextEditingController currentPasswordController =
+      TextEditingController();
   final TextEditingController newPasswordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
-  
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
+
   bool _isLoading = false;
   bool _isCurrentPasswordVisible = false;
   bool _isNewPasswordVisible = false;
@@ -38,75 +40,100 @@ class _ChangepasswordState extends State<Changepassword> {
       _showSnackBar('Please enter current password', Colors.red);
       return;
     }
-    
+
     if (newPasswordController.text.trim().isEmpty) {
       _showSnackBar('Please enter new password', Colors.red);
       return;
     }
-    
+
     if (newPasswordController.text.length < 6) {
       _showSnackBar('New password must be at least 6 characters', Colors.red);
       return;
     }
-    
+
     if (newPasswordController.text != confirmPasswordController.text) {
       _showSnackBar('New passwords do not match', Colors.red);
       return;
     }
-    
+
     if (currentPasswordController.text == newPasswordController.text) {
-      _showSnackBar('New password must be different from current password', Colors.red);
+      _showSnackBar(
+        'New password must be different from current password',
+        Colors.red,
+      );
       return;
     }
-    
+
     setState(() {
       _isLoading = true;
     });
-    
+
     try {
-      final sessionService = Provider.of<SessionService>(context, listen: false);
+      final sessionService = Provider.of<SessionService>(
+        context,
+        listen: false,
+      );
       final token = sessionService.getToken();
-      
+      if (token == null || token.isEmpty) {
+        _showSnackBar('Session expired. Please login again.', Colors.red);
+        return;
+      }
+
       final Uri uri = Uri.parse("${Constant.API_URL}/changepassword/password");
-      
+
       final requestBody = jsonEncode({
         'password': currentPasswordController.text.trim(),
         'changePassword': newPasswordController.text.trim(),
       });
-      
+
       print("Change Password URL: $uri");
-      print("Request Body: $requestBody");
-      
+
       final response = await http.post(
         uri,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
-        },
+        }..['Authorization'] = 'Bearer $token',
         body: requestBody,
       );
-      
+
       print("Response Status: ${response.statusCode}");
-      print("Response Body: ${response.body}");
-      
+
       if (!mounted) return;
-      
+
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final responseData = jsonDecode(response.body);
-        
-        if (responseData['success'] == true) {
-          _showSnackBar('Password changed successfully! Please login again.', Colors.green);
-          
+        final responseData = response.statusCode == 200 || response.body.isEmpty
+            ? <String, dynamic>{}
+            : jsonDecode(response.body) as Map<String, dynamic>;
+        final success =
+            response.statusCode == 200 ||
+            (responseData['success'] != false &&
+                responseData['status'] != 'error' &&
+                responseData['result'] != false &&
+                (responseData['success'] == true ||
+                    responseData['status'] == 'success' ||
+                    responseData['result'] == true ||
+                    responseData.isEmpty));
+
+        if (success) {
+          _showSnackBar(
+            'Password changed successfully! Please login again.',
+            Colors.green,
+          );
+
           // Clear fields
           currentPasswordController.clear();
           newPasswordController.clear();
           confirmPasswordController.clear();
-          
+
           // Logout and redirect to login page
           await sessionService.logout();
-          
+
           if (mounted) {
-            final cartService = Provider.of<CartService>(context, listen: false);
+            final cartService = Provider.of<CartService>(
+              context,
+              listen: false,
+            );
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
@@ -119,7 +146,10 @@ class _ChangepasswordState extends State<Changepassword> {
             );
           }
         } else {
-          _showSnackBar(responseData['message'] ?? 'Failed to change password', Colors.red);
+          _showSnackBar(
+            responseData['message'] ?? 'Failed to change password',
+            Colors.red,
+          );
         }
       } else if (response.statusCode == 401) {
         _showSnackBar('Session expired. Please login again.', Colors.red);
@@ -139,7 +169,10 @@ class _ChangepasswordState extends State<Changepassword> {
         }
       } else {
         final responseData = jsonDecode(response.body);
-        _showSnackBar(responseData['message'] ?? 'Failed to change password', Colors.red);
+        _showSnackBar(
+          responseData['status'] ?? 'Failed to change password',
+          Colors.red,
+        );
       }
     } catch (e) {
       print("Change Password Error: $e");
@@ -167,7 +200,7 @@ class _ChangepasswordState extends State<Changepassword> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -229,9 +262,9 @@ class _ChangepasswordState extends State<Changepassword> {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 32),
-                
+
                 // Current Password
                 _buildPasswordField(
                   controller: currentPasswordController,
@@ -247,9 +280,9 @@ class _ChangepasswordState extends State<Changepassword> {
                   screenWidth: screenWidth,
                   screenHeight: screenHeight,
                 ),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // New Password
                 _buildPasswordField(
                   controller: newPasswordController,
@@ -265,9 +298,9 @@ class _ChangepasswordState extends State<Changepassword> {
                   screenWidth: screenWidth,
                   screenHeight: screenHeight,
                 ),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // Confirm New Password
                 _buildPasswordField(
                   controller: confirmPasswordController,
@@ -283,9 +316,9 @@ class _ChangepasswordState extends State<Changepassword> {
                   screenWidth: screenWidth,
                   screenHeight: screenHeight,
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Password Requirements
                 Container(
                   padding: const EdgeInsets.all(16),
@@ -311,21 +344,23 @@ class _ChangepasswordState extends State<Changepassword> {
                       ),
                       _buildRequirement(
                         "Different from current password",
-                        newPasswordController.text.isNotEmpty && 
-                        currentPasswordController.text.isNotEmpty &&
-                        newPasswordController.text != currentPasswordController.text,
+                        newPasswordController.text.isNotEmpty &&
+                            currentPasswordController.text.isNotEmpty &&
+                            newPasswordController.text !=
+                                currentPasswordController.text,
                       ),
                       _buildRequirement(
                         "Passwords match",
                         confirmPasswordController.text.isNotEmpty &&
-                        newPasswordController.text == confirmPasswordController.text,
+                            newPasswordController.text ==
+                                confirmPasswordController.text,
                       ),
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 32),
-                
+
                 // Update Password Button
                 SizedBox(
                   width: double.infinity,
@@ -359,9 +394,9 @@ class _ChangepasswordState extends State<Changepassword> {
                           ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Note
                 Center(
                   child: Text(
@@ -373,7 +408,7 @@ class _ChangepasswordState extends State<Changepassword> {
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 20),
               ],
             ),
@@ -428,10 +463,7 @@ class _ChangepasswordState extends State<Changepassword> {
             ),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: TextStyle(
-                color: Colors.grey.shade400,
-                fontSize: 14,
-              ),
+              hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
               prefixIcon: Icon(icon, color: Colors.white70, size: 20),
               suffixIcon: IconButton(
                 icon: Icon(

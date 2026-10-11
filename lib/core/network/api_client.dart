@@ -117,10 +117,11 @@ class Api {
       }
 
       if (responseData is Map<String, dynamic>) {
-        final bool isSuccess =
-            (responseData['status'] == 'success') ||
-            (responseData['success'] == true) ||
-            (response.statusCode >= 200 && response.statusCode < 300);
+        final bool isSuccess = responseData.containsKey('status')
+            ? responseData['status'] == 'success'
+            : responseData.containsKey('success')
+            ? responseData['success'] == true
+            : response.statusCode >= 200 && response.statusCode < 300;
 
         String tempToken = '';
         if (responseData['token'] != null &&
@@ -135,6 +136,7 @@ class Api {
           'message':
               responseData['token']?['message']?.toString() ??
               responseData['message']?.toString() ??
+              responseData['error']?.toString() ??
               (isSuccess ? 'Signup successful' : 'Signup failed'),
         };
       }

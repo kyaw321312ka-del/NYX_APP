@@ -9,7 +9,7 @@ import 'package:nyxproject/core/network/api_client.dart';
 class SignupPage extends StatefulWidget {
   final SessionService sessionService;
   final CartService? cartService;
-  
+
   const SignupPage({super.key, required this.sessionService, this.cartService});
 
   @override
@@ -19,7 +19,8 @@ class SignupPage extends StatefulWidget {
 class _SignupPageState extends State<SignupPage> {
   final formKey = GlobalKey<FormState>();
   bool _isChecked = false;
-  
+  bool _isLoading = false;
+
   // Password visibility toggles
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
@@ -28,7 +29,8 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
   final TextEditingController dobController = TextEditingController();
 
   // Myanmar phone number validation function
@@ -36,27 +38,27 @@ class _SignupPageState extends State<SignupPage> {
     if (value == null || value.isEmpty) {
       return "Please enter phone number";
     }
-    
+
     // Remove any spaces, dashes, or special characters
     String cleanedNumber = value.replaceAll(RegExp(r'[\s\-\(\)\+]'), '');
-    
+
     // Myanmar phone number patterns
     // Telenor, Ooredoo, MPT, Mytel, and other operators
-    final RegExp myanmarPhoneRegex = RegExp(
-      r'^(09|\+959|\+?959)[0-9]{7,9}$',
-    );
-    
+    final RegExp myanmarPhoneRegex = RegExp(r'^(09|\+959|\+?959)[0-9]{7,9}$');
+
     // Specific patterns for different operators (optional - for more strict validation)
-    final RegExp mptRegex = RegExp(r'^(09|\\+959)(2[0-9]{7}|5[0-9]{7}|7[0-9]{7}|8[0-9]{7})$');
+    final RegExp mptRegex = RegExp(
+      r'^(09|\\+959)(2[0-9]{7}|5[0-9]{7}|7[0-9]{7}|8[0-9]{7})$',
+    );
     final RegExp telenorRegex = RegExp(r'^(09|\\+959)(9[0-9]{7}|4[0-9]{7})$');
     final RegExp ooredooRegex = RegExp(r'^(09|\\+959)(6[0-9]{7}|3[0-9]{7})$');
     final RegExp mytelRegex = RegExp(r'^(09|\\+959)(1[0-9]{7}|2[0-9]{7})$');
-    
+
     // Check if number matches any Myanmar phone pattern
     if (!myanmarPhoneRegex.hasMatch(cleanedNumber)) {
       return "Please enter a valid Myanmar phone number (e.g., 09XXXXXXXXX or 959XXXXXXXX)";
     }
-    
+
     // Myanmar mobile numbers may be 9-11 digits including the local 09 prefix.
     if (cleanedNumber.startsWith('09')) {
       if (cleanedNumber.length < 9 || cleanedNumber.length > 11) {
@@ -67,7 +69,7 @@ class _SignupPageState extends State<SignupPage> {
         return "Myanmar phone number must be 10-12 digits including '959'";
       }
     }
-    
+
     return null;
   }
 
@@ -81,7 +83,7 @@ class _SignupPageState extends State<SignupPage> {
 
     if (pickedDate != null) {
       setState(() {
-        dobController.text = 
+        dobController.text =
             "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
       });
     }
@@ -130,7 +132,10 @@ class _SignupPageState extends State<SignupPage> {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: Colors.white,
+            ),
           ),
           const Expanded(
             child: Text(
@@ -236,7 +241,10 @@ class _SignupPageState extends State<SignupPage> {
               decoration: InputDecoration(
                 hintText: "Date of Birth* (YYYY-MM-DD)",
                 hintStyle: const TextStyle(color: Colors.grey),
-                prefixIcon: const Icon(Icons.calendar_today, color: Colors.white),
+                prefixIcon: const Icon(
+                  Icons.calendar_today,
+                  color: Colors.white,
+                ),
                 filled: true,
                 fillColor: const Color.fromARGB(255, 13, 27, 42),
                 border: OutlineInputBorder(
@@ -273,7 +281,9 @@ class _SignupPageState extends State<SignupPage> {
                 ),
                 suffixIcon: IconButton(
                   icon: Icon(
-                    _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    _isPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off,
                     color: Colors.white,
                   ),
                   onPressed: () {
@@ -311,7 +321,9 @@ class _SignupPageState extends State<SignupPage> {
                 ),
                 suffixIcon: IconButton(
                   icon: Icon(
-                    _isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    _isConfirmPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off,
                     color: Colors.white,
                   ),
                   onPressed: () {
@@ -342,15 +354,26 @@ class _SignupPageState extends State<SignupPage> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                onPressed: _handleSignUp,
-                child: const Text(
-                  "SIGN UP",
-                  style: TextStyle(
-                    fontFamily: "Custom",
-                    fontSize: 15,
-                    color: Colors.white,
-                  ),
-                ),
+                onPressed: _isLoading ? null : _handleSignUp,
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      )
+                    : const Text(
+                        "SIGN UP",
+                        style: TextStyle(
+                          fontFamily: "Custom",
+                          fontSize: 15,
+                          color: Colors.white,
+                        ),
+                      ),
               ),
             ),
             const SizedBox(height: 10),
@@ -395,6 +418,8 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   Future<void> _handleSignUp() async {
+    if (_isLoading) return;
+
     if (!formKey.currentState!.validate()) return;
 
     if (!_isChecked) {
@@ -405,13 +430,17 @@ class _SignupPageState extends State<SignupPage> {
     }
 
     if (passwordController.text != confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Passwords do not match")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Passwords do not match")));
       return;
     }
 
     String formattedDate = dobController.text.trim();
+
+    setState(() {
+      _isLoading = true;
+    });
 
     try {
       final Map<String, dynamic> signupResult = await Api.signupUser(
@@ -427,17 +456,20 @@ class _SignupPageState extends State<SignupPage> {
       if (signupResult['success'] == true) {
         final String email = emailController.text.trim();
         final String tempToken = signupResult['tempToken']?.toString() ?? '';
-        final String password = passwordController.text.trim(); // Store password
+        final String password = passwordController.text
+            .trim(); // Store password
 
         print("TempToken received: $tempToken");
 
         if (tempToken.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Missing verification token from server")),
+            const SnackBar(
+              content: Text("Missing verification token from server"),
+            ),
           );
           return;
         }
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -446,7 +478,7 @@ class _SignupPageState extends State<SignupPage> {
             ),
           );
         }
-        
+
         // Navigate to OTP page with password for auto-login
         Navigator.pushReplacement(
           context,
@@ -463,7 +495,9 @@ class _SignupPageState extends State<SignupPage> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(signupResult['message']?.toString() ?? "Signup failed"),
+            content: Text(
+              signupResult['message']?.toString() ?? "Signup failed",
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -473,6 +507,12 @@ class _SignupPageState extends State<SignupPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
         );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }

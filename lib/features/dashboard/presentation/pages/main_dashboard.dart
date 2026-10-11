@@ -10,6 +10,7 @@ import 'package:nyxproject/features/shop/presentation/pages/shop.dart';
 import 'package:nyxproject/features/user/presentation/pages/account.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
+import 'package:nyxproject/features/cart/presentation/pages/cart.dart';
 
 class MainDashboard extends StatefulWidget {
   final SessionService sessionService;
@@ -168,10 +169,12 @@ class _MainDashboardState extends State<MainDashboard> {
                 children: [
                   IconButton(
                     onPressed: () {
-                      // Navigate to cart page when cart icon is pressed
-                      setState(() {
-                        currentPageIndex = 3; // Cart page index
-                      });
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CartPage(),
+                        ),
+                      );
                     },
                     icon: const Icon(
                       Icons.shopping_cart_outlined,

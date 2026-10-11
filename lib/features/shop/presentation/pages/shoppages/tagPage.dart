@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nyxproject/features/shop/data/datasources/GetallproductApi.dart';
 import 'package:nyxproject/features/shop/domain/entities/product.dart';
-import 'package:nyxproject/features/shop/presentation/pages/shoppages/details.dart';
+import 'package:nyxproject/features/shop/presentation/pages/shoppages/product-details.dart';
 
 class TagPage extends StatefulWidget {
   final String? tagName;

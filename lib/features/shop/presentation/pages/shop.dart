@@ -3,7 +3,7 @@ import 'package:nyxproject/core/error/app_error_message.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/shop/data/datasources/GetallproductApi.dart';
 import 'package:nyxproject/features/shop/domain/entities/product.dart';
-import 'package:nyxproject/features/shop/presentation/pages/shoppages/details.dart';
+import 'package:nyxproject/features/shop/presentation/pages/shoppages/product-details.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 
 class ShopPage extends StatefulWidget {

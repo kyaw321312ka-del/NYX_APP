@@ -199,9 +199,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const CartPage(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const CartPage()),
                   );
                 },
                 style: IconButton.styleFrom(
@@ -272,8 +270,11 @@ class _ProductDetailsState extends State<ProductDetails> {
                   height: double.infinity,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
-                    return Icon(Icons.image_outlined,
-                        size: 90, color: Colors.grey.shade400);
+                    return Icon(
+                      Icons.image_outlined,
+                      size: 90,
+                      color: Colors.grey.shade400,
+                    );
                   },
                 ),
               )
@@ -287,10 +288,11 @@ class _ProductDetailsState extends State<ProductDetails> {
         widget.product.cost > widget.product.price && widget.product.cost > 0;
     int? discountPercent;
     if (hasDiscount) {
-      discountPercent = ((widget.product.cost - widget.product.price) /
-              widget.product.cost *
-              100)
-          .round();
+      discountPercent =
+          ((widget.product.cost - widget.product.price) /
+                  widget.product.cost *
+                  100)
+              .round();
     }
 
     return Container(
@@ -336,7 +338,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                     Container(
                       margin: const EdgeInsets.only(left: 8),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: _accent,
                         borderRadius: BorderRadius.circular(8),
@@ -407,9 +411,7 @@ class _ProductDetailsState extends State<ProductDetails> {
       decoration: const BoxDecoration(
         color: _navy,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
-        border: Border(
-          top: BorderSide(color: Colors.white10),
-        ),
+        border: Border(top: BorderSide(color: Colors.white10)),
       ),
       child: Row(
         children: [
@@ -425,16 +427,18 @@ class _ProductDetailsState extends State<ProductDetails> {
               ),
             ),
           ),
-          _circleAction(icon: Icons.favorite_border, onPressed: () {}),
-          const SizedBox(width: 4),
-          _circleAction(icon: Icons.share_outlined, onPressed: () {}),
+          // _circleAction(icon: Icons.favorite_border, onPressed: () {}),
+          // const SizedBox(width: 4),
+          // _circleAction(icon: Icons.share_outlined, onPressed: () {}),
         ],
       ),
     );
   }
 
-  Widget _circleAction(
-      {required IconData icon, required VoidCallback onPressed}) {
+  Widget _circleAction({
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
     return Material(
       color: Colors.white.withOpacity(0.08),
       shape: const CircleBorder(),
@@ -503,8 +507,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                           : RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                               side: BorderSide(
-                                color:
-                                    isSelected ? Colors.white : Colors.white24,
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.white24,
                               ),
                             ),
                     ),
@@ -514,8 +519,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                         fontFamily: "Custom",
                         color: isSelected ? _navy : Colors.white,
                         fontSize: 13,
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.w500,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.w500,
                       ),
                     ),
                   ),
@@ -615,8 +621,10 @@ class _ProductDetailsState extends State<ProductDetails> {
                       : null,
                   icon: const Icon(Icons.remove, size: 18),
                   padding: EdgeInsets.zero,
-                  constraints:
-                      const BoxConstraints(minWidth: 36, minHeight: 36),
+                  constraints: const BoxConstraints(
+                    minWidth: 36,
+                    minHeight: 36,
+                  ),
                 ),
                 SizedBox(
                   width: 40,
@@ -641,8 +649,10 @@ class _ProductDetailsState extends State<ProductDetails> {
                       : null,
                   icon: const Icon(Icons.add, size: 18),
                   padding: EdgeInsets.zero,
-                  constraints:
-                      const BoxConstraints(minWidth: 36, minHeight: 36),
+                  constraints: const BoxConstraints(
+                    minWidth: 36,
+                    minHeight: 36,
+                  ),
                 ),
               ],
             ),
@@ -842,9 +852,10 @@ class _ProductDetailsState extends State<ProductDetails> {
           child: Text(
             "No related products found",
             style: TextStyle(
-                fontFamily: "Custom",
-                fontSize: 14,
-                color: Colors.grey.shade500),
+              fontFamily: "Custom",
+              fontSize: 14,
+              color: Colors.grey.shade500,
+            ),
           ),
         ),
       );
@@ -897,8 +908,9 @@ class _ProductDetailsState extends State<ProductDetails> {
             Expanded(
               flex: 3,
               child: ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(15)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(15),
+                ),
                 child: SizedBox(
                   width: double.infinity,
                   child: product.images.isNotEmpty
@@ -906,12 +918,18 @@ class _ProductDetailsState extends State<ProductDetails> {
                           product.images,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
-                            return Icon(Icons.image_outlined,
-                                size: 60, color: Colors.grey.shade400);
+                            return Icon(
+                              Icons.image_outlined,
+                              size: 60,
+                              color: Colors.grey.shade400,
+                            );
                           },
                         )
-                      : Icon(Icons.image_outlined,
-                          size: 60, color: Colors.grey.shade400),
+                      : Icon(
+                          Icons.image_outlined,
+                          size: 60,
+                          color: Colors.grey.shade400,
+                        ),
                 ),
               ),
             ),
@@ -1038,8 +1056,8 @@ class _ProductDetailsState extends State<ProductDetails> {
               _isAddingToCart
                   ? "Adding..."
                   : _isInStock
-                      ? "Add to Cart"
-                      : "Out of Stock",
+                  ? "Add to Cart"
+                  : "Out of Stock",
               style: const TextStyle(
                 fontFamily: "Custom",
                 color: Colors.white,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nyxproject/features/shop/domain/entities/Pp.dart';
-// import 'package:nyxproject/features/shop/presentation/pages/shoppages/details.dart';
+// import 'package:nyxproject/features/shop/presentation/pages/shoppages/product-details.dart';
 // import 'package:nyxproject/features/shop/domain/entities/product.dart';
 
 class Catagory extends StatefulWidget {
