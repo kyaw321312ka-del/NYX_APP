@@ -28,21 +28,10 @@ class _TagPageState extends State<TagPage> {
   bool _isLoadingProducts = true;
   String? _productsError;
 
-  String _searchQuery = "";
-  String _selectedSort = "None";
-
-  final TextEditingController _controller = TextEditingController();
-
   @override
   void initState() {
     super.initState();
     _loadProducts();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 
   Future<void> _loadProducts() async {
@@ -63,7 +52,7 @@ class _TagPageState extends State<TagPage> {
           _allProducts = result['data'] ?? [];
           _isLoadingProducts = false;
         });
-        print(' Loaded ${_allProducts.length} products');
+        debugPrint('Loaded ${_allProducts.length} products');
         _applyFilters();
       } else {
         setState(() {
@@ -80,57 +69,6 @@ class _TagPageState extends State<TagPage> {
     }
   }
 
-  void _clearSearch() {
-    _controller.clear();
-    setState(() {
-      _searchQuery = "";
-    });
-    _applyFilters();
-  }
-
-  void _showSortBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              title: const Text("Price: Low to High"),
-              onTap: () {
-                setState(() {
-                  _selectedSort = "low";
-                });
-                _applyFilters();
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text("Price: High to Low"),
-              onTap: () {
-                setState(() {
-                  _selectedSort = "high";
-                });
-                _applyFilters();
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text("Name: A-Z"),
-              onTap: () {
-                setState(() {
-                  _selectedSort = "az";
-                });
-                _applyFilters();
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void _applyFilters() {
     if (_allProducts.isEmpty) return;
 
@@ -143,7 +81,7 @@ class _TagPageState extends State<TagPage> {
       results = results.where((product) {
         return product.tags != null && product.tags == widget.tagName;
       }).toList();
-      print(
+      debugPrint(
         'Filtering by tag: ${widget.tagName}, found ${results.length} products',
       );
     }
@@ -154,27 +92,9 @@ class _TagPageState extends State<TagPage> {
       results = results.where((product) {
         return product.category == widget.categoryName;
       }).toList();
-      print(
+      debugPrint(
         'Filtering by category: ${widget.categoryName}, found ${results.length} products',
       );
-    }
-
-    // Filter by search query
-    if (_searchQuery.trim().isNotEmpty) {
-      results = results.where((product) {
-        return product.productName.toLowerCase().contains(
-          _searchQuery.toLowerCase(),
-        );
-      }).toList();
-    }
-
-    // Apply sorting
-    if (_selectedSort == "low") {
-      results.sort((a, b) => a.price.compareTo(b.price));
-    } else if (_selectedSort == "high") {
-      results.sort((a, b) => b.price.compareTo(a.price));
-    } else if (_selectedSort == "az") {
-      results.sort((a, b) => a.productName.compareTo(b.productName));
     }
 
     setState(() {
@@ -205,8 +125,6 @@ class _TagPageState extends State<TagPage> {
           children: [
             const SizedBox(height: 5),
             _header(title),
-            // _searchBar(),
-            // _filterInfo(),
             Expanded(child: _gridCards()),
           ],
         ),
@@ -247,88 +165,6 @@ class _TagPageState extends State<TagPage> {
               onPressed: () {},
               icon: const Icon(Icons.message, color: Colors.white),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _searchBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      child: TextField(
-        controller: _controller,
-        onChanged: (value) {
-          setState(() {
-            _searchQuery = value;
-          });
-          _applyFilters();
-        },
-        style: const TextStyle(color: Colors.white),
-        cursorColor: Colors.white,
-        decoration: InputDecoration(
-          hintText: "What are you looking for?",
-          filled: true,
-          fillColor: const Color(0xFF0D1B2A),
-          prefixIcon: const Icon(Icons.search, color: Colors.white),
-          suffixIcon: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.tune, color: Colors.white),
-                onPressed: _showSortBottomSheet,
-              ),
-              IconButton(
-                icon: const Icon(Icons.clear, color: Colors.white),
-                onPressed: _clearSearch,
-              ),
-            ],
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-            borderSide: BorderSide.none,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _filterInfo() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            '${_filteredProducts.length} products found',
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
-          ),
-          Row(
-            children: [
-              const Text('Sort: ', style: TextStyle(fontSize: 12)),
-              DropdownButton<String>(
-                value: _selectedSort,
-                items: const [
-                  DropdownMenuItem(value: "None", child: Text("None")),
-                  DropdownMenuItem(
-                    value: "low",
-                    child: Text("Price: Low to High"),
-                  ),
-                  DropdownMenuItem(
-                    value: "high",
-                    child: Text("Price: High to Low"),
-                  ),
-                  DropdownMenuItem(value: "az", child: Text("Name: A-Z")),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    _selectedSort = value ?? "None";
-                  });
-                  _applyFilters();
-                },
-                underline: const SizedBox(),
-              ),
-            ],
           ),
         ],
       ),
@@ -395,7 +231,7 @@ class _TagPageState extends State<TagPage> {
               border: Border.all(color: Colors.black12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: Colors.grey.withValues(alpha: 0.1),
                   spreadRadius: 1,
                   blurRadius: 3,
                   offset: const Offset(0, 2),

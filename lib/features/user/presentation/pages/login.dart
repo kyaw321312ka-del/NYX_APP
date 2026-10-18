@@ -52,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               _header(),
               const SizedBox(height: 10),
-              _MainIcon(),
+              _mainIcon(),
               const Divider(),
               _inputform(),
               const SizedBox(height: 10),
@@ -315,7 +315,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  Widget _MainIcon() {
+  Widget _mainIcon() {
     return const Center(child: FaIcon(FontAwesomeIcons.user, size: 200));
   }
 

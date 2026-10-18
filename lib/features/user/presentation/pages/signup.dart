@@ -46,14 +46,6 @@ class _SignupPageState extends State<SignupPage> {
     // Telenor, Ooredoo, MPT, Mytel, and other operators
     final RegExp myanmarPhoneRegex = RegExp(r'^(09|\+959|\+?959)[0-9]{7,9}$');
 
-    // Specific patterns for different operators (optional - for more strict validation)
-    final RegExp mptRegex = RegExp(
-      r'^(09|\\+959)(2[0-9]{7}|5[0-9]{7}|7[0-9]{7}|8[0-9]{7})$',
-    );
-    final RegExp telenorRegex = RegExp(r'^(09|\\+959)(9[0-9]{7}|4[0-9]{7})$');
-    final RegExp ooredooRegex = RegExp(r'^(09|\\+959)(6[0-9]{7}|3[0-9]{7})$');
-    final RegExp mytelRegex = RegExp(r'^(09|\\+959)(1[0-9]{7}|2[0-9]{7})$');
-
     // Check if number matches any Myanmar phone pattern
     if (!myanmarPhoneRegex.hasMatch(cleanedNumber)) {
       return "Please enter a valid Myanmar phone number (e.g., 09XXXXXXXXX or 959XXXXXXXX)";
@@ -459,8 +451,6 @@ class _SignupPageState extends State<SignupPage> {
         final String password = passwordController.text
             .trim(); // Store password
 
-        print("TempToken received: $tempToken");
-
         if (tempToken.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -538,7 +528,7 @@ class _SignupPageState extends State<SignupPage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const termsPage()),
+                  MaterialPageRoute(builder: (context) => const TermsPage()),
                 );
               },
               child: const Text(

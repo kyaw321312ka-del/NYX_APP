@@ -162,16 +162,6 @@ class _AccountPageState extends State<AccountPage> {
                 },
               ),
 
-              // AccountMenuItem(
-              //   icon: Icons.help_outline,
-              //   title: "Help Center",
-              //   onTap: () {
-              //     Navigator.push(
-              //       context,
-              //       MaterialPageRoute(builder: (context) => const helpPage()),
-              //     );
-              //   },
-              // ),
               if (isLoggedIn)
                 AccountMenuItem(
                   icon: Icons.delete,
@@ -193,7 +183,7 @@ class _AccountPageState extends State<AccountPage> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const termsPage()),
+                    MaterialPageRoute(builder: (context) => const TermsPage()),
                   );
                 },
               ),

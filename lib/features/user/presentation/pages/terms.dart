@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class termsPage extends StatefulWidget {
-  const termsPage({super.key});
+class TermsPage extends StatefulWidget {
+  const TermsPage({super.key});
 
   @override
-  State<termsPage> createState() => _termsPageState();
+  State<TermsPage> createState() => _TermsPageState();
 }
 
-class _termsPageState extends State<termsPage> {
+class _TermsPageState extends State<TermsPage> {
   double get screenWidth => MediaQuery.of(context).size.width;
   @override
   Widget build(BuildContext context) {

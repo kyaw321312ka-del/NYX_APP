@@ -36,7 +36,6 @@ class _EditProfileState extends State<EditProfile> {
   String? _errorMessage;
   Map<String, dynamic>? _originalUserData;
   File? _selectedImage;
-  bool _isUploading = false;
   final ImagePicker _picker = ImagePicker();
   String? _warning; // Add warning variable
   bool _showWarning = false; // Add this
@@ -71,18 +70,18 @@ class _EditProfileState extends State<EditProfile> {
           ElevatedButton(
             onPressed: () async {
               await widget.sessionService.logout();
-              if (mounted) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LoginPage(
-                      sessionService: widget.sessionService,
-                      cartService: widget.cartService,
-                    ),
+              if (!context.mounted) return;
+
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LoginPage(
+                    sessionService: widget.sessionService,
+                    cartService: widget.cartService,
                   ),
-                  (route) => false,
-                );
-              }
+                ),
+                (route) => false,
+              );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Login Now'),
@@ -199,6 +198,7 @@ class _EditProfileState extends State<EditProfile> {
       lastDate: DateTime.now(),
     );
 
+    if (!mounted) return;
     if (pickedDate != null) {
       final String formattedDate =
           "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
@@ -217,6 +217,7 @@ class _EditProfileState extends State<EditProfile> {
         imageQuality: 80,
       );
 
+      if (!mounted) return;
       if (image != null) {
         setState(() {
           _selectedImage = File(image.path);
@@ -230,7 +231,7 @@ class _EditProfileState extends State<EditProfile> {
         );
       }
     } catch (e) {
-      print('Error picking image: $e');
+      debugPrint('Error picking image: $e');
     }
   }
 
@@ -243,6 +244,7 @@ class _EditProfileState extends State<EditProfile> {
         imageQuality: 80,
       );
 
+      if (!mounted) return;
       if (image != null) {
         setState(() {
           _selectedImage = File(image.path);
@@ -256,7 +258,7 @@ class _EditProfileState extends State<EditProfile> {
         );
       }
     } catch (e) {
-      print('Error taking picture: $e');
+      debugPrint('Error taking picture: $e');
     }
   }
 
@@ -342,7 +344,7 @@ class _EditProfileState extends State<EditProfile> {
 
         if (newToken != null && newToken.isNotEmpty) {
           await widget.sessionService.saveToken(newToken);
-          print(' New token saved');
+          debugPrint(' New token saved');
         }
 
         if (mounted) {
@@ -405,15 +407,13 @@ class _EditProfileState extends State<EditProfile> {
       );
     }
 
-    print(" Update URL: $uri");
-    print(" Fields: ${request.fields}");
+    debugPrint(" Update URL: $uri");
 
     try {
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
-      print("Update Response Status: ${response.statusCode}");
-      print("Update Response Body: ${response.body}");
+      debugPrint("Update Response Status: ${response.statusCode}");
 
       if (response.statusCode == 401) {
         return {
@@ -444,7 +444,7 @@ class _EditProfileState extends State<EditProfile> {
         return {'status': 'error', 'message': 'Update failed'};
       }
     } catch (e) {
-      print("Update Profile Error: $e");
+      debugPrint("Update Profile Error: $e");
       return {'status': 'error', 'message': 'Network error: $e'};
     }
   }
@@ -524,7 +524,7 @@ class _EditProfileState extends State<EditProfile> {
                   children: [
                     _header(),
                     const SizedBox(height: 10),
-                    _AccPhoto(),
+                    _accountPhoto(),
                     const SizedBox(height: 5),
                     _edit(),
                     if (_showWarning) _warningBanner(), // Add warning banner
@@ -577,7 +577,7 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
-  Widget _AccPhoto() {
+  Widget _accountPhoto() {
     return Center(
       child: Container(
         width: 120,
