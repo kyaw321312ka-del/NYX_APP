@@ -1,4 +1,4 @@
-import 'package:nyxproject/features/rental/domain/entities/Court.dart';
+import 'package:nyxproject/features/rental/domain/entities/court.dart';
 import 'package:nyxproject/features/rental/domain/repositories/rental_repository.dart';
 
 class GetCourts {

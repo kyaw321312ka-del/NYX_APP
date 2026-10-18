@@ -1,6 +1,6 @@
 import 'package:nyxproject/core/error/api_exception.dart';
 import 'package:nyxproject/features/rental/data/datasources/RentelApi/court_api.dart';
-import 'package:nyxproject/features/rental/domain/entities/Court.dart';
+import 'package:nyxproject/features/rental/domain/entities/court.dart';
 import 'package:nyxproject/features/rental/domain/repositories/rental_repository.dart';
 
 class RentalRepositoryImpl implements RentalRepository {

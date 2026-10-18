@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:nyxproject/features/rental/domain/entities/Court.dart';
+import 'package:nyxproject/features/rental/domain/entities/court.dart';
 import 'package:nyxproject/core/utils/app_constants.dart';
 
 class CourtApi {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nyxproject/core/error/app_error_message.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/rental/data/datasources/RentelApi/court_api.dart';
-import 'package:nyxproject/features/rental/domain/entities/Court.dart';
+import 'package:nyxproject/features/rental/domain/entities/court.dart';
 import 'package:nyxproject/features/rental/presentation/pages/rental/court_details.dart';
 
 class Courts extends StatefulWidget {

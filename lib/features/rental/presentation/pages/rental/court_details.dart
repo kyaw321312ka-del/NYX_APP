@@ -9,7 +9,7 @@ import 'package:nyxproject/features/rental/data/datasources/RentelApi/venue_api.
 import 'package:nyxproject/features/rental/domain/entities/avai_slot_time.dart';
 import 'package:nyxproject/features/rental/presentation/pages/rental/booking_form.dart';
 import 'package:nyxproject/features/rental/domain/entities/venue.dart';
-import 'package:nyxproject/features/rental/domain/entities/Court.dart';
+import 'package:nyxproject/features/rental/domain/entities/court.dart';
 
 class CourtDetails extends StatefulWidget {
   final Venue? selectedVenue;
