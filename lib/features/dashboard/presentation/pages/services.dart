@@ -166,7 +166,7 @@ class _ServicesState extends State<Services> {
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: _refreshData,
-        color: Colors.red,
+        color: const Color(0xFF0D1B2A),
         backgroundColor: Colors.white,
         child: SafeArea(
           child: SingleChildScrollView(
@@ -174,43 +174,61 @@ class _ServicesState extends State<Services> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 5),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    TabWidget(
-                      title: "TRAININGS",
-                      index: 0,
-                      selectedIndex: selectedIndex,
-                      onTap: () {
-                        if (mounted) {
-                          setState(() => selectedIndex = 0);
-                        }
-                      },
-                    ),
-                    TabWidget(
-                      title: "RENTALS",
-                      index: 1,
-                      selectedIndex: selectedIndex,
-                      onTap: () {
-                        if (mounted) {
-                          setState(() => selectedIndex = 1);
-                        }
-                      },
-                    ),
-                    TabWidget(
-                      title: "CANTEEN",
-                      index: 2,
-                      selectedIndex: selectedIndex,
-                      onTap: () {
-                        if (mounted) {
-                          setState(() => selectedIndex = 2);
-                        }
-                      },
-                    ),
-                  ],
+                const SizedBox(height: 12),
+
+                // Category tabs
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0F1F5),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TabWidget(
+                          title: "TRAININGS",
+                          index: 0,
+                          selectedIndex: selectedIndex,
+                          onTap: () {
+                            if (mounted) {
+                              setState(() => selectedIndex = 0);
+                            }
+                          },
+                        ),
+                      ),
+                      Expanded(
+                        child: TabWidget(
+                          title: "RENTALS",
+                          index: 1,
+                          selectedIndex: selectedIndex,
+                          onTap: () {
+                            if (mounted) {
+                              setState(() => selectedIndex = 1);
+                            }
+                          },
+                        ),
+                      ),
+                      Expanded(
+                        child: TabWidget(
+                          title: "CANTEEN",
+                          index: 2,
+                          selectedIndex: selectedIndex,
+                          onTap: () {
+                            if (mounted) {
+                              setState(() => selectedIndex = 2);
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 15),
+
+                const SizedBox(height: 20),
+
+                // Trainings
                 Offstage(
                   offstage: selectedIndex != 0,
                   child: TrainingsWidget(
@@ -220,6 +238,8 @@ class _ServicesState extends State<Services> {
                     onRetry: _loadTrainings,
                   ),
                 ),
+
+                // Rentals
                 Offstage(
                   offstage: selectedIndex != 1,
                   child: RentalsWidget(
@@ -231,6 +251,8 @@ class _ServicesState extends State<Services> {
                     onRetryVenues: _loadVenues,
                   ),
                 ),
+
+                // Canteen
                 Offstage(
                   offstage: selectedIndex != 2,
                   child: CanteenWidget(

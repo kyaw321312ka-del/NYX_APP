@@ -421,8 +421,10 @@ class _ShopPageState extends State<ShopPage> {
   }
 
   Widget _searchBar() {
+    const navy = Color(0xFF0D1B2A);
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: TextField(
         controller: _controller,
         onChanged: (value) {
@@ -431,29 +433,50 @@ class _ShopPageState extends State<ShopPage> {
           });
           _applyFilters();
         },
-        style: const TextStyle(color: Colors.white),
-        cursorColor: Colors.white,
+        style: const TextStyle(color: navy, fontSize: 14),
+        cursorColor: navy,
         decoration: InputDecoration(
-          hintText: "What are you looking for?",
-          filled: true,
-          fillColor: const Color(0xFF0D1B2A),
-          prefixIcon: const Icon(Icons.search, color: Colors.white),
+          hintText: "Search products...",
+          hintStyle: const TextStyle(
+            color: Color(0xFF89909C),
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+          ),
+          prefixIcon: const Icon(Icons.search_rounded, color: navy, size: 23),
           suffixIcon: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                icon: const Icon(Icons.tune, color: Colors.white),
+                tooltip: 'Filter or sort',
+                icon: const Icon(Icons.tune_rounded, color: navy, size: 22),
                 onPressed: _showSortBottomSheet,
               ),
-              IconButton(
-                icon: const Icon(Icons.clear, color: Colors.white),
-                onPressed: _clearSearch,
-              ),
+              if (_controller.text.isNotEmpty)
+                IconButton(
+                  tooltip: 'Clear search',
+                  icon: const Icon(
+                    Icons.close_rounded,
+                    color: Color(0xFF737B89),
+                    size: 20,
+                  ),
+                  onPressed: _clearSearch,
+                ),
             ],
           ),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(vertical: 14),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(18),
+            borderSide: const BorderSide(color: Color(0xFFD8DDE5)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(18),
+            borderSide: const BorderSide(color: Color(0xFFD8DDE5)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(18),
+            borderSide: const BorderSide(color: navy, width: 1.3),
           ),
         ),
       ),
