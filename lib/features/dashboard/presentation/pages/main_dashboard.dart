@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nyxproject/features/rental/presentation/pages/walkin/walkin.dart';
-import 'package:nyxproject/features/tournament/presentation/pages/tournamentMain.dart';
 import 'package:provider/provider.dart';
 import 'package:nyxproject/features/dashboard/presentation/pages/dashboard.dart';
 import 'package:nyxproject/features/dashboard/presentation/pages/services.dart';
@@ -68,30 +66,67 @@ class _MainDashboardState extends State<MainDashboard> {
             ],
           ),
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: const Color.fromARGB(255, 13, 27, 42),
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.grey,
-          type: BottomNavigationBarType.fixed,
-          currentIndex: currentPageIndex,
-          onTap: (index) {
-            setState(() {
-              currentPageIndex = index;
-            });
-          },
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-            BottomNavigationBarItem(icon: Icon(Icons.store), label: "Shop"),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.class_),
-              label: "Services",
+        bottomNavigationBar: Container(
+          margin: const EdgeInsets.fromLTRB(14, 8, 14, 12),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color.fromARGB(255, 13, 27, 42),
+            borderRadius: BorderRadius.circular(30),
+            // boxShadow: [
+            //   BoxShadow(
+            //     color: const Color(0xFF08131F),
+            //     offset: const Offset(8, 8),
+            //     blurRadius: 14,
+            //     spreadRadius: 1,
+            //   ),
+            //   BoxShadow(
+            //     color: const Color(0xFF1A354F),
+            //     offset: const Offset(-7, -7),
+            //     blurRadius: 12,
+            //     spreadRadius: 1,
+            //   ),
+            // ],
+          ),
+          child: Theme(
+            data: Theme.of(context).copyWith(canvasColor: Colors.transparent),
+            child: BottomNavigationBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              selectedItemColor: Colors.white,
+              unselectedItemColor: Colors.grey,
+              selectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 11,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 10,
+              ),
+              type: BottomNavigationBarType.fixed,
+              currentIndex: currentPageIndex,
+              onTap: (index) {
+                setState(() {
+                  currentPageIndex = index;
+                });
+              },
+              items: const [
+                BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+                BottomNavigationBarItem(icon: Icon(Icons.store), label: "Shop"),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.class_),
+                  label: "Services",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.directions_walk_outlined),
+                  label: "Walk-In",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person),
+                  label: "Account",
+                ),
+              ],
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.directions_walk_outlined),
-              label: "Walk-In",
-            ),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: "Account"),
-          ],
+          ),
         ),
       ),
     );
@@ -130,8 +165,12 @@ class _MainDashboardState extends State<MainDashboard> {
 
   Widget _header() {
     return Container(
-      color: const Color.fromARGB(255, 13, 27, 42),
+      margin: const EdgeInsets.fromLTRB(14, 8, 14, 4),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 13, 27, 42),
+        borderRadius: BorderRadius.circular(30),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

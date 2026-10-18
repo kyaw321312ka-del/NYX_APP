@@ -165,8 +165,8 @@ class _ShopPageState extends State<ShopPage> {
     if (_searchQuery.trim().isNotEmpty) {
       results = results.where((product) {
         return product.productName.toLowerCase().contains(
-              _searchQuery.toLowerCase(),
-            );
+          _searchQuery.toLowerCase(),
+        );
       }).toList();
     }
 
@@ -196,7 +196,7 @@ class _ShopPageState extends State<ShopPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE0E0E0),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -317,10 +317,10 @@ class _ShopPageState extends State<ShopPage> {
 
                               return Center(
                                 child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes !=
-                                          null
+                                  value:
+                                      loadingProgress.expectedTotalBytes != null
                                       ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
+                                            loadingProgress.expectedTotalBytes!
                                       : null,
                                 ),
                               );
