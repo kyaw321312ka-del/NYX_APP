@@ -990,16 +990,16 @@ class _CourtDetailsState extends State<CourtDetails> {
             },
             activeColor: Colors.red,
           ),
-          Expanded(
-            child: Text(
-              "I have read and agree to follow the court rules & safety guidelines.",
-              style: TextStyle(
-                color: Colors.grey.shade600,
-                fontFamily: "Custom",
-                fontSize: screenWidth * 0.03,
-              ),
-            ),
-          ),
+          // Expanded(
+          //   child: Text(
+          //     "I have read and agree to follow the court rules & safety guidelines.",
+          //     style: TextStyle(
+          //       color: Colors.grey.shade600,
+          //       fontFamily: "Custom",
+          //       fontSize: screenWidth * 0.03,
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );

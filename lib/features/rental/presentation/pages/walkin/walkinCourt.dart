@@ -559,16 +559,16 @@ class _WalkInCourtState extends State<WalkInCourt> {
             },
             activeColor: Colors.red,
           ),
-          Expanded(
-            child: Text(
-              "I have read and agree to follow the court rules & safety guidelines.",
-              style: TextStyle(
-                color: Colors.grey.shade800,
-                fontFamily: "Custom",
-                fontSize: screenWidth * 0.03,
-              ),
-            ),
-          ),
+          // Expanded(
+          //   child: Text(
+          //     "I have read and agree to follow the court rules & safety guidelines.",
+          //     style: TextStyle(
+          //       color: Colors.grey.shade800,
+          //       fontFamily: "Custom",
+          //       fontSize: screenWidth * 0.03,
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );
