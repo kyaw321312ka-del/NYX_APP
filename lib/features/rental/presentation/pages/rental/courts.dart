@@ -9,11 +9,7 @@ class Courts extends StatefulWidget {
   final int venueId;
   final String venueName;
 
-  const Courts({
-    super.key,
-    required this.venueId,
-    required this.venueName,
-  });
+  const Courts({super.key, required this.venueId, required this.venueName});
 
   @override
   State<Courts> createState() => _CourtsState();
@@ -117,10 +113,7 @@ class _CourtsState extends State<Courts> {
     }
 
     if (_error != null) {
-      return AppErrorView(
-        message: _error!,
-        onRetry: _loadCourts,
-      );
+      return AppErrorView(message: _error!, onRetry: _loadCourts);
     }
 
     if (_courts.isEmpty) {
@@ -134,12 +127,7 @@ class _CourtsState extends State<Courts> {
 
     return Column(
       children: _courts.map((court) {
-        return _courtCard(
-          context,
-          court,
-          screenWidth,
-          screenHeight,
-        );
+        return _courtCard(context, court, screenWidth, screenHeight);
       }).toList(),
     );
   }
@@ -232,7 +220,9 @@ class _CourtsState extends State<Courts> {
 
     return Container(
       margin: EdgeInsets.symmetric(
-          horizontal: screenWidth * 0.025, vertical: screenHeight * 0.01),
+        horizontal: screenWidth * 0.025,
+        vertical: screenHeight * 0.01,
+      ),
       decoration: BoxDecoration(
         color: const Color.fromARGB(255, 13, 27, 42),
         borderRadius: BorderRadius.circular(15),
@@ -298,8 +288,11 @@ class _CourtsState extends State<Courts> {
                 // Operating Hours
                 Row(
                   children: [
-                    Icon(Icons.access_time,
-                        color: Colors.white70, size: screenWidth * 0.04),
+                    Icon(
+                      Icons.access_time,
+                      color: Colors.white70,
+                      size: screenWidth * 0.04,
+                    ),
                     SizedBox(width: screenWidth * 0.02),
                     Text(
                       "$openTime - $closeTime",
@@ -316,8 +309,11 @@ class _CourtsState extends State<Courts> {
                 // Price
                 Row(
                   children: [
-                    Icon(Icons.attach_money,
-                        color: Colors.red, size: screenWidth * 0.04),
+                    Icon(
+                      Icons.attach_money,
+                      color: Colors.red,
+                      size: screenWidth * 0.04,
+                    ),
                     SizedBox(width: screenWidth * 0.02),
                     Text(
                       "${court.hourlyPrice.toString()} Ks / hour",
@@ -342,7 +338,8 @@ class _CourtsState extends State<Courts> {
                           // Ensure venueId is not null
                           int venueIdToPass = widget.venueId;
                           print(
-                              "DEBUG: Passing venueId = $venueIdToPass to CourtDetails");
+                            "DEBUG: Passing venueId = $venueIdToPass to CourtDetails",
+                          );
 
                           Navigator.push(
                             context,
@@ -380,7 +377,11 @@ class _CourtsState extends State<Courts> {
                       child: GestureDetector(
                         onTap: () {
                           _showCourtDetailsDialog(
-                              context, court, screenWidth, screenHeight);
+                            context,
+                            court,
+                            screenWidth,
+                            screenHeight,
+                          );
                         },
                         child: Container(
                           height: screenHeight * 0.045,
@@ -412,8 +413,12 @@ class _CourtsState extends State<Courts> {
     );
   }
 
-  void _showCourtDetailsDialog(BuildContext context, Court court,
-      double screenWidth, double screenHeight) {
+  void _showCourtDetailsDialog(
+    BuildContext context,
+    Court court,
+    double screenWidth,
+    double screenHeight,
+  ) {
     String openTime = _formatTime(court.openAt);
     String closeTime = _formatTime(court.closeAt);
 
@@ -481,10 +486,12 @@ class _CourtsState extends State<Courts> {
                   ),
                 ),
                 const SizedBox(height: 5),
-                ...court.pros!.map((p) => Padding(
-                      padding: const EdgeInsets.only(left: 8, bottom: 4),
-                      child: Text("✓ ${p.name}"),
-                    )),
+                ...court.pros!.map(
+                  (p) => Padding(
+                    padding: const EdgeInsets.only(left: 8, bottom: 4),
+                    child: Text("✓ ${p.name}"),
+                  ),
+                ),
                 const SizedBox(height: 10),
               ],
 
@@ -499,10 +506,12 @@ class _CourtsState extends State<Courts> {
                   ),
                 ),
                 const SizedBox(height: 5),
-                ...court.cons!.map((c) => Padding(
-                      padding: const EdgeInsets.only(left: 8, bottom: 4),
-                      child: Text("✗ ${c.name}"),
-                    )),
+                ...court.cons!.map(
+                  (c) => Padding(
+                    padding: const EdgeInsets.only(left: 8, bottom: 4),
+                    child: Text("✗ ${c.name}"),
+                  ),
+                ),
                 const SizedBox(height: 10),
               ],
 
@@ -517,10 +526,12 @@ class _CourtsState extends State<Courts> {
                   ),
                 ),
                 const SizedBox(height: 5),
-                ...court.rules!.map((r) => Padding(
-                      padding: const EdgeInsets.only(left: 8, bottom: 4),
-                      child: Text("• ${r.name}: ${r.detail}"),
-                    )),
+                ...court.rules!.map(
+                  (r) => Padding(
+                    padding: const EdgeInsets.only(left: 8, bottom: 4),
+                    child: Text("• ${r.name}: ${r.detail}"),
+                  ),
+                ),
                 const SizedBox(height: 10),
               ],
 
@@ -535,10 +546,12 @@ class _CourtsState extends State<Courts> {
                   ),
                 ),
                 const SizedBox(height: 5),
-                ...court.services!.map((s) => Padding(
-                      padding: const EdgeInsets.only(left: 8, bottom: 4),
-                      child: Text("• ${s.name}"),
-                    )),
+                ...court.services!.map(
+                  (s) => Padding(
+                    padding: const EdgeInsets.only(left: 8, bottom: 4),
+                    child: Text("• ${s.name}"),
+                  ),
+                ),
               ],
             ],
           ),

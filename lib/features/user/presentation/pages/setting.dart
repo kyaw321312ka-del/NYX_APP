@@ -8,7 +8,6 @@ class Setting extends StatefulWidget {
 }
 
 class _SettingState extends State<Setting> {
-
   double get screenWidth => MediaQuery.of(context).size.width;
   bool isVisible = false;
   bool isVisible1 = false;
@@ -24,28 +23,19 @@ class _SettingState extends State<Setting> {
             children: [
               _header(),
               SizedBox(height: 10),
-              _menuItem(
-                  Icons.key,
-                  "Privacy and Security",() {
-                    setState(() {
-                      isVisible = !isVisible;
-                    });
-                  },
-                ),
+              _menuItem(Icons.key, "Privacy and Security", () {
+                setState(() {
+                  isVisible = !isVisible;
+                });
+              }),
               _visibalSetting(),
-              _menuItem(
-                  Icons.language,
-                  "Languages",() {
-                    setState(() {
-                      isVisible1 = !isVisible1;
-                    });
-                  },
-                ),
+              _menuItem(Icons.language, "Languages", () {
+                setState(() {
+                  isVisible1 = !isVisible1;
+                });
+              }),
               _visibalSetting1(),
-              _menuItem1(
-                  Icons.auto_stories,
-                  "Auto Save E-Receipt",() {},
-                ),
+              _menuItem1(Icons.auto_stories, "Auto Save E-Receipt", () {}),
             ],
           ),
         ),
@@ -62,24 +52,21 @@ class _SettingState extends State<Setting> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           IconButton(
-            onPressed: (){
-                Navigator.pop(context);
-            }, 
-            icon: Icon(
-              Icons.arrow_back_ios_new_rounded, 
-              color: Colors.white,
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          ),
+          Expanded(
+            child: const Text(
+              "Setting",
+              style: TextStyle(
+                fontFamily: "Custom",
+                color: Colors.white,
+                fontSize: 18,
               ),
             ),
-            Expanded(
-              child: const Text(
-                "Setting", 
-                style: TextStyle(
-                  fontFamily: "Custom",
-                  color: Colors.white,
-                  fontSize: 18,
-                ),
-              ),
-            ),
+          ),
         ],
       ),
     );
@@ -95,8 +82,15 @@ class _SettingState extends State<Setting> {
         ),
         child: ListTile(
           leading: Icon(icon, color: Color.fromARGB(255, 255, 255, 255)),
-          title: Text(title, style: TextStyle(fontFamily: 'Custom',color: Colors.white),),
-          trailing: Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.white, ),
+          title: Text(
+            title,
+            style: TextStyle(fontFamily: 'Custom', color: Colors.white),
+          ),
+          trailing: Icon(
+            Icons.arrow_forward_ios_rounded,
+            size: 16,
+            color: Colors.white,
+          ),
           onTap: onTap,
         ),
       ),
@@ -113,7 +107,10 @@ class _SettingState extends State<Setting> {
         ),
         child: ListTile(
           leading: Icon(icon, color: Color.fromARGB(255, 255, 255, 255)),
-          title: Text(title, style: TextStyle(fontFamily: 'Custom',color: Colors.white),),
+          title: Text(
+            title,
+            style: TextStyle(fontFamily: 'Custom', color: Colors.white),
+          ),
           trailing: Switch(
             value: isSwitched,
             onChanged: (value) {
@@ -130,56 +127,32 @@ class _SettingState extends State<Setting> {
     );
   }
 
-  Widget _visibalSetting(){
+  Widget _visibalSetting() {
     return Column(
       children: [
         if (isVisible)
           Column(
             children: [
-              _menuItem(
-                Icons.password,
-                "Change Password",
-                () {},
-              ),
-              _menuItem1(
-                Icons.fingerprint,
-                "Fingerprint/ Face ID",
-                () {},
-              ),
-              _menuItem(
-                Icons.paste_rounded,
-                "Device History",
-                () {},
-              ),
-              Divider()
+              _menuItem(Icons.password, "Change Password", () {}),
+              _menuItem1(Icons.fingerprint, "Fingerprint/ Face ID", () {}),
+              _menuItem(Icons.paste_rounded, "Device History", () {}),
+              Divider(),
             ],
           ),
       ],
     );
   }
 
-  Widget _visibalSetting1(){
+  Widget _visibalSetting1() {
     return Column(
       children: [
         if (isVisible1)
           Column(
             children: [
-              _menuItem(
-                Icons.flag,
-                "Myanmar",
-                () {},
-              ),
-              _menuItem(
-                Icons.flag,
-                "English",
-                () {},
-              ),
-              _menuItem(
-                Icons.flag,
-                "Chinese",
-                () {},
-              ),
-              Divider()
+              _menuItem(Icons.flag, "Myanmar", () {}),
+              _menuItem(Icons.flag, "English", () {}),
+              _menuItem(Icons.flag, "Chinese", () {}),
+              Divider(),
             ],
           ),
       ],

@@ -96,14 +96,15 @@ class _TagPageState extends State<TagPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-                title: const Text("Price: Low to High"),
-                onTap: () {
-                  setState(() {
-                    _selectedSort = "low";
-                  });
-                  _applyFilters();
-                  Navigator.pop(context);
-                }),
+              title: const Text("Price: Low to High"),
+              onTap: () {
+                setState(() {
+                  _selectedSort = "low";
+                });
+                _applyFilters();
+                Navigator.pop(context);
+              },
+            ),
             ListTile(
               title: const Text("Price: High to Low"),
               onTap: () {
@@ -143,9 +144,9 @@ class _TagPageState extends State<TagPage> {
         return product.tags != null && product.tags == widget.tagName;
       }).toList();
       print(
-          'Filtering by tag: ${widget.tagName}, found ${results.length} products');
+        'Filtering by tag: ${widget.tagName}, found ${results.length} products',
+      );
     }
-
     // Filter by category (if a specific category is passed)
     else if (widget.categoryName != null &&
         widget.categoryName!.isNotEmpty &&
@@ -154,15 +155,16 @@ class _TagPageState extends State<TagPage> {
         return product.category == widget.categoryName;
       }).toList();
       print(
-          'Filtering by category: ${widget.categoryName}, found ${results.length} products');
+        'Filtering by category: ${widget.categoryName}, found ${results.length} products',
+      );
     }
 
     // Filter by search query
     if (_searchQuery.trim().isNotEmpty) {
       results = results.where((product) {
-        return product.productName
-            .toLowerCase()
-            .contains(_searchQuery.toLowerCase());
+        return product.productName.toLowerCase().contains(
+          _searchQuery.toLowerCase(),
+        );
       }).toList();
     }
 
@@ -211,7 +213,7 @@ class _TagPageState extends State<TagPage> {
                 color: const Color(0xFF0D1B2A),
                 child: _gridCards(),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -239,19 +241,17 @@ class _TagPageState extends State<TagPage> {
             child: Text(
               title,
               style: const TextStyle(
-                  fontFamily: "Custom",
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600),
+                fontFamily: "Custom",
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
           SizedBox(
             child: IconButton(
               onPressed: () {},
-              icon: const Icon(
-                Icons.message,
-                color: Colors.white,
-              ),
+              icon: const Icon(Icons.message, color: Colors.white),
             ),
           ),
         ],
@@ -311,18 +311,19 @@ class _TagPageState extends State<TagPage> {
           ),
           Row(
             children: [
-              const Text(
-                'Sort: ',
-                style: TextStyle(fontSize: 12),
-              ),
+              const Text('Sort: ', style: TextStyle(fontSize: 12)),
               DropdownButton<String>(
                 value: _selectedSort,
                 items: const [
                   DropdownMenuItem(value: "None", child: Text("None")),
                   DropdownMenuItem(
-                      value: "low", child: Text("Price: Low to High")),
+                    value: "low",
+                    child: Text("Price: Low to High"),
+                  ),
                   DropdownMenuItem(
-                      value: "high", child: Text("Price: High to Low")),
+                    value: "high",
+                    child: Text("Price: High to Low"),
+                  ),
                   DropdownMenuItem(value: "az", child: Text("Name: A-Z")),
                 ],
                 onChanged: (value) {
@@ -347,10 +348,7 @@ class _TagPageState extends State<TagPage> {
 
     if (_productsError != null) {
       return _scrollableState(
-        Text(
-          _productsError!,
-          style: const TextStyle(color: Colors.red),
-        ),
+        Text(_productsError!, style: const TextStyle(color: Colors.red)),
       );
     }
 
@@ -428,10 +426,10 @@ class _TagPageState extends State<TagPage> {
                               if (loadingProgress == null) return child;
                               return Center(
                                 child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes !=
-                                          null
+                                  value:
+                                      loadingProgress.expectedTotalBytes != null
                                       ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
+                                            loadingProgress.expectedTotalBytes!
                                       : null,
                                 ),
                               );
@@ -440,8 +438,11 @@ class _TagPageState extends State<TagPage> {
                               return Container(
                                 color: Colors.grey[200],
                                 child: const Center(
-                                  child: Icon(Icons.image,
-                                      size: 50, color: Colors.grey),
+                                  child: Icon(
+                                    Icons.image,
+                                    size: 50,
+                                    color: Colors.grey,
+                                  ),
                                 ),
                               );
                             },
@@ -449,8 +450,11 @@ class _TagPageState extends State<TagPage> {
                         : Container(
                             color: Colors.grey[200],
                             child: const Center(
-                              child: Icon(Icons.image,
-                                  size: 50, color: Colors.grey),
+                              child: Icon(
+                                Icons.image,
+                                size: 50,
+                                color: Colors.grey,
+                              ),
                             ),
                           ),
                   ),
@@ -490,7 +494,9 @@ class _TagPageState extends State<TagPage> {
                         Container(
                           margin: const EdgeInsets.only(top: 4),
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.orange[100],
                             borderRadius: BorderRadius.circular(4),
@@ -498,7 +504,9 @@ class _TagPageState extends State<TagPage> {
                           child: Text(
                             product.tags!,
                             style: const TextStyle(
-                                fontSize: 8, color: Colors.orange),
+                              fontSize: 8,
+                              color: Colors.orange,
+                            ),
                           ),
                         ),
                     ],

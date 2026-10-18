@@ -121,14 +121,16 @@ class _WalkInSlipState extends State<WalkInSlip> {
     final openAt = bookingData['open_at']?.toString();
     final closeAt = bookingData['close_at']?.toString();
     final hasOpeningHours =
-      openAt != null && openAt.isNotEmpty &&
-      closeAt != null && closeAt.isNotEmpty;
+        openAt != null &&
+        openAt.isNotEmpty &&
+        closeAt != null &&
+        closeAt.isNotEmpty;
     final timeSlot = hasOpeningHours
-      ? "${_formatTime(openAt)} - ${_formatTime(closeAt)}"
-      : bookingData['timeSlotDisplay'] ??
-        (bookingData['selectedTimeSlot'] != null
-          ? "${_formatTime(bookingData['selectedTimeSlot'].startTime)} - ${_formatTime(bookingData['selectedTimeSlot'].endTime)}"
-          : "N/A");
+        ? "${_formatTime(openAt)} - ${_formatTime(closeAt)}"
+        : bookingData['timeSlotDisplay'] ??
+              (bookingData['selectedTimeSlot'] != null
+                  ? "${_formatTime(bookingData['selectedTimeSlot'].startTime)} - ${_formatTime(bookingData['selectedTimeSlot'].endTime)}"
+                  : "N/A");
 
     int sessions = bookingData['sessionCount'] ?? 1;
     double totalAmount =

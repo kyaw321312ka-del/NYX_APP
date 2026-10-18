@@ -73,10 +73,7 @@ class RentalsWidget extends StatelessWidget {
     }
 
     if (venuesError != null) {
-      return AppErrorView(
-        message: venuesError!,
-        onRetry: onRetryVenues,
-      );
+      return AppErrorView(message: venuesError!, onRetry: onRetryVenues);
     }
 
     if (venues.isEmpty) {
@@ -102,16 +99,17 @@ class RentalsWidget extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => Courts(
-              venueId: venue.id,
-              venueName: venue.venueName,
-            ),
+            builder: (context) =>
+                Courts(venueId: venue.id, venueName: venue.venueName),
           ),
         );
       },
       child: Container(
         height: screenHeight * 0.45,
-        margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.0125, vertical: screenHeight * 0.01),
+        margin: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.0125,
+          vertical: screenHeight * 0.01,
+        ),
         decoration: BoxDecoration(
           color: const Color.fromARGB(255, 13, 27, 42),
           borderRadius: BorderRadius.circular(15),

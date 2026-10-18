@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/rental/domain/entities/WalkInCourt.dart' as model;
+import 'package:nyxproject/features/rental/domain/entities/WalkInCourt.dart'
+    as model;
 import 'package:nyxproject/features/rental/presentation/pages/walkin/walkinbooking_form.dart';
 
 class WalkInCourt extends StatefulWidget {

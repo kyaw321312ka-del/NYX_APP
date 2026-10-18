@@ -41,12 +41,17 @@ class slipPage extends StatefulWidget {
 class _slipPageState extends State<slipPage> {
   final GlobalKey _repaintKey = GlobalKey();
   bool _isSharing = false;
-  
+
   String _orderNo = "";
-  String date = DateTime.now().day.toString().padLeft(2, '0') + "/" +
-      DateTime.now().month.toString().padLeft(2, '0') + "/" +
+  String date =
+      DateTime.now().day.toString().padLeft(2, '0') +
+      "/" +
+      DateTime.now().month.toString().padLeft(2, '0') +
+      "/" +
       DateTime.now().year.toString();
-  String time = DateTime.now().hour.toString().padLeft(2, '0') + ":" +
+  String time =
+      DateTime.now().hour.toString().padLeft(2, '0') +
+      ":" +
       DateTime.now().minute.toString().padLeft(2, '0');
 
   double subTotal = 0;
@@ -69,23 +74,27 @@ class _slipPageState extends State<slipPage> {
       if (widget.orderResponse!.containsKey('data')) {
         final data = widget.orderResponse!['data'];
         if (data is List && data.isNotEmpty) {
-          _orderNo = data[0]['order_id']?.toString() ?? 
-                     data[0]['id']?.toString() ?? 
-                     "#${DateTime.now().millisecondsSinceEpoch.toString().substring(8, 13)}";
+          _orderNo =
+              data[0]['order_id']?.toString() ??
+              data[0]['id']?.toString() ??
+              "#${DateTime.now().millisecondsSinceEpoch.toString().substring(8, 13)}";
         } else if (data is Map<String, dynamic>) {
-          _orderNo = data['order_id']?.toString() ?? 
-                     data['id']?.toString() ?? 
-                     "#${DateTime.now().millisecondsSinceEpoch.toString().substring(8, 13)}";
+          _orderNo =
+              data['order_id']?.toString() ??
+              data['id']?.toString() ??
+              "#${DateTime.now().millisecondsSinceEpoch.toString().substring(8, 13)}";
         }
       } else if (widget.orderResponse!.containsKey('order_id')) {
         _orderNo = widget.orderResponse!['order_id'].toString();
       } else if (widget.orderResponse!.containsKey('id')) {
         _orderNo = widget.orderResponse!['id'].toString();
       } else {
-        _orderNo = "#${DateTime.now().millisecondsSinceEpoch.toString().substring(8, 13)}";
+        _orderNo =
+            "#${DateTime.now().millisecondsSinceEpoch.toString().substring(8, 13)}";
       }
     } else {
-      _orderNo = "#${DateTime.now().millisecondsSinceEpoch.toString().substring(8, 13)}";
+      _orderNo =
+          "#${DateTime.now().millisecondsSinceEpoch.toString().substring(8, 13)}";
     }
   }
 
@@ -94,61 +103,66 @@ class _slipPageState extends State<slipPage> {
     if (widget.subTotal != null && widget.subTotal! > 0) {
       subTotal = widget.subTotal!;
     }
-    
+
     if (widget.taxAmount != null && widget.taxAmount! > 0) {
       tax = widget.taxAmount!;
     }
-    
+
     if (widget.taxRate != null && widget.taxRate! > 0) {
       taxRate = widget.taxRate!;
     }
-    
+
     if (widget.totalAmount != null && widget.totalAmount! > 0) {
       total = widget.totalAmount!;
     }
-    
+
     // Calculate missing values if needed
     if (subTotal > 0 && tax == 0 && taxRate > 0) {
       tax = subTotal * (taxRate / 100);
     }
-    
+
     if (subTotal > 0 && tax > 0 && total == 0) {
       total = subTotal + tax + deliveryFee;
     }
-    
+
     if (subTotal == 0 && total > 0 && taxRate > 0) {
       subTotal = total / (1 + taxRate / 100);
       tax = total - subTotal;
     }
-    
+
     // SECOND PRIORITY: Use orderResponse values
     if (widget.orderResponse != null && subTotal == 0) {
       final orderData = widget.orderResponse!['data'];
       if (orderData is List && orderData.isNotEmpty) {
-        subTotal = (orderData[0]['subtotal'] ?? orderData[0]['Sub_total'] ?? 0).toDouble();
+        subTotal = (orderData[0]['subtotal'] ?? orderData[0]['Sub_total'] ?? 0)
+            .toDouble();
         tax = (orderData[0]['tax'] ?? 0).toDouble();
         deliveryFee = (orderData[0]['delivery_fee'] ?? 0).toDouble();
-        total = (orderData[0]['total'] ?? orderData[0]['Total'] ?? 0).toDouble();
-        
+        total = (orderData[0]['total'] ?? orderData[0]['Total'] ?? 0)
+            .toDouble();
+
         if (tax > 0 && subTotal > 0) {
           taxRate = (tax / subTotal) * 100;
         }
         return;
       } else if (orderData is Map<String, dynamic>) {
-        subTotal = (orderData['subtotal'] ?? orderData['Sub_total'] ?? 0).toDouble();
+        subTotal = (orderData['subtotal'] ?? orderData['Sub_total'] ?? 0)
+            .toDouble();
         tax = (orderData['tax'] ?? 0).toDouble();
         deliveryFee = (orderData['delivery_fee'] ?? 0).toDouble();
         total = (orderData['total'] ?? orderData['Total'] ?? 0).toDouble();
-        
+
         if (tax > 0 && subTotal > 0) {
           taxRate = (tax / subTotal) * 100;
         }
         return;
       }
     }
-    
+
     // LAST RESORT: Calculate from cartItems
-    if (widget.cartItems != null && widget.cartItems!.isNotEmpty && subTotal == 0) {
+    if (widget.cartItems != null &&
+        widget.cartItems!.isNotEmpty &&
+        subTotal == 0) {
       subTotal = widget.cartItems!.fold(
         0,
         (sum, item) => sum + (item.product.price * item.quantity),
@@ -166,23 +180,27 @@ class _slipPageState extends State<slipPage> {
     setState(() {
       _isSharing = true;
     });
-    
+
     try {
-      RenderRepaintBoundary boundary = _repaintKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      RenderRepaintBoundary boundary =
+          _repaintKey.currentContext!.findRenderObject()
+              as RenderRepaintBoundary;
       var image = await boundary.toImage(pixelRatio: 2.0);
       ByteData? byteData = await image.toByteData(format: ImageByteFormat.png);
       Uint8List pngBytes = byteData!.buffer.asUint8List();
-      
+
       final directory = await getTemporaryDirectory();
-      final imagePath = await File('${directory.path}/receipt_${DateTime.now().millisecondsSinceEpoch}.png').create();
+      final imagePath = await File(
+        '${directory.path}/receipt_${DateTime.now().millisecondsSinceEpoch}.png',
+      ).create();
       await imagePath.writeAsBytes(pngBytes);
-      
+
       await Share.shareXFiles(
         [XFile(imagePath.path)],
         text: "Order Receipt #$_orderNo\nTotal: ${total.toStringAsFixed(0)} Ks",
         subject: "Order Receipt",
       );
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -211,41 +229,43 @@ class _slipPageState extends State<slipPage> {
   }
 
   @override
- @override
-Widget build(BuildContext context) {
-  final orderNumber = _orderNo.isNotEmpty 
-      ? _orderNo 
-      : widget.orderResponse?['order_number'] ?? 
-        widget.orderResponse?['data']?[0]?['order_id']?.toString() ??
-        "#${DateTime.now().millisecondsSinceEpoch.toString().substring(8, 13)}";
-        
-  final orderDate = widget.orderResponse?['order_date'] ?? 
-                    widget.orderResponse?['data']?[0]?['create_at'] != null
-                        ? _formatDate(widget.orderResponse!['data'][0]['create_at'])
-                        : date;
-  final orderTime = widget.orderResponse?['order_time'] ?? time;
+  @override
+  Widget build(BuildContext context) {
+    final orderNumber = _orderNo.isNotEmpty
+        ? _orderNo
+        : widget.orderResponse?['order_number'] ??
+              widget.orderResponse?['data']?[0]?['order_id']?.toString() ??
+              "#${DateTime.now().millisecondsSinceEpoch.toString().substring(8, 13)}";
 
-  return Scaffold(
-    body: SafeArea(
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _header(),
-            const SizedBox(height: 15),
-            RepaintBoundary(
-              key: _repaintKey,
-              child: _voucher(orderNumber, orderDate, orderTime),
-            ),
-            const SizedBox(height: 15),
-            _buttons(),
-            const SizedBox(height: 20),
-          ],
+    final orderDate =
+        widget.orderResponse?['order_date'] ??
+            widget.orderResponse?['data']?[0]?['create_at'] != null
+        ? _formatDate(widget.orderResponse!['data'][0]['create_at'])
+        : date;
+    final orderTime = widget.orderResponse?['order_time'] ?? time;
+
+    return Scaffold(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _header(),
+              const SizedBox(height: 15),
+              RepaintBoundary(
+                key: _repaintKey,
+                child: _voucher(orderNumber, orderDate, orderTime),
+              ),
+              const SizedBox(height: 15),
+              _buttons(),
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
+
   Widget _header() {
     return Container(
       color: const Color.fromARGB(255, 13, 27, 42),
@@ -258,7 +278,10 @@ Widget build(BuildContext context) {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: Colors.white,
+            ),
           ),
           const Expanded(
             child: Text(
@@ -339,7 +362,8 @@ Widget build(BuildContext context) {
           _infoRow("Time :", orderTime),
           const SizedBox(height: 8),
           _infoRow("Payment :", widget.paymentMethod ?? "Cash on Delivery"),
-          if (widget.transactionNumber != null && widget.transactionNumber!.isNotEmpty)
+          if (widget.transactionNumber != null &&
+              widget.transactionNumber!.isNotEmpty)
             _infoRow("Transaction No :", widget.transactionNumber!),
           const SizedBox(height: 15),
           const Divider(color: Colors.white54),
@@ -361,8 +385,11 @@ Widget build(BuildContext context) {
           const Divider(color: Colors.white54),
           const SizedBox(height: 10),
           _priceRow("Sub Total :", "${subTotal.toStringAsFixed(0)} Ks"),
-          _priceRow("Tax (${taxRate.toStringAsFixed(0)}%) :", "${tax.toStringAsFixed(0)} Ks"),
-          if (deliveryFee > 0) 
+          _priceRow(
+            "Tax (${taxRate.toStringAsFixed(0)}%) :",
+            "${tax.toStringAsFixed(0)} Ks",
+          ),
+          if (deliveryFee > 0)
             _priceRow("Delivery Fee :", "${deliveryFee.toStringAsFixed(0)} Ks"),
           const SizedBox(height: 8),
           const Divider(color: Colors.white54),
@@ -461,10 +488,10 @@ Widget build(BuildContext context) {
         }).toList(),
       );
     }
-    
+
     if (widget.orderResponse != null) {
       List<dynamic> itemsList = [];
-      
+
       if (widget.orderResponse!.containsKey('data')) {
         final data = widget.orderResponse!['data'];
         if (data is List && data.isNotEmpty) {
@@ -477,24 +504,28 @@ Widget build(BuildContext context) {
       } else if (widget.orderResponse!.containsKey('order_items')) {
         itemsList = widget.orderResponse!['order_items'] ?? [];
       }
-      
+
       if (itemsList.isNotEmpty) {
         return Column(
           children: itemsList.map((item) {
-            final productName = item['product_name']?.toString() ?? 
-                               item['name']?.toString() ?? 
-                               'Unknown';
+            final productName =
+                item['product_name']?.toString() ??
+                item['name']?.toString() ??
+                'Unknown';
             final quantity = item['quantity']?.toString() ?? '0';
-            final price = item['total']?.toString() ?? 
-                         (item['price'] != null 
-                             ? (double.parse(item['price'].toString()) * int.parse(quantity)).toStringAsFixed(0)
-                             : '0');
+            final price =
+                item['total']?.toString() ??
+                (item['price'] != null
+                    ? (double.parse(item['price'].toString()) *
+                              int.parse(quantity))
+                          .toStringAsFixed(0)
+                    : '0');
             return _productRow(productName, quantity, price);
           }).toList(),
         );
       }
     }
-    
+
     return const Padding(
       padding: EdgeInsets.all(16),
       child: Center(
@@ -577,7 +608,9 @@ Widget build(BuildContext context) {
             amount,
             style: TextStyle(
               fontFamily: "Custom",
-              color: isBold ? const Color.fromARGB(255, 51, 252, 57) : Colors.white,
+              color: isBold
+                  ? const Color.fromARGB(255, 51, 252, 57)
+                  : Colors.white,
               fontSize: isBold ? 18 : 15,
               fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
             ),
@@ -605,9 +638,15 @@ Widget build(BuildContext context) {
               ),
               icon: const Icon(Icons.home, size: 22),
               onPressed: () {
-                final sessionService = Provider.of<SessionService>(context, listen: false);
-                final cartService = Provider.of<CartService>(context, listen: false);
-                
+                final sessionService = Provider.of<SessionService>(
+                  context,
+                  listen: false,
+                );
+                final cartService = Provider.of<CartService>(
+                  context,
+                  listen: false,
+                );
+
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(

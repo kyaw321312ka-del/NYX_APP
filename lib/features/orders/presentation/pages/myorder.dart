@@ -9,12 +9,7 @@ class myOrder extends StatefulWidget {
 }
 
 class _myOrderState extends State<myOrder> {
-  final List<String> status = [
-    "All",
-    "Pending",
-    "Delivered",
-    "Cancelled",
-  ];
+  final List<String> status = ["All", "Pending", "Delivered", "Cancelled"];
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +28,7 @@ class _myOrderState extends State<myOrder> {
               _finishedOrderCard(),
             ],
           ),
-        )
+        ),
       ),
     );
   }
@@ -47,17 +42,14 @@ class _myOrderState extends State<myOrder> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           IconButton(
-            onPressed: (){
-                Navigator.pop(context);
-            }, 
-            icon: Icon(
-              Icons.arrow_back_ios_new_rounded, 
-              color: Colors.white,
-              ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           ),
           Expanded(
             child: const Text(
-              "My Orders", 
+              "My Orders",
               style: TextStyle(
                 fontFamily: "Custom",
                 color: Colors.white,
@@ -71,18 +63,18 @@ class _myOrderState extends State<myOrder> {
               fontFamily: "Custom",
               fontSize: 18,
               fontWeight: FontWeight.w500,
-              color: Colors.white
+              color: Colors.white,
             ),
           ),
           IconButton(
-            onPressed: (){
+            onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => orderHistory()),
               );
-            }, 
-            icon: Icon(Icons.calendar_month_rounded,color: Colors.white,)
-          )
+            },
+            icon: Icon(Icons.calendar_month_rounded, color: Colors.white),
+          ),
         ],
       ),
     );
@@ -101,8 +93,7 @@ class _myOrderState extends State<myOrder> {
           final isSelected = statu == statu;
 
           return GestureDetector(
-            onTap: () {
-            },
+            onTap: () {},
             child: Container(
               width: 90,
               margin: const EdgeInsets.all(5),
@@ -129,24 +120,20 @@ class _myOrderState extends State<myOrder> {
     );
   }
 
-  Widget _ongoingOrderCard(){
+  Widget _ongoingOrderCard() {
     return Container(
       height: 210,
       margin: EdgeInsets.symmetric(horizontal: 5),
       padding: EdgeInsets.symmetric(vertical: 2),
       decoration: BoxDecoration(
         color: Color.fromARGB(255, 13, 27, 42),
-        borderRadius: BorderRadius.circular(10)
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Stack(
         children: [
           Positioned(
             left: -5,
-            child: Icon(
-              Icons.image,
-              size: 190,
-              color: Colors.white,
-            )
+            child: Icon(Icons.image, size: 190, color: Colors.white),
           ),
           Positioned(
             left: 190,
@@ -160,7 +147,7 @@ class _myOrderState extends State<myOrder> {
                     fontFamily: "Custom",
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white
+                    color: Colors.white,
                   ),
                 ),
                 SizedBox(height: 10),
@@ -170,7 +157,7 @@ class _myOrderState extends State<myOrder> {
                     fontFamily: "Custom",
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white
+                    color: Colors.white,
                   ),
                 ),
                 SizedBox(height: 10),
@@ -180,7 +167,7 @@ class _myOrderState extends State<myOrder> {
                     fontFamily: "Custom",
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white
+                    color: Colors.white,
                   ),
                 ),
                 SizedBox(height: 10),
@@ -190,7 +177,7 @@ class _myOrderState extends State<myOrder> {
                     fontFamily: "Custom",
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white
+                    color: Colors.white,
                   ),
                 ),
                 SizedBox(height: 5),
@@ -200,7 +187,7 @@ class _myOrderState extends State<myOrder> {
                     fontFamily: "Custom",
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.red
+                    color: Colors.red,
                   ),
                 ),
               ],
@@ -215,69 +202,69 @@ class _myOrderState extends State<myOrder> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
-                    onPressed: (){}, 
+                    onPressed: () {},
                     child: Text(
                       "Track Order",
                       style: TextStyle(
                         fontSize: 12,
                         fontFamily: "Custom",
                         fontWeight: FontWeight.w500,
-                        color: Colors.black
+                        color: Colors.black,
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      fixedSize: Size (110, 10),
+                      fixedSize: Size(110, 10),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadiusGeometry.all(Radius.circular(15))
+                        borderRadius: BorderRadiusGeometry.all(
+                          Radius.circular(15),
+                        ),
                       ),
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: (){}, 
+                    onPressed: () {},
                     child: Text(
                       "Cancel",
                       style: TextStyle(
                         fontSize: 12,
                         fontFamily: "Custom",
                         fontWeight: FontWeight.w500,
-                        color: Colors.white
+                        color: Colors.white,
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      fixedSize: Size (110, 10),
+                      fixedSize: Size(110, 10),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadiusGeometry.all(Radius.circular(15)),
+                        borderRadius: BorderRadiusGeometry.all(
+                          Radius.circular(15),
+                        ),
                       ),
-                      backgroundColor: Colors.red
+                      backgroundColor: Colors.red,
                     ),
-                  )
+                  ),
                 ],
               ),
-            )
-          )
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _finishedOrderCard(){
+  Widget _finishedOrderCard() {
     return Container(
       height: 210,
       margin: EdgeInsets.symmetric(horizontal: 5),
       padding: EdgeInsets.symmetric(vertical: 2),
       decoration: BoxDecoration(
         color: Color.fromARGB(255, 13, 27, 42),
-        borderRadius: BorderRadius.circular(10)
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Stack(
         children: [
           Positioned(
             left: -5,
-            child: Icon(
-              Icons.image,
-              size: 190,
-              color: Colors.white,
-            )
+            child: Icon(Icons.image, size: 190, color: Colors.white),
           ),
           Positioned(
             left: 190,
@@ -291,7 +278,7 @@ class _myOrderState extends State<myOrder> {
                     fontFamily: "Custom",
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white
+                    color: Colors.white,
                   ),
                 ),
                 SizedBox(height: 10),
@@ -301,7 +288,7 @@ class _myOrderState extends State<myOrder> {
                     fontFamily: "Custom",
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white
+                    color: Colors.white,
                   ),
                 ),
                 SizedBox(height: 10),
@@ -311,7 +298,7 @@ class _myOrderState extends State<myOrder> {
                     fontFamily: "Custom",
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white
+                    color: Colors.white,
                   ),
                 ),
                 SizedBox(height: 10),
@@ -321,7 +308,7 @@ class _myOrderState extends State<myOrder> {
                     fontFamily: "Custom",
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white
+                    color: Colors.white,
                   ),
                 ),
                 SizedBox(height: 5),
@@ -331,7 +318,7 @@ class _myOrderState extends State<myOrder> {
                     fontFamily: "Custom",
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.red
+                    color: Colors.red,
                   ),
                 ),
               ],
@@ -346,51 +333,52 @@ class _myOrderState extends State<myOrder> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
-                    onPressed: (){}, 
+                    onPressed: () {},
                     child: Text(
                       "Reorder",
                       style: TextStyle(
                         fontSize: 14,
                         fontFamily: "Custom",
                         fontWeight: FontWeight.w500,
-                        color: Colors.white
+                        color: Colors.white,
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      fixedSize: Size (110, 10),
+                      fixedSize: Size(110, 10),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadiusGeometry.all(Radius.circular(15))
+                        borderRadius: BorderRadiusGeometry.all(
+                          Radius.circular(15),
+                        ),
                       ),
-                      backgroundColor: const Color.fromARGB(255, 39, 242, 46)
+                      backgroundColor: const Color.fromARGB(255, 39, 242, 46),
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: (){}, 
+                    onPressed: () {},
                     child: Text(
                       "Rate Us",
                       style: TextStyle(
                         fontSize: 14,
                         fontFamily: "Custom",
                         fontWeight: FontWeight.w500,
-                        color: Colors.white
+                        color: Colors.white,
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      fixedSize: Size (110, 10),
+                      fixedSize: Size(110, 10),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadiusGeometry.all(Radius.circular(15)),
+                        borderRadius: BorderRadiusGeometry.all(
+                          Radius.circular(15),
+                        ),
                       ),
                       backgroundColor: Colors.transparent,
-                      side: BorderSide(
-                        width: 2,
-                        color: Colors.white
-                      )
+                      side: BorderSide(width: 2, color: Colors.white),
                     ),
-                  )
+                  ),
                 ],
               ),
-            )
-          )
+            ),
+          ),
         ],
       ),
     );

@@ -11,7 +11,7 @@ class ContactUs extends StatefulWidget {
 
 class _ContactUsState extends State<ContactUs> {
   double get screenWidth => MediaQuery.of(context).size.width;
-  
+
   bool _isLoading = true;
   String? _errorMessage;
   ContactUsData? _contactData;
@@ -30,7 +30,7 @@ class _ContactUsState extends State<ContactUs> {
 
     try {
       final result = await ContactusApi.getGeneralInfo();
-      
+
       if (result['success'] == true && result['data'] != null) {
         setState(() {
           _contactData = result['data'];
@@ -38,7 +38,8 @@ class _ContactUsState extends State<ContactUs> {
         });
       } else {
         setState(() {
-          _errorMessage = result['message'] ?? 'Failed to load contact information';
+          _errorMessage =
+              result['message'] ?? 'Failed to load contact information';
           _isLoading = false;
         });
       }
@@ -63,76 +64,69 @@ class _ContactUsState extends State<ContactUs> {
               children: [
                 _header(),
                 const SizedBox(height: 10),
-              
-              if (_isLoading)
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(50),
-                    child: CircularProgressIndicator(),
-                  ),
-                )
-              else if (_errorMessage != null)
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(50),
-                    child: Column(
-                      children: [
-                        Text(
-                          _errorMessage!,
-                          style: const TextStyle(color: Colors.red),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: _fetchContactInfo,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
+
+                if (_isLoading)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(50),
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                else if (_errorMessage != null)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(50),
+                      child: Column(
+                        children: [
+                          Text(
+                            _errorMessage!,
+                            style: const TextStyle(color: Colors.red),
+                            textAlign: TextAlign.center,
                           ),
-                          child: const Text('Retry'),
-                        ),
-                      ],
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: _fetchContactInfo,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                            ),
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
                     ),
+                  )
+                else if (_contactData != null)
+                  Column(
+                    children: [
+                      // Shop Logo
+                      if (_contactData!.logoImageUrl != null &&
+                          _contactData!.logoImageUrl!.isNotEmpty)
+                        _buildShopLogo(),
+
+                      // Shop Name
+                      if (_contactData!.shopName != null &&
+                          _contactData!.shopName!.isNotEmpty)
+                        _buildShopName(),
+
+                      const SizedBox(height: 10),
+
+                      // Contact Items (NOT TAPPABLE)
+                      if (_contactData!.contactInfo != null &&
+                          _contactData!.contactInfo!.isNotEmpty)
+                        _menuItem(Icons.call_sharp, _contactData!.contactInfo!),
+
+                      if (_contactData!.address != null &&
+                          _contactData!.address!.isNotEmpty)
+                        _menuItem(Icons.location_on, _contactData!.address!),
+
+                      if (_contactData!.socialLink != null &&
+                          _contactData!.socialLink!.isNotEmpty)
+                        _menuItem(Icons.language, _contactData!.socialLink!),
+
+                      // Email (static)
+                      _menuItem(Icons.mail, "Shopping@nyx.com"),
+                    ],
                   ),
-                )
-              else if (_contactData != null)
-                Column(
-                  children: [
-                    // Shop Logo
-                    if (_contactData!.logoImageUrl != null && _contactData!.logoImageUrl!.isNotEmpty)
-                      _buildShopLogo(),
-                    
-                    // Shop Name
-                    if (_contactData!.shopName != null && _contactData!.shopName!.isNotEmpty)
-                      _buildShopName(),
-                    
-                    const SizedBox(height: 10),
-                    
-                    // Contact Items (NOT TAPPABLE)
-                    if (_contactData!.contactInfo != null && _contactData!.contactInfo!.isNotEmpty)
-                      _menuItem(
-                        Icons.call_sharp,
-                        _contactData!.contactInfo!,
-                      ),
-                    
-                    if (_contactData!.address != null && _contactData!.address!.isNotEmpty)
-                      _menuItem(
-                        Icons.location_on,
-                        _contactData!.address!,
-                      ),
-                    
-                    if (_contactData!.socialLink != null && _contactData!.socialLink!.isNotEmpty)
-                      _menuItem(
-                        Icons.language,
-                        _contactData!.socialLink!,
-                      ),
-                    
-                    // Email (static)
-                    _menuItem(
-                      Icons.mail,
-                      "Shopping@nyx.com",
-                    ),
-                  ],
-                ),
               ],
             ),
           ),
@@ -223,10 +217,7 @@ class _ContactUsState extends State<ContactUs> {
           leading: Icon(icon, color: Colors.white),
           title: Text(
             title,
-            style: const TextStyle(
-              fontFamily: 'Custom',
-              color: Colors.white,
-            ),
+            style: const TextStyle(fontFamily: 'Custom', color: Colors.white),
           ),
           // Removed the trailing arrow icon since it's not tappable
         ),

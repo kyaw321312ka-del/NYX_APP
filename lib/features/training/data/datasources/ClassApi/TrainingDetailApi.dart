@@ -6,15 +6,16 @@ import 'package:nyxproject/core/utils/app_constants.dart';
 
 class TrainingDetailApi {
   static Future<Map<String, dynamic>> getTrainingDetail(int trainingId) async {
-    final Uri uri = Uri.parse("${Constant.API_URL}/training/showtraining/$trainingId");
+    final Uri uri = Uri.parse(
+      "${Constant.API_URL}/training/showtraining/$trainingId",
+    );
 
     print("Training Detail URL: $uri");
 
     try {
-      final response = await http.get(
-        uri,
-        headers: Constant.headers,
-      ).timeout(const Duration(seconds: 30));
+      final response = await http
+          .get(uri, headers: Constant.headers)
+          .timeout(const Duration(seconds: 30));
 
       print("Training Detail Response Status: ${response.statusCode}");
       print("Training Detail Response Body: ${response.body}");
@@ -35,15 +36,13 @@ class TrainingDetailApi {
             'message': 'Training detail fetched successfully',
           };
         } else {
-          return {
-            'success': false,
-            'message': 'No training data found',
-          };
+          return {'success': false, 'message': 'No training data found'};
         }
       } else {
         return {
           'success': false,
-          'message': responseData['message'] ?? 'Failed to fetch training detail',
+          'message':
+              responseData['message'] ?? 'Failed to fetch training detail',
         };
       }
     } catch (e) {

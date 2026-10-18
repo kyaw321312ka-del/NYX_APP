@@ -40,9 +40,9 @@ class WalkinBookin {
       total: _toInt(json['Total']) ?? 0,
       items: itemData is List
           ? itemData
-              .whereType<Map<String, dynamic>>()
-              .map(WalkinItem.fromJson)
-              .toList()
+                .whereType<Map<String, dynamic>>()
+                .map(WalkinItem.fromJson)
+                .toList()
           : const [],
     );
   }

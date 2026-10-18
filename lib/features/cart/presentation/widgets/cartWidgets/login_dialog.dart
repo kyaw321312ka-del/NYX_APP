@@ -11,7 +11,7 @@ class LoginDialog {
     required SessionService session,
   }) {
     final cartService = Provider.of<CartService>(context, listen: false);
-    
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -41,9 +41,7 @@ class LoginDialog {
                 );
               }
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Login Now'),
           ),
         ],

@@ -1,4 +1,4 @@
-  import 'dart:convert';
+import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:nyxproject/features/training/domain/entities/Training.dart';
 import 'package:nyxproject/core/utils/app_constants.dart';
@@ -8,10 +8,9 @@ class TrainingApi {
     final Uri uri = Uri.parse("${Constant.API_URL}/training/showtraining");
 
     try {
-      final response = await http.get(
-        uri,
-        headers: Constant.headers,
-      ).timeout(const Duration(seconds: 30));
+      final response = await http
+          .get(uri, headers: Constant.headers)
+          .timeout(const Duration(seconds: 30));
 
       print("Training Response Status: ${response.statusCode}");
 
@@ -40,7 +39,11 @@ class TrainingApi {
       }
     } catch (e) {
       print("Get Trainings Error: $e");
-      return {'success': false, 'message': 'Unable to connect. Check your internet connection and try again.'};
+      return {
+        'success': false,
+        'message':
+            'Unable to connect. Check your internet connection and try again.',
+      };
     }
   }
 }

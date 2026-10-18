@@ -11,15 +11,12 @@ class TaxApi {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
-        
+
         if (data['success'] == true) {
           final List<dynamic> taxData = data['data'];
           if (taxData.isNotEmpty) {
             final tax = Tax.fromJson(taxData[0]);
-            return {
-              'success': true,
-              'tax': tax,
-            };
+            return {'success': true, 'tax': tax};
           }
         }
         return {
@@ -33,10 +30,7 @@ class TaxApi {
         };
       }
     } catch (e) {
-      return {
-        'success': false,
-        'message': 'Error loading tax: $e',
-      };
+      return {'success': false, 'message': 'Error loading tax: $e'};
     }
   }
 }

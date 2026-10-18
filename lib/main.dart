@@ -40,9 +40,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<SessionService>.value(value: sessionService),
         ChangeNotifierProvider<CartService>.value(value: cartService),
         ChangeNotifierProvider<ServicesController>(
-          create: (_) => ServicesController(
-            GetServicesData(ServicesRepositoryImpl()),
-          ),
+          create: (_) =>
+              ServicesController(GetServicesData(ServicesRepositoryImpl())),
         ),
         Provider<GetTournamentBanners>(
           create: (_) => GetTournamentBanners(
@@ -52,9 +51,8 @@ class MyApp extends StatelessWidget {
           ),
         ),
         ChangeNotifierProvider<TournamentBannerController>(
-          create: (context) => TournamentBannerController(
-            context.read<GetTournamentBanners>(),
-          ),
+          create: (context) =>
+              TournamentBannerController(context.read<GetTournamentBanners>()),
         ),
       ],
       child: MaterialApp(

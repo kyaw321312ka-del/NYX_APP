@@ -180,8 +180,9 @@ class _AccountPageState extends State<AccountPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            DeleteAccount(sessionService: widget.sessionService),
+                        builder: (context) => DeleteAccount(
+                          sessionService: widget.sessionService,
+                        ),
                       ),
                     );
                   },

@@ -115,10 +115,7 @@ class CanteenCard extends StatelessWidget {
                           ),
                           child: const Text(
                             "Sold Out",
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.white,
-                            ),
+                            style: TextStyle(fontSize: 10, color: Colors.white),
                           ),
                         ),
                     ],

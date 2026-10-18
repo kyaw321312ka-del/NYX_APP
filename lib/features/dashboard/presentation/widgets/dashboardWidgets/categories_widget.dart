@@ -30,11 +30,7 @@ class CategoriesWidget extends StatelessWidget {
     if (error != null) {
       return SizedBox(
         height: 100,
-        child: AppErrorView(
-          message: error!,
-          onRetry: onRetry,
-          compact: true,
-        ),
+        child: AppErrorView(message: error!, onRetry: onRetry, compact: true),
       );
     }
 

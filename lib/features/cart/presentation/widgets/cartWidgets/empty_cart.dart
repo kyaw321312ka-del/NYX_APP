@@ -4,10 +4,7 @@ import 'package:flutter/material.dart';
 class EmptyCart extends StatelessWidget {
   final VoidCallback? onAddItems;
 
-  const EmptyCart({
-    super.key,
-    this.onAddItems,
-  });
+  const EmptyCart({super.key, this.onAddItems});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +12,11 @@ class EmptyCart extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey),
+          const Icon(
+            Icons.shopping_cart_outlined,
+            size: 80,
+            color: Colors.grey,
+          ),
           const SizedBox(height: 16),
           const Text(
             'Your cart is empty',

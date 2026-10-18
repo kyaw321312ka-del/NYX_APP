@@ -56,10 +56,7 @@ class _CategoryPageState extends State<CategoryPage> {
   }
 
   Future<void> _loadData() async {
-    await Future.wait([
-      _loadCategories(),
-      _loadProducts(),
-    ]);
+    await Future.wait([_loadCategories(), _loadProducts()]);
   }
 
   Future<void> _loadCategories() async {
@@ -135,14 +132,15 @@ class _CategoryPageState extends State<CategoryPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-                title: const Text("Price: Low to High"),
-                onTap: () {
-                  setState(() {
-                    _selectedSort = "low";
-                  });
-                  _applyFilters();
-                  Navigator.pop(context);
-                }),
+              title: const Text("Price: Low to High"),
+              onTap: () {
+                setState(() {
+                  _selectedSort = "low";
+                });
+                _applyFilters();
+                Navigator.pop(context);
+              },
+            ),
             ListTile(
               title: const Text("Price: High to Low"),
               onTap: () {
@@ -175,9 +173,9 @@ class _CategoryPageState extends State<CategoryPage> {
     // Filter by search query
     if (_searchQuery.trim().isNotEmpty) {
       results = results.where((product) {
-        return product.productName
-            .toLowerCase()
-            .contains(_searchQuery.toLowerCase());
+        return product.productName.toLowerCase().contains(
+          _searchQuery.toLowerCase(),
+        );
       }).toList();
     }
 
@@ -226,7 +224,7 @@ class _CategoryPageState extends State<CategoryPage> {
                 color: const Color(0xFF0D1B2A),
                 child: _gridCards(),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -257,10 +255,11 @@ class _CategoryPageState extends State<CategoryPage> {
             child: Text(
               title,
               style: const TextStyle(
-                  fontFamily: "Custom",
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600),
+                fontFamily: "Custom",
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
           // SizedBox(
@@ -387,10 +386,7 @@ class _CategoryPageState extends State<CategoryPage> {
 
     if (_productsError != null) {
       return _scrollableState(
-        Text(
-          _productsError!,
-          style: const TextStyle(color: Colors.red),
-        ),
+        Text(_productsError!, style: const TextStyle(color: Colors.red)),
       );
     }
 
@@ -444,8 +440,11 @@ class _CategoryPageState extends State<CategoryPage> {
                               return Container(
                                 color: Colors.grey[200],
                                 child: const Center(
-                                  child: Icon(Icons.image,
-                                      size: 50, color: Colors.grey),
+                                  child: Icon(
+                                    Icons.image,
+                                    size: 50,
+                                    color: Colors.grey,
+                                  ),
                                 ),
                               );
                             },
@@ -453,8 +452,11 @@ class _CategoryPageState extends State<CategoryPage> {
                         : Container(
                             color: Colors.grey[200],
                             child: const Center(
-                              child: Icon(Icons.image,
-                                  size: 50, color: Colors.grey),
+                              child: Icon(
+                                Icons.image,
+                                size: 50,
+                                color: Colors.grey,
+                              ),
                             ),
                           ),
                   ),

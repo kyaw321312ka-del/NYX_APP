@@ -4,15 +4,12 @@ import 'package:flutter/material.dart';
 class CartHeader extends StatelessWidget {
   final VoidCallback? onBackPressed;
 
-  const CartHeader({
-    super.key,
-    this.onBackPressed,
-  });
+  const CartHeader({super.key, this.onBackPressed});
 
   @override
   Widget build(BuildContext context) {
     final canPop = Navigator.canPop(context);
-    
+
     return Container(
       color: const Color.fromARGB(255, 13, 27, 42),
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
@@ -21,14 +18,14 @@ class CartHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           canPop || onBackPressed != null
-            ? IconButton(
-                onPressed: onBackPressed ?? () => Navigator.pop(context),
-                icon: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Colors.white,
-                ),
-              )
-            : const SizedBox(width: 48),
+              ? IconButton(
+                  onPressed: onBackPressed ?? () => Navigator.pop(context),
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: Colors.white,
+                  ),
+                )
+              : const SizedBox(width: 48),
           const Expanded(
             child: Text(
               "My Cart",

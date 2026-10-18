@@ -35,7 +35,7 @@ class BookingOrder {
           .map((item) => BookingItem.fromJson(item))
           .toList();
     }
-    
+
     return BookingOrder(
       id: json['id'] as int? ?? 0,
       userId: json['user_id'] as int? ?? 0,
@@ -59,12 +59,7 @@ class BookingItem {
   final int? quantity;
   final String? equipment;
 
-  BookingItem({
-    this.price,
-    this.total,
-    this.quantity,
-    this.equipment,
-  });
+  BookingItem({this.price, this.total, this.quantity, this.equipment});
 
   factory BookingItem.fromJson(Map<String, dynamic> json) {
     return BookingItem(

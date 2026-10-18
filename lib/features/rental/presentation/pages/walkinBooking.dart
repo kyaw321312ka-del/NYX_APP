@@ -64,9 +64,9 @@ class _WalkinbookingState extends State<Walkinbooking> {
                 _MessageState(
                   icon: Icons.error_outline,
                   message: snapshot.error.toString().replaceFirst(
-                        'Exception: ',
-                        '',
-                      ),
+                    'Exception: ',
+                    '',
+                  ),
                   action: _reload,
                 ),
               );

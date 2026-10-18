@@ -53,52 +53,57 @@ class _rentalPaymentState extends State<rentalPayment> {
 
   void _loadBookingData() {
     final bookingData = widget.bookingData ?? {};
-    
+
     // Get user info from session
     final sessionService = Provider.of<SessionService>(context, listen: false);
     final user = sessionService.getStoredUser();
-    
+
     setState(() {
       customerName = user?.name ?? bookingData['name'] ?? "N/A";
       customerPhone = user?.phone ?? bookingData['phone'] ?? "N/A";
       courtName = bookingData['courtName'] ?? "N/A";
       // courtNumber = bookingData['courtNumber'] ?? "N/A";
-      
+
       // Format date
       if (bookingData['selectedDate'] != null) {
         DateTime date = bookingData['selectedDate'];
-        bookingDate = "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+        bookingDate =
+            "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
       } else {
         bookingDate = bookingData['date'] ?? "N/A";
       }
-      
+
       // Get time slot
-      timeSlot = bookingData['timeSlot'] ?? 
-                 (bookingData['selectedTimeSlot'] != null 
-                     ? "${_formatTime(bookingData['selectedTimeSlot'].startTime)} - ${_formatTime(bookingData['selectedTimeSlot'].endTime)}"
-                     : "N/A");
-      
+      timeSlot =
+          bookingData['timeSlot'] ??
+          (bookingData['selectedTimeSlot'] != null
+              ? "${_formatTime(bookingData['selectedTimeSlot'].startTime)} - ${_formatTime(bookingData['selectedTimeSlot'].endTime)}"
+              : "N/A");
+
       numberOfSessions = bookingData['sessionCount']?.toString() ?? "1";
-      
+
       // Calculate fees
       courtFees = "${(bookingData['sessionPrice'] ?? 0).toStringAsFixed(0)} Ks";
-      
+
       // Calculate equipment rental fees
       int totalRentalFees = 0;
       var equipmentQuantities = bookingData['equipmentQuantities'] ?? {};
       var equipmentPrices = bookingData['equipmentPrices'] ?? {};
-      
+
       for (var entry in equipmentQuantities.entries) {
         if (entry.value > 0) {
           String priceStr = equipmentPrices[entry.key] ?? "0";
-          int price = int.tryParse(priceStr.split(' ')[0].replaceAll(',', '')) ?? 0;
-          int quantity = entry.value is int ? entry.value : (entry.value as num).toInt();
+          int price =
+              int.tryParse(priceStr.split(' ')[0].replaceAll(',', '')) ?? 0;
+          int quantity = entry.value is int
+              ? entry.value
+              : (entry.value as num).toInt();
           totalRentalFees += price * quantity;
         }
       }
-      
+
       equipmentFees = "$totalRentalFees Ks";
-      
+
       // Calculate total rental items count
       int totalCount = 0;
       for (var value in equipmentQuantities.values) {
@@ -109,7 +114,7 @@ class _rentalPaymentState extends State<rentalPayment> {
         }
       }
       rentalItems = totalCount.toString();
-      
+
       double total = (bookingData['totalCharges'] ?? 0).toDouble();
       totalAmount = "${total.toStringAsFixed(0)} Ks";
     });
@@ -151,7 +156,8 @@ class _rentalPaymentState extends State<rentalPayment> {
         });
       } else {
         setState(() {
-          _paymentsError = result['message'] ?? 'Failed to load payment methods';
+          _paymentsError =
+              result['message'] ?? 'Failed to load payment methods';
           _isLoadingPayments = false;
         });
       }
@@ -350,44 +356,44 @@ class _rentalPaymentState extends State<rentalPayment> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _header(),
-              const SizedBox(height: 5),
-              _section("Information"),
-              const SizedBox(height: 5),
-              _information("Name", customerName),
-              const SizedBox(height: 1),
-              _information("Phone Number", customerPhone),
-              const SizedBox(height: 1),
-              _information("Court", courtName),
-              const SizedBox(height: 1),
-              // _information("Court Number", courtNumber),
-              const SizedBox(height: 1),
-              _information("Date", bookingDate),
-              const SizedBox(height: 1),
-              _information("Time Slot", timeSlot),
-              const SizedBox(height: 1),
-              _information("Number of Session", numberOfSessions),
-              const SizedBox(height: 1),
-              _information("Rental Items", rentalItems),
-              const Divider(),
-              _information("Court Fees :", courtFees),
-              const SizedBox(height: 1),
-              _information("Equipment Rental Fees :", equipmentFees),
-              const Divider(),
-              _information("Total Amount", totalAmount),
-              const SizedBox(height: 1),
-              const Divider(),
-              _information1("Total", totalAmount),
-              const SizedBox(height: 10),
-              _section("Select Payment Method"),
-              const SizedBox(height: 5),
-              _paymentMethod(),
-              const SizedBox(height: 5),
-              _paymentInfo(),
-              const SizedBox(height: 10),
-              _imageUploadSection(),
-              const SizedBox(height: 20),
-              _confirm(),
-              const SizedBox(height: 30),
+                const SizedBox(height: 5),
+                _section("Information"),
+                const SizedBox(height: 5),
+                _information("Name", customerName),
+                const SizedBox(height: 1),
+                _information("Phone Number", customerPhone),
+                const SizedBox(height: 1),
+                _information("Court", courtName),
+                const SizedBox(height: 1),
+                // _information("Court Number", courtNumber),
+                const SizedBox(height: 1),
+                _information("Date", bookingDate),
+                const SizedBox(height: 1),
+                _information("Time Slot", timeSlot),
+                const SizedBox(height: 1),
+                _information("Number of Session", numberOfSessions),
+                const SizedBox(height: 1),
+                _information("Rental Items", rentalItems),
+                const Divider(),
+                _information("Court Fees :", courtFees),
+                const SizedBox(height: 1),
+                _information("Equipment Rental Fees :", equipmentFees),
+                const Divider(),
+                _information("Total Amount", totalAmount),
+                const SizedBox(height: 1),
+                const Divider(),
+                _information1("Total", totalAmount),
+                const SizedBox(height: 10),
+                _section("Select Payment Method"),
+                const SizedBox(height: 5),
+                _paymentMethod(),
+                const SizedBox(height: 5),
+                _paymentInfo(),
+                const SizedBox(height: 10),
+                _imageUploadSection(),
+                const SizedBox(height: 20),
+                _confirm(),
+                const SizedBox(height: 30),
               ],
             ),
           ),
@@ -523,10 +529,7 @@ class _rentalPaymentState extends State<rentalPayment> {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              Text(
-                _paymentsError!,
-                style: const TextStyle(color: Colors.red),
-              ),
+              Text(_paymentsError!, style: const TextStyle(color: Colors.red)),
               const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: _loadPaymentMethods,
@@ -588,7 +591,7 @@ class _rentalPaymentState extends State<rentalPayment> {
 
   Widget _paymentInfo() {
     final method = selectedPaymentMethod;
-    
+
     if (method == null) {
       return const SizedBox.shrink();
     }
@@ -681,9 +684,7 @@ class _rentalPaymentState extends State<rentalPayment> {
             hintText: text,
             filled: true,
             fillColor: const Color.fromARGB(255, 13, 27, 42),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
           ),
         ),
       ),
@@ -722,156 +723,153 @@ class _rentalPaymentState extends State<rentalPayment> {
     );
   }
 
-Future<void> _submitBookingToAPI() async {
-  // Validate
-  if (selectedPaymentId == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Please select a payment method'),
-        backgroundColor: Colors.red,
-      ),
-    );
-    return;
-  }
-
-  if (_transactionImage == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Please upload transaction slip'),
-        backgroundColor: Colors.red,
-      ),
-    );
-    return;
-  }
-
-  setState(() {
-    _isProcessing = true;
-  });
-
-  try {
-    final sessionService = Provider.of<SessionService>(
-      context,
-      listen: false,
-    );
-    final token = sessionService.getToken();
-    final user = sessionService.getStoredUser();
-
-    final bookingData = widget.bookingData ?? {};
-    
-    // Get court time slot IDs
-    List<int> courtTimeSlotIds = [];
-    var selectedTimeSlot = bookingData['selectedTimeSlot'];
-    if (selectedTimeSlot != null && selectedTimeSlot.id != null) {
-      courtTimeSlotIds = [selectedTimeSlot.id];
-    }
-
-    // Build equipment items list for API - USE equipment_id
-    List<Map<String, dynamic>> items = [];
-    var equipmentQuantities = bookingData['equipmentQuantities'] ?? {};
-    var equipmentIds = bookingData['equipmentIds'] ?? {}; // Get equipment IDs
-    
-    // Try to get equipment IDs from booking data
-    for (var entry in equipmentQuantities.entries) {
-      if (entry.value > 0) {
-        int? equipmentId = equipmentIds[entry.key];
-        
-        // If no ID mapping, use hardcoded mapping as fallback
-        // if (equipmentId == null) {
-        //   Map<String, int> hardcodedIds = {
-        //     'popcorn': 1,
-        //     'popcornOne': 2,
-        //     'Pro Racket': 3,
-        //     'Court Shoes': 4,
-        //     'Shuttlecock': 5,
-        //     'Jersey': 6,
-        //   };
-        //   equipmentId = hardcodedIds[entry.key];
-        // }
-        
-        if (equipmentId != null) {
-          items.add({
-            'equipment_id': equipmentId,
-            'quantity': entry.value,
-          });
-        } else {
-          print("Warning: No equipment ID found for ${entry.key}");
-        }
-      }
-    }
-
-    // Format date
-    String formattedDate = bookingDate;
-
-    print("Submitting booking with:");
-    print("Items: $items");
-    print("Court Time Slot IDs: $courtTimeSlotIds");
-
-    // Submit to API
-    final result = await RentalBookingApi.addMobileRentalBooking(
-      venueId: bookingData['venueId'] ?? '',
-      courtId: bookingData['courtId'] ?? '',
-      paymentId: int.parse(selectedPaymentId!),
-      date: formattedDate,
-      name: customerName,
-      phone: customerPhone,
-      remark: (bookingData['remark'] as String?)?.isNotEmpty == true ? bookingData['remark'] : '-',
-      courtTimeSlotIds: courtTimeSlotIds,
-      department: 'equipment',
-      items: items,
-      paymentImage: _transactionImage,
-      token: token ?? '',
-    );
-
-    if (!mounted) return;
-
-    if (result['success'] == true) {
-      // Parse response data
-      RentalBooking? rentalBooking;
-      final responseData = result['data'];
-      if (responseData != null && responseData['data'] != null) {
-        final dataList = responseData['data'];
-        if (dataList is List && dataList.isNotEmpty) {
-          rentalBooking = RentalBooking.fromJson(dataList[0]);
-        }
-      }
-
-      // Navigate to slip page with API response
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => rentalSlip(
-            bookingData: bookingData,
-            paymentMethod: selectedPaymentMethod?.paymentMethod ?? "N/A",
-            transactionNumber: input.text.trim(),
-            rentalBooking: rentalBooking,
-            courtName: courtName,
-            
-          ),
-        ),
-      );
-    } else {
+  Future<void> _submitBookingToAPI() async {
+    // Validate
+    if (selectedPaymentId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result['message'] ?? 'Booking failed'),
+        const SnackBar(
+          content: Text('Please select a payment method'),
           backgroundColor: Colors.red,
         ),
       );
+      return;
     }
-  } catch (e) {
-    print("Error in submitBooking: $e");
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Error: ${e.toString()}'),
-        backgroundColor: Colors.red,
-      ),
-    );
-  } finally {
-    if (mounted) {
-      setState(() {
-        _isProcessing = false;
-      });
+
+    if (_transactionImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please upload transaction slip'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isProcessing = true;
+    });
+
+    try {
+      final sessionService = Provider.of<SessionService>(
+        context,
+        listen: false,
+      );
+      final token = sessionService.getToken();
+      final user = sessionService.getStoredUser();
+
+      final bookingData = widget.bookingData ?? {};
+
+      // Get court time slot IDs
+      List<int> courtTimeSlotIds = [];
+      var selectedTimeSlot = bookingData['selectedTimeSlot'];
+      if (selectedTimeSlot != null && selectedTimeSlot.id != null) {
+        courtTimeSlotIds = [selectedTimeSlot.id];
+      }
+
+      // Build equipment items list for API - USE equipment_id
+      List<Map<String, dynamic>> items = [];
+      var equipmentQuantities = bookingData['equipmentQuantities'] ?? {};
+      var equipmentIds = bookingData['equipmentIds'] ?? {}; // Get equipment IDs
+
+      // Try to get equipment IDs from booking data
+      for (var entry in equipmentQuantities.entries) {
+        if (entry.value > 0) {
+          int? equipmentId = equipmentIds[entry.key];
+
+          // If no ID mapping, use hardcoded mapping as fallback
+          // if (equipmentId == null) {
+          //   Map<String, int> hardcodedIds = {
+          //     'popcorn': 1,
+          //     'popcornOne': 2,
+          //     'Pro Racket': 3,
+          //     'Court Shoes': 4,
+          //     'Shuttlecock': 5,
+          //     'Jersey': 6,
+          //   };
+          //   equipmentId = hardcodedIds[entry.key];
+          // }
+
+          if (equipmentId != null) {
+            items.add({'equipment_id': equipmentId, 'quantity': entry.value});
+          } else {
+            print("Warning: No equipment ID found for ${entry.key}");
+          }
+        }
+      }
+
+      // Format date
+      String formattedDate = bookingDate;
+
+      print("Submitting booking with:");
+      print("Items: $items");
+      print("Court Time Slot IDs: $courtTimeSlotIds");
+
+      // Submit to API
+      final result = await RentalBookingApi.addMobileRentalBooking(
+        venueId: bookingData['venueId'] ?? '',
+        courtId: bookingData['courtId'] ?? '',
+        paymentId: int.parse(selectedPaymentId!),
+        date: formattedDate,
+        name: customerName,
+        phone: customerPhone,
+        remark: (bookingData['remark'] as String?)?.isNotEmpty == true
+            ? bookingData['remark']
+            : '-',
+        courtTimeSlotIds: courtTimeSlotIds,
+        department: 'equipment',
+        items: items,
+        paymentImage: _transactionImage,
+        token: token ?? '',
+      );
+
+      if (!mounted) return;
+
+      if (result['success'] == true) {
+        // Parse response data
+        RentalBooking? rentalBooking;
+        final responseData = result['data'];
+        if (responseData != null && responseData['data'] != null) {
+          final dataList = responseData['data'];
+          if (dataList is List && dataList.isNotEmpty) {
+            rentalBooking = RentalBooking.fromJson(dataList[0]);
+          }
+        }
+
+        // Navigate to slip page with API response
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => rentalSlip(
+              bookingData: bookingData,
+              paymentMethod: selectedPaymentMethod?.paymentMethod ?? "N/A",
+              transactionNumber: input.text.trim(),
+              rentalBooking: rentalBooking,
+              courtName: courtName,
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message'] ?? 'Booking failed'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      print("Error in submitBooking: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+        });
+      }
     }
   }
-}
-
 }

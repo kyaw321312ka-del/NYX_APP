@@ -7,18 +7,22 @@ class StudentEnrollmentApi {
   static Future<Map<String, dynamic>> getStudentEnrollments({
     required String token,
   }) async {
-    final Uri uri = Uri.parse("${Constant.API_URL}/training/showstudenttraining");
+    final Uri uri = Uri.parse(
+      "${Constant.API_URL}/training/showstudenttraining",
+    );
 
     print("Student Enrollments URL: $uri");
 
     try {
-      final response = await http.get(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      ).timeout(const Duration(seconds: 30));
+      final response = await http
+          .get(
+            uri,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+          )
+          .timeout(const Duration(seconds: 30));
 
       print("Student Enrollments Response Status: ${response.statusCode}");
       print("Student Enrollments Response Body: ${response.body}");
@@ -39,7 +43,8 @@ class StudentEnrollmentApi {
           return {
             'success': true,
             'data': enrollments,
-            'message': responseData['message'] ?? 'Enrollments fetched successfully',
+            'message':
+                responseData['message'] ?? 'Enrollments fetched successfully',
           };
         } else {
           return {

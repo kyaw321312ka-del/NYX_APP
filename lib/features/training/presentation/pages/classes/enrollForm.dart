@@ -65,8 +65,9 @@ class _enrollFormState extends State<enrollForm> {
 
   void _checkLoginStatus() {
     final sessionService = Provider.of<SessionService>(context, listen: false);
-    _isLoggedIn = sessionService.isLoggedIn() && sessionService.getToken() != null;
-    
+    _isLoggedIn =
+        sessionService.isLoggedIn() && sessionService.getToken() != null;
+
     if (_isLoggedIn) {
       _loadUserData();
     }
@@ -75,7 +76,7 @@ class _enrollFormState extends State<enrollForm> {
   void _loadUserData() {
     final sessionService = Provider.of<SessionService>(context, listen: false);
     final user = sessionService.getStoredUser();
-    
+
     if (user != null) {
       fullnameController.text = user.name ?? '';
       phoneController.text = user.phone ?? '';
@@ -86,7 +87,7 @@ class _enrollFormState extends State<enrollForm> {
   void _showLoginRequiredDialog() {
     final sessionService = Provider.of<SessionService>(context, listen: false);
     final cartService = Provider.of<CartService>(context, listen: false);
-    
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -105,10 +106,7 @@ class _enrollFormState extends State<enrollForm> {
               Navigator.pop(context);
               Navigator.pop(context); // Go back to previous page
             },
-            child: const Text(
-              "Cancel",
-              style: TextStyle(fontFamily: "Custom"),
-            ),
+            child: const Text("Cancel", style: TextStyle(fontFamily: "Custom")),
           ),
           ElevatedButton(
             onPressed: () {
@@ -123,9 +121,7 @@ class _enrollFormState extends State<enrollForm> {
                 ),
               );
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text(
               "Login Now",
               style: TextStyle(fontFamily: "Custom", color: Colors.white),
@@ -199,7 +195,10 @@ class _enrollFormState extends State<enrollForm> {
           const SizedBox(height: 8),
           _infoRow("Training Level:", widget.levelName ?? "Not selected"),
           const SizedBox(height: 8),
-          _infoRow("Price:", widget.price != null ? "${widget.price} Ks/month" : "N/A"),
+          _infoRow(
+            "Price:",
+            widget.price != null ? "${widget.price} Ks/month" : "N/A",
+          ),
         ],
       ),
     );
@@ -331,34 +330,47 @@ class _enrollFormState extends State<enrollForm> {
       child: ElevatedButton.icon(
         onPressed: () {
           // Check if user is logged in
-          final sessionService = Provider.of<SessionService>(context, listen: false);
-          final isLoggedIn = sessionService.isLoggedIn() && sessionService.getToken() != null;
-          
+          final sessionService = Provider.of<SessionService>(
+            context,
+            listen: false,
+          );
+          final isLoggedIn =
+              sessionService.isLoggedIn() && sessionService.getToken() != null;
+
           if (!isLoggedIn) {
             _showLoginRequiredDialog();
             return;
           }
-          
+
           // Validate required fields
           if (fullnameController.text.trim().isEmpty) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Please enter your full name'), backgroundColor: Colors.red),
+              const SnackBar(
+                content: Text('Please enter your full name'),
+                backgroundColor: Colors.red,
+              ),
             );
             return;
           }
           if (phoneController.text.trim().isEmpty) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Please enter your phone number'), backgroundColor: Colors.red),
+              const SnackBar(
+                content: Text('Please enter your phone number'),
+                backgroundColor: Colors.red,
+              ),
             );
             return;
           }
           if (emailController.text.trim().isEmpty) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Please enter your email address'), backgroundColor: Colors.red),
+              const SnackBar(
+                content: Text('Please enter your email address'),
+                backgroundColor: Colors.red,
+              ),
             );
             return;
           }
-          
+
           // Prepare enrollment data
           final enrollmentData = {
             'trainingId': widget.trainingId,
@@ -375,13 +387,12 @@ class _enrollFormState extends State<enrollForm> {
             'emergencyContact': emergencyController.text,
             'timeSlot': time,
           };
-          
+
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => classesPayment(
-                enrollmentData: enrollmentData,
-              ),
+              builder: (context) =>
+                  classesPayment(enrollmentData: enrollmentData),
             ),
           );
         },

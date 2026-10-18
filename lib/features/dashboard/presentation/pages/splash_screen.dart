@@ -27,9 +27,9 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _loadData() async {
     // Minimum splash screen duration (2 seconds)
     await Future.delayed(const Duration(seconds: 2));
-    
+
     if (!mounted) return;
-    
+
     // Navigate to MainDashboard
     Navigator.pushReplacement(
       context,

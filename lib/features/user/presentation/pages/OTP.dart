@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:nyxproject/features/user/data/datasources/LoginAfterSignupApi.dart';
 import 'package:nyxproject/features/user/domain/entities/user.dart';
 import 'package:nyxproject/features/dashboard/presentation/pages/layout.dart';
-import 'package:nyxproject/features/user/presentation/pages/login.dart'; 
+import 'package:nyxproject/features/user/presentation/pages/login.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 import 'package:nyxproject/core/network/api_client.dart';
@@ -236,137 +236,140 @@ class _OTPState extends State<OTP> {
     }
   }
 
-Future<void> _verifyOtp() async {
-  final String otp = otpController.text.trim();
+  Future<void> _verifyOtp() async {
+    final String otp = otpController.text.trim();
 
-  if (otp.isEmpty || otp.length != 6) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Please enter valid 6-digit OTP")),
-    );
-    return;
-  }
+    if (otp.isEmpty || otp.length != 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter valid 6-digit OTP")),
+      );
+      return;
+    }
 
-  setState(() {
-    _isLoading = true;
-  });
+    setState(() {
+      _isLoading = true;
+    });
 
-  try {
-    final Map<String, dynamic> verifyResult = await Api.verifyOtp(
-      otp: otp,
-      tempToken: widget.tempToken,
-    );
+    try {
+      final Map<String, dynamic> verifyResult = await Api.verifyOtp(
+        otp: otp,
+        tempToken: widget.tempToken,
+      );
 
-    if (!mounted) return;
-    
-    if (verifyResult['success'] == true) {
-      print(" OTP Verified Successfully");
-      print(" Email: ${widget.email}");
-      print(" Password: ${widget.password}");
-      
-      final loginResult = await Loginaftersignupapi.loginAfterSignup(widget.email, widget.password);
-      
-      print(" Login Result: $loginResult");
-      
-      if (loginResult['success'] == true) {
-        print(" Auto Login Successful");
-        final token = loginResult['token'];
-        
-        // Extract user data from the token or create from email
-        // Since the response doesn't have a separate user object,
-        // we need to either decode the JWT token or use the email
-        
-        // Option 1: Create user from email (temporary)
-        final user = User(
-          id: null, // Will be updated when fetching profile
-          name: widget.email.split('@').first, // Use part before @ as name
-          email: widget.email,
-          phone: '',
+      if (!mounted) return;
+
+      if (verifyResult['success'] == true) {
+        print(" OTP Verified Successfully");
+        print(" Email: ${widget.email}");
+        print(" Password: ${widget.password}");
+
+        final loginResult = await Loginaftersignupapi.loginAfterSignup(
+          widget.email,
+          widget.password,
         );
-        
-        print(" Token: $token");
-        print(" User: ${user.name}");
-        
-        await widget.sessionService.saveSession(user, token);
-        
-        // Optional: Fetch full user profile after login
-        // This will get the complete user data including ID and phone
-        try {
-          final profileResult = await Api.getMyProfile(token: token);
-          if (profileResult['success'] == true) {
-            final fullUserData = profileResult['data'];
-            final updatedUser = User(
-              id: fullUserData['id'] as int?,
-              name: fullUserData['name']?.toString() ?? user.name,
-              email: widget.email,
-              phone: fullUserData['phone']?.toString() ?? '',
-            );
-            await widget.sessionService.saveSession(updatedUser, token);
-            print(" Full user profile fetched");
+
+        print(" Login Result: $loginResult");
+
+        if (loginResult['success'] == true) {
+          print(" Auto Login Successful");
+          final token = loginResult['token'];
+
+          // Extract user data from the token or create from email
+          // Since the response doesn't have a separate user object,
+          // we need to either decode the JWT token or use the email
+
+          // Option 1: Create user from email (temporary)
+          final user = User(
+            id: null, // Will be updated when fetching profile
+            name: widget.email.split('@').first, // Use part before @ as name
+            email: widget.email,
+            phone: '',
+          );
+
+          print(" Token: $token");
+          print(" User: ${user.name}");
+
+          await widget.sessionService.saveSession(user, token);
+
+          // Optional: Fetch full user profile after login
+          // This will get the complete user data including ID and phone
+          try {
+            final profileResult = await Api.getMyProfile(token: token);
+            if (profileResult['success'] == true) {
+              final fullUserData = profileResult['data'];
+              final updatedUser = User(
+                id: fullUserData['id'] as int?,
+                name: fullUserData['name']?.toString() ?? user.name,
+                email: widget.email,
+                phone: fullUserData['phone']?.toString() ?? '',
+              );
+              await widget.sessionService.saveSession(updatedUser, token);
+              print(" Full user profile fetched");
+            }
+          } catch (e) {
+            print(" Could not fetch full profile: $e");
           }
-        } catch (e) {
-          print(" Could not fetch full profile: $e");
-        }
-        
-        if (mounted) {
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Account created and logged in successfully!"),
+                backgroundColor: Colors.green,
+              ),
+            );
+
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MainDashboard(
+                  sessionService: widget.sessionService,
+                  cartService: widget.cartService,
+                ),
+              ),
+              (route) => false,
+            );
+          }
+        } else {
+          print("❌ Auto Login Failed: ${loginResult['message']}");
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text("Account created and logged in successfully!"),
-              backgroundColor: Colors.green,
+              content: Text("Account verified! Please login manually."),
+              backgroundColor: Colors.orange,
             ),
           );
-          
-          Navigator.pushAndRemoveUntil(
+
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => MainDashboard(
+              builder: (context) => LoginPage(
                 sessionService: widget.sessionService,
                 cartService: widget.cartService,
               ),
             ),
-            (route) => false,
           );
         }
       } else {
-        print("❌ Auto Login Failed: ${loginResult['message']}");
-        
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Account verified! Please login manually."),
-            backgroundColor: Colors.orange,
-          ),
-        );
-        
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => LoginPage(
-              sessionService: widget.sessionService,
-              cartService: widget.cartService,
-            ),
+          SnackBar(
+            content: Text(verifyResult['message']?.toString() ?? "Invalid OTP"),
+            backgroundColor: Colors.red,
           ),
         );
       }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(verifyResult['message']?.toString() ?? "Invalid OTP"),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  } catch (e) {
-    print("❌ Error in OTP verification: $e");
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-      );
-    }
-  } finally {
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
+    } catch (e) {
+      print("❌ Error in OTP verification: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
-}
 }

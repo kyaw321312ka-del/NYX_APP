@@ -3,12 +3,9 @@ import 'dart:io';
 class OrderItem {
   final int productId;
   final int quantity;
-  
-  OrderItem({
-    required this.productId,
-    required this.quantity,
-  });
-  
+
+  OrderItem({required this.productId, required this.quantity});
+
   Map<String, dynamic> toJson() => {
     'product_id': productId,
     'quantity': quantity,
@@ -28,7 +25,7 @@ class OrderRequest {
   final double deliveryFee;
   final File? transactionImage;
   final String? transactionNumber;
-  
+
   OrderRequest({
     required this.userId,
     required this.customerName,
@@ -48,7 +45,7 @@ class OrderRequest {
 class Order {
   final int orderId;
   final DateTime createAt;
-  final String orderStatus; 
+  final String orderStatus;
   final String customerName;
   final List<OrderProduct> items;
   final double subTotal;
@@ -91,7 +88,7 @@ class Order {
     return Order(
       orderId: json['order_id'] as int,
       createAt: DateTime.parse(json['create_at']),
-      orderStatus: json['order_status']?.toString() ?? 'pending',  
+      orderStatus: json['order_status']?.toString() ?? 'pending',
       customerName: json['customer_name']?.toString() ?? '',
       items: items,
       subTotal: (json['Sub_total'] ?? 0).toDouble(),

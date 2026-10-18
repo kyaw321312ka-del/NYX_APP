@@ -41,8 +41,8 @@ class OrderApi {
     request.headers['Accept'] = 'application/json';
     request.headers['Idempotency-Key'] =
         (idempotencyKey != null && idempotencyKey.isNotEmpty)
-            ? idempotencyKey
-            : generateIdempotencyKey(userId: userId);
+        ? idempotencyKey
+        : generateIdempotencyKey(userId: userId);
 
     request.fields['user_id'] = userId.toString();
     request.fields['customer_name'] = customerName;
@@ -51,7 +51,7 @@ class OrderApi {
     request.fields['delivery_address'] = deliveryAddress;
     request.fields['remark'] = remark;
     request.fields['payment_method'] = paymentMethod;
-    request.fields['items'] = jsonEncode(items); 
+    request.fields['items'] = jsonEncode(items);
     request.fields['tax'] = tax.toString();
     request.fields['delivery_fee'] = deliveryFee.toString();
 

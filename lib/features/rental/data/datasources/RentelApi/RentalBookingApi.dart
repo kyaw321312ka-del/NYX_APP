@@ -20,7 +20,9 @@ class RentalBookingApi {
     required String token,
   }) async {
     try {
-      final Uri uri = Uri.parse("${Constant.API_URL}/rental/addmobilerentalbooking");
+      final Uri uri = Uri.parse(
+        "${Constant.API_URL}/rental/addmobilerentalbooking",
+      );
       final request = http.MultipartRequest('POST', uri);
 
       // Add headers
@@ -77,7 +79,7 @@ class RentalBookingApi {
       }
 
       // Check if response is HTML (error page)
-      if (response.body.trim().startsWith('<!DOCTYPE') || 
+      if (response.body.trim().startsWith('<!DOCTYPE') ||
           response.body.trim().startsWith('<html')) {
         // Try to extract error message from HTML
         String errorMsg = "Server error occurred";
@@ -88,10 +90,7 @@ class RentalBookingApi {
             errorMsg = response.body.substring(start + 5, end);
           }
         }
-        return {
-          'success': false, 
-          'message': errorMsg
-        };
+        return {'success': false, 'message': errorMsg};
       }
 
       final Map<String, dynamic> responseData = jsonDecode(response.body);

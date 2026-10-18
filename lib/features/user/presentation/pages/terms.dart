@@ -12,10 +12,10 @@ class _termsPageState extends State<termsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar( 
-      //   title: 
+      // appBar: AppBar(
+      //   title:
       //     Text("Help Center"),
-      //     titleTextStyle: 
+      //     titleTextStyle:
       //       TextStyle(
       //         fontSize: 20,
       //         fontFamily: 'Custom',
@@ -31,19 +31,39 @@ class _termsPageState extends State<termsPage> {
               _header(),
               SizedBox(height: 10),
               _section("Terms and Conditions"),
-              _menuItem("Users must provide accurate information when placing an order."),
+              _menuItem(
+                "Users must provide accurate information when placing an order.",
+              ),
               _menuItem("Fake or spam orders are not allowed."),
-              _menuItem("All product prices and availability may change without notice."),
-              _menuItem("The admin has the right to cancel orders in special cases."),
-              _menuItem("Users must not copy or reuse any content from this website without permission."),
-              _menuItem(" Once the order has been handed over for delivery, we will take full responsibility until the order reaches the customer."),
+              _menuItem(
+                "All product prices and availability may change without notice.",
+              ),
+              _menuItem(
+                "The admin has the right to cancel orders in special cases.",
+              ),
+              _menuItem(
+                "Users must not copy or reuse any content from this website without permission.",
+              ),
+              _menuItem(
+                " Once the order has been handed over for delivery, we will take full responsibility until the order reaches the customer.",
+              ),
               Divider(),
               _section("Pravicy Policies"),
-              _menuItem("We respect your privacy and protect your personal information.  "),
-              _menuItem("We may collect your name, phone number, email, and delivery address."),
-              _menuItem("This information is used only for order processing and delivery."),
-              _menuItem("We will not share your personal information with third parties without permission."),
-              _menuItem("Payment information is handled securely. If you have any questions, please contact our support team."),
+              _menuItem(
+                "We respect your privacy and protect your personal information.  ",
+              ),
+              _menuItem(
+                "We may collect your name, phone number, email, and delivery address.",
+              ),
+              _menuItem(
+                "This information is used only for order processing and delivery.",
+              ),
+              _menuItem(
+                "We will not share your personal information with third parties without permission.",
+              ),
+              _menuItem(
+                "Payment information is handled securely. If you have any questions, please contact our support team.",
+              ),
               _menuItem("If you have any questions, contact our support team."),
               Divider(),
             ],
@@ -54,25 +74,22 @@ class _termsPageState extends State<termsPage> {
   }
 
   Widget _header() {
-  return Container(
-    color: const Color.fromARGB(255, 13, 27, 42),
-    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        IconButton(
-          onPressed: (){
-            Navigator.pop(context);
-          }, 
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded, 
-            color: Colors.white,
-            ),
+    return Container(
+      color: const Color.fromARGB(255, 13, 27, 42),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           ),
           Expanded(
             child: const Text(
-              "Terms and Policies", 
+              "Terms and Policies",
               style: TextStyle(
                 fontFamily: "Custom",
                 color: Colors.white,
@@ -80,21 +97,22 @@ class _termsPageState extends State<termsPage> {
               ),
             ),
           ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
   }
 
   Widget _section(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: Text(title,
-       style: const TextStyle(
-        color: Color.fromARGB(255, 13, 27, 42),
-        fontSize: 18,
-        fontFamily: 'Custom',
-        fontWeight: FontWeight.w900,
-        )
+      child: Text(
+        title,
+        style: const TextStyle(
+          color: Color.fromARGB(255, 13, 27, 42),
+          fontSize: 18,
+          fontFamily: 'Custom',
+          fontWeight: FontWeight.w900,
+        ),
       ),
     );
   }
@@ -109,7 +127,14 @@ class _termsPageState extends State<termsPage> {
           color: Color.fromARGB(255, 13, 27, 42),
           borderRadius: BorderRadius.circular(7),
         ),
-        child: Text(title, style: TextStyle(fontFamily: 'Custom',color: Colors.white, fontSize: 15)),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontFamily: 'Custom',
+            color: Colors.white,
+            fontSize: 15,
+          ),
+        ),
       ),
     );
   }

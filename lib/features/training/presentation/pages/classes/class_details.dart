@@ -136,10 +136,7 @@ class _ClassDetailsState extends State<ClassDetails> {
 
     if (_error != null && _trainingDetail == null) {
       return Scaffold(
-        body: AppErrorView(
-          message: _error!,
-          onRetry: _loadTrainingDetail,
-        ),
+        body: AppErrorView(message: _error!, onRetry: _loadTrainingDetail),
       );
     }
 

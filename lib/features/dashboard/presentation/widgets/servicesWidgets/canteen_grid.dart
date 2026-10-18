@@ -34,10 +34,7 @@ class CanteenGrid extends StatelessWidget {
     }
 
     if (error != null) {
-      return AppErrorView(
-        message: error!,
-        onRetry: onRetry,
-      );
+      return AppErrorView(message: error!, onRetry: onRetry);
     }
 
     if (items.isEmpty) {

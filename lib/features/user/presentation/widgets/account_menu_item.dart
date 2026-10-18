@@ -29,11 +29,8 @@ class AccountMenuItem extends StatelessWidget {
         child: ListTile(
           leading: Icon(icon, color: iconColor ?? const Color(0xFF0D1B2A)),
           title: Text(
-            title, 
-            style: TextStyle(
-              fontFamily: 'Custom',
-              color: textColor,
-            ),
+            title,
+            style: TextStyle(fontFamily: 'Custom', color: textColor),
           ),
           trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
           onTap: onTap,

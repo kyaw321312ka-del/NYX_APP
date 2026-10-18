@@ -9,7 +9,7 @@ class User {
   final String? address;
   final String? createdAt;
   final String? updatedAt;
-  final String? warning;  // Add warning field
+  final String? warning; // Add warning field
 
   User({
     this.id,
@@ -21,13 +21,13 @@ class User {
     this.address,
     this.createdAt,
     this.updatedAt,
-    this.warning,  // Add this
+    this.warning, // Add this
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'] is int 
-          ? json['id'] 
+      id: json['id'] is int
+          ? json['id']
           : (json['id'] != null ? int.tryParse(json['id'].toString()) : null),
       name: json['name']?.toString(),
       email: json['email']?.toString(),
@@ -37,7 +37,7 @@ class User {
       address: json['address']?.toString(),
       createdAt: json['created_at']?.toString(),
       updatedAt: json['updated_at']?.toString(),
-      warning: json['warning']?.toString(),  // Add this
+      warning: json['warning']?.toString(), // Add this
     );
   }
 
@@ -52,7 +52,7 @@ class User {
       'address': address,
       'created_at': createdAt,
       'updated_at': updatedAt,
-      'warning': warning,  // Add this
+      'warning': warning, // Add this
     };
   }
 }

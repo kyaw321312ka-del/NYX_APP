@@ -17,7 +17,7 @@ class CartPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final cart = Provider.of<CartService>(context);
     final session = Provider.of<SessionService>(context);
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -35,10 +35,16 @@ class CartPage extends StatelessWidget {
                         return CartItemCard(
                           item: item,
                           onDelete: () => cart.removeFromCart(item.product),
-                          onIncrease: () => cart.updateQuantity(item.product, item.quantity + 1),
+                          onIncrease: () => cart.updateQuantity(
+                            item.product,
+                            item.quantity + 1,
+                          ),
                           onDecrease: () {
                             if (item.quantity > 1) {
-                              cart.updateQuantity(item.product, item.quantity - 1);
+                              cart.updateQuantity(
+                                item.product,
+                                item.quantity - 1,
+                              );
                             }
                           },
                         );
@@ -61,12 +67,12 @@ class CartPage extends StatelessWidget {
 
   void _checkLoginAndNavigate(BuildContext context, SessionService session) {
     // Check if user is logged in and token is valid
-    if (session.isLoggedIn() && !session.isTokenExpired() && session.getToken() != null) {
+    if (session.isLoggedIn() &&
+        !session.isTokenExpired() &&
+        session.getToken() != null) {
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (context) => const contactInfo(),
-        ),
+        MaterialPageRoute(builder: (context) => const contactInfo()),
       );
     } else {
       LoginDialog.show(context: context, session: session);

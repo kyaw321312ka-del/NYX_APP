@@ -41,7 +41,10 @@ class CartSummary extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text("Subtotal:", style: TextStyle(fontSize: 14)),
-              Text("${subtotal.toStringAsFixed(0)} Ks", style: const TextStyle(fontSize: 14)),
+              Text(
+                "${subtotal.toStringAsFixed(0)} Ks",
+                style: const TextStyle(fontSize: 14),
+              ),
             ],
           ),
           const SizedBox(height: 8),
@@ -49,24 +52,37 @@ class CartSummary extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text("Delivery Fee:", style: TextStyle(fontSize: 14)),
-              Text("${deliveryFee.toStringAsFixed(0)} Ks", style: const TextStyle(fontSize: 14)),
+              Text(
+                "${deliveryFee.toStringAsFixed(0)} Ks",
+                style: const TextStyle(fontSize: 14),
+              ),
             ],
           ),
           const Divider(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Total:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const Text(
+                "Total:",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
               Text(
-                "${total.toStringAsFixed(0)} Ks", 
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                "${total.toStringAsFixed(0)} Ks",
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 12),
           TextButton(
             onPressed: onAddMoreItems,
-            child: const Text("Add more items", style: TextStyle(color: Colors.red)),
+            child: const Text(
+              "Add more items",
+              style: TextStyle(color: Colors.red),
+            ),
           ),
           const SizedBox(height: 8),
           SizedBox(

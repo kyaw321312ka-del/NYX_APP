@@ -12,9 +12,7 @@ class Catagory extends StatefulWidget {
   State<Catagory> createState() => _CatagoryState();
 }
 
-
 class _CatagoryState extends State<Catagory> {
-
   final List<String> brands = [
     "All",
     "Badminton",
@@ -22,11 +20,11 @@ class _CatagoryState extends State<Catagory> {
     "Golf",
     "Tennis",
     "Boxing",
-    "Basketball"
+    "Basketball",
   ];
 
   final List<Pp> allProducts = [
-    Pp(name: "Shuttlecock", catagories: "Badminton", price: 45000, brand: '',),
+    Pp(name: "Shuttlecock", catagories: "Badminton", price: 45000, brand: ''),
     Pp(name: "Football", catagories: "Football", price: 35000, brand: ''),
     Pp(name: "Shoe", catagories: "Golf", price: 95000, brand: ''),
     Pp(name: "Hand Glove", catagories: "Golf", price: 65000, brand: ''),
@@ -46,7 +44,7 @@ class _CatagoryState extends State<Catagory> {
   @override
   void initState() {
     super.initState();
-    filteredProducts = allProducts ; // show all initially
+    filteredProducts = allProducts; // show all initially
   }
 
   void _clearSearch() {
@@ -72,7 +70,7 @@ class _CatagoryState extends State<Catagory> {
                 });
                 _applyFilters();
                 Navigator.pop(context);
-              }
+              },
             ),
             ListTile(
               title: const Text("Price: High to Low"),
@@ -101,9 +99,7 @@ class _CatagoryState extends State<Catagory> {
 
     if (searchQuery.trim().isNotEmpty) {
       results = results.where((product) {
-        return product.name
-            .toLowerCase()
-            .contains(searchQuery.toLowerCase());
+        return product.name.toLowerCase().contains(searchQuery.toLowerCase());
       }).toList();
     }
 
@@ -138,7 +134,7 @@ class _CatagoryState extends State<Catagory> {
               const SizedBox(height: 5),
               _searchBar(),
               _filterBar(),
-              _gridCards()
+              _gridCards(),
             ],
           ),
         ),
@@ -155,13 +151,10 @@ class _CatagoryState extends State<Catagory> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           IconButton(
-            onPressed: (){
+            onPressed: () {
               Navigator.pop(context);
-            }, 
-            icon: Icon(
-              Icons.arrow_back_ios_new_rounded, 
-              color: Colors.white,
-            ),
+            },
+            icon: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           ),
           Expanded(
             child: Text(
@@ -170,18 +163,14 @@ class _CatagoryState extends State<Catagory> {
                 fontFamily: "Custom",
                 color: Colors.white,
                 fontSize: 20,
-                fontWeight: FontWeight.w600
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
           SizedBox(
             child: IconButton(
-              onPressed: (){
-              }, 
-              icon: Icon(
-                Icons.message, 
-                color: Colors.white,
-              ),
+              onPressed: () {},
+              icon: Icon(Icons.message, color: Colors.white),
             ),
           ),
         ],
@@ -303,9 +292,7 @@ class _CatagoryState extends State<Catagory> {
             ),
             child: Column(
               children: [
-                const Expanded(
-                  child: Icon(Icons.image, size: 160),
-                ),
+                const Expanded(child: Icon(Icons.image, size: 160)),
                 Padding(
                   padding: const EdgeInsets.all(6),
                   child: Text(

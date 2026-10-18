@@ -18,7 +18,7 @@ class TabWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSelected = selectedIndex == index;
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Container(

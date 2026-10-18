@@ -9,7 +9,7 @@ class Loginaftersignupapi {
   ) async {
     try {
       print("📡 Calling login API with email: $email");
-      
+
       final response = await http.post(
         Uri.parse("${Constant.API_URL}/auth/login"),
         headers: {'Content-Type': 'application/json'},
@@ -28,10 +28,7 @@ class Loginaftersignupapi {
           'user': data['user'] ?? data['data'],
         };
       } else {
-        return {
-          'success': false, 
-          'message': data['message'] ?? 'Login failed'
-        };
+        return {'success': false, 'message': data['message'] ?? 'Login failed'};
       }
     } catch (e) {
       print("❌ Login After Signup Error: $e");

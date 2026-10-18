@@ -32,7 +32,7 @@ class RentalBooking {
           .map((item) => RentalItem.fromJson(item))
           .toList();
     }
-    
+
     return RentalBooking(
       id: _toInt(json['booking_id'] ?? json['id']) ?? 0,
       venueName: json['venue_name']?.toString() ?? '',
@@ -47,7 +47,7 @@ class RentalBooking {
       items: itemList,
     );
   }
-  
+
   static int? _toInt(dynamic value) {
     if (value == null) return null;
     if (value is int) return value;
@@ -64,12 +64,7 @@ class RentalItem {
   final int? quantity;
   final String? equipment;
 
-  RentalItem({
-    this.price,
-    this.total,
-    this.quantity,
-    this.equipment,
-  });
+  RentalItem({this.price, this.total, this.quantity, this.equipment});
 
   factory RentalItem.fromJson(Map<String, dynamic> json) {
     return RentalItem(
@@ -79,7 +74,7 @@ class RentalItem {
       equipment: json['equipment']?.toString(),
     );
   }
-  
+
   static int? _toInt(dynamic value) {
     if (value == null) return null;
     if (value is int) return value;

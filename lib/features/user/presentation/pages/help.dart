@@ -11,10 +11,10 @@ class _helpPageState extends State<helpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar( 
-      //   title: 
+      // appBar: AppBar(
+      //   title:
       //     Text("Help Center"),
-      //     titleTextStyle: 
+      //     titleTextStyle:
       //       TextStyle(
       //         fontSize: 20,
       //         fontFamily: 'Custom',
@@ -31,29 +31,19 @@ class _helpPageState extends State<helpPage> {
               SizedBox(height: 10),
               _mainText(),
               _menuItem(
-                  Icons.shopping_cart_outlined,
-                  "Get help with my orders",() {},
-                ),
+                Icons.shopping_cart_outlined,
+                "Get help with my orders",
+                () {},
+              ),
               _menuItem(
-                  Icons.help_outline_outlined,
-                  "I'm having trouble placing an order",() {},
-                ),
-              _menuItem(
-                  Icons.favorite_border,
-                  "My support requests",() {},
-                ),
-              _menuItem(
-                  Icons.account_circle_rounded,
-                  "My account",() {},
-                ),
-              _menuItem(
-                  Icons.settings,
-                  "Payment and refund",() {},
-                ),
-              _menuItem(
-                  Icons.question_answer,
-                  "FAQ",() {},
-                ),
+                Icons.help_outline_outlined,
+                "I'm having trouble placing an order",
+                () {},
+              ),
+              _menuItem(Icons.favorite_border, "My support requests", () {}),
+              _menuItem(Icons.account_circle_rounded, "My account", () {}),
+              _menuItem(Icons.settings, "Payment and refund", () {}),
+              _menuItem(Icons.question_answer, "FAQ", () {}),
             ],
           ),
         ),
@@ -70,30 +60,27 @@ class _helpPageState extends State<helpPage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           IconButton(
-            onPressed: (){
+            onPressed: () {
               Navigator.pop(context);
-            }, 
-            icon: Icon(
-              Icons.arrow_back_ios_new_rounded, 
-              color: Colors.white,
+            },
+            icon: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          ),
+          Expanded(
+            child: const Text(
+              "Help Center",
+              style: TextStyle(
+                fontFamily: "Custom",
+                color: Colors.white,
+                fontSize: 18,
               ),
             ),
-            Expanded(
-              child: const Text(
-                "Help Center", 
-                style: TextStyle(
-                  fontFamily: "Custom",
-                  color: Colors.white,
-                  fontSize: 18,
-                ),
-              ),
-            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _mainText(){
+  Widget _mainText() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
       child: Column(
@@ -103,26 +90,26 @@ class _helpPageState extends State<helpPage> {
           const Text(
             "How can we help?",
             style: TextStyle(
-                fontFamily: "Custom",
-                color: Color.fromARGB(255, 13, 27, 42),
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-              ),
+              fontFamily: "Custom",
+              color: Color.fromARGB(255, 13, 27, 42),
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const Text(
             "Note:  If you’re trying to search for anything related to your ongoing orders, navigate to ‘Get Help with My Ordrs’.",
             style: TextStyle(
-                fontFamily: "Custom",
-                color: Color.fromARGB(255, 13, 27, 42),
-                fontSize: 15,
-              ),
+              fontFamily: "Custom",
+              color: Color.fromARGB(255, 13, 27, 42),
+              fontSize: 15,
+            ),
           ),
         ],
       ),
     );
   }
 
-    Widget _menuItem(IconData icon, String title, VoidCallback onTap) {
+  Widget _menuItem(IconData icon, String title, VoidCallback onTap) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
       child: Container(
@@ -132,12 +119,18 @@ class _helpPageState extends State<helpPage> {
         ),
         child: ListTile(
           leading: Icon(icon, color: const Color.fromARGB(255, 255, 255, 255)),
-          title: Text(title, style: TextStyle(fontFamily: 'Custom',color: Colors.white),),
-          trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.white, ),
+          title: Text(
+            title,
+            style: TextStyle(fontFamily: 'Custom', color: Colors.white),
+          ),
+          trailing: const Icon(
+            Icons.arrow_forward_ios_rounded,
+            size: 16,
+            color: Colors.white,
+          ),
           onTap: onTap,
         ),
       ),
     );
   }
-
 }

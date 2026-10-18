@@ -75,8 +75,10 @@ class _WalkinPaymentState extends State<WalkinPayment> {
 
       final openAt = bookingData['open_at']?.toString();
       final closeAt = bookingData['close_at']?.toString();
-      if (openAt != null && openAt.isNotEmpty &&
-          closeAt != null && closeAt.isNotEmpty) {
+      if (openAt != null &&
+          openAt.isNotEmpty &&
+          closeAt != null &&
+          closeAt.isNotEmpty) {
         timeSlot = "${_formatTime(openAt)} - ${_formatTime(closeAt)}";
       } else {
         timeSlot =
@@ -91,7 +93,8 @@ class _WalkinPaymentState extends State<WalkinPayment> {
       final walkInPrice = double.tryParse(
         bookingData['walk_in_price']?.toString() ?? '',
       );
-      courtFees = "${(walkInPrice ?? bookingData['sessionPrice'] ?? 0).toStringAsFixed(0)} Ks";
+      courtFees =
+          "${(walkInPrice ?? bookingData['sessionPrice'] ?? 0).toStringAsFixed(0)} Ks";
 
       // Calculate equipment rental fees
       int totalRentalFees = 0;
@@ -364,44 +367,44 @@ class _WalkinPaymentState extends State<WalkinPayment> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _header(),
-              const SizedBox(height: 5),
-              _section("Information"),
-              const SizedBox(height: 5),
-              _information("Name", customerName),
-              const SizedBox(height: 1),
-              _information("Phone Number", customerPhone),
-              const SizedBox(height: 1),
-              _information("Court", courtName),
-              const SizedBox(height: 1),
-              // _information("Court Number", courtNumber),
-              const SizedBox(height: 1),
-              _information("Date", bookingDate),
-              const SizedBox(height: 1),
-              _information("Time Slot", timeSlot),
-              const SizedBox(height: 1),
-              _information("Number of Session", numberOfSessions),
-              const SizedBox(height: 1),
-              _information("Rental Items", rentalItems),
-              const Divider(),
-              _information("Walk-in Fees :", courtFees),
-              const SizedBox(height: 1),
-              _information("Equipment Rental Fees :", equipmentFees),
-              const Divider(),
-              _information("Total Amount", totalAmount),
-              const SizedBox(height: 1),
-              const Divider(),
-              _information1("Total", totalAmount),
-              const SizedBox(height: 10),
-              _section("Select Payment Method"),
-              const SizedBox(height: 5),
-              _paymentMethod(),
-              const SizedBox(height: 5),
-              _paymentInfo(),
-              const SizedBox(height: 10),
-              _imageUploadSection(),
-              const SizedBox(height: 20),
-              _confirm(),
-              const SizedBox(height: 30),
+                const SizedBox(height: 5),
+                _section("Information"),
+                const SizedBox(height: 5),
+                _information("Name", customerName),
+                const SizedBox(height: 1),
+                _information("Phone Number", customerPhone),
+                const SizedBox(height: 1),
+                _information("Court", courtName),
+                const SizedBox(height: 1),
+                // _information("Court Number", courtNumber),
+                const SizedBox(height: 1),
+                _information("Date", bookingDate),
+                const SizedBox(height: 1),
+                _information("Time Slot", timeSlot),
+                const SizedBox(height: 1),
+                _information("Number of Session", numberOfSessions),
+                const SizedBox(height: 1),
+                _information("Rental Items", rentalItems),
+                const Divider(),
+                _information("Walk-in Fees :", courtFees),
+                const SizedBox(height: 1),
+                _information("Equipment Rental Fees :", equipmentFees),
+                const Divider(),
+                _information("Total Amount", totalAmount),
+                const SizedBox(height: 1),
+                const Divider(),
+                _information1("Total", totalAmount),
+                const SizedBox(height: 10),
+                _section("Select Payment Method"),
+                const SizedBox(height: 5),
+                _paymentMethod(),
+                const SizedBox(height: 5),
+                _paymentInfo(),
+                const SizedBox(height: 10),
+                _imageUploadSection(),
+                const SizedBox(height: 20),
+                _confirm(),
+                const SizedBox(height: 30),
               ],
             ),
           ),

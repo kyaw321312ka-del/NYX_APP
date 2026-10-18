@@ -47,8 +47,9 @@ class _ClassesState extends State<Classes> {
         return;
       }
 
-      final result =
-          await StudentEnrollmentApi.getStudentEnrollments(token: token);
+      final result = await StudentEnrollmentApi.getStudentEnrollments(
+        token: token,
+      );
 
       if (!mounted) return;
 
@@ -82,10 +83,7 @@ class _ClassesState extends State<Classes> {
       appBar: AppBar(
         title: const Text(
           "My Classes",
-          style: TextStyle(
-            fontFamily: "Custom",
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(fontFamily: "Custom", fontWeight: FontWeight.w600),
         ),
         backgroundColor: const Color.fromARGB(255, 13, 27, 42),
         foregroundColor: Colors.white,
@@ -123,10 +121,7 @@ class _ClassesState extends State<Classes> {
         children: [
           SizedBox(
             height: MediaQuery.sizeOf(context).height * 0.55,
-            child: AppErrorView(
-              message: _error!,
-              onRetry: _loadEnrollments,
-            ),
+            child: AppErrorView(message: _error!, onRetry: _loadEnrollments),
           ),
         ],
       );
@@ -227,8 +222,10 @@ class _ClassesState extends State<Classes> {
                   ),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.green.shade700,
                     borderRadius: BorderRadius.circular(12),
@@ -335,8 +332,11 @@ class _ClassesState extends State<Classes> {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today,
-                          size: 14, color: Colors.grey),
+                      const Icon(
+                        Icons.calendar_today,
+                        size: 14,
+                        color: Colors.grey,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         _getDayName(schedule.day),
@@ -347,8 +347,11 @@ class _ClassesState extends State<Classes> {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      const Icon(Icons.access_time,
-                          size: 14, color: Colors.grey),
+                      const Icon(
+                        Icons.access_time,
+                        size: 14,
+                        color: Colors.grey,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         "${_formatTime(schedule.startTime)} - ${_formatTime(schedule.endTime)}",
@@ -362,8 +365,10 @@ class _ClassesState extends State<Classes> {
                   ),
                   const SizedBox(height: 6),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.red.shade50,
                       borderRadius: BorderRadius.circular(12),

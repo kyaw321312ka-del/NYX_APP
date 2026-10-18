@@ -13,10 +13,9 @@ class AvailableSlotApi {
     );
 
     try {
-      final http.Response response = await http.get(
-        uri,
-        headers: Constant.headers,
-      ).timeout(const Duration(seconds: 30));
+      final http.Response response = await http
+          .get(uri, headers: Constant.headers)
+          .timeout(const Duration(seconds: 30));
 
       print("Available Slots Response Status: ${response.statusCode}");
       print("Available Slots Response Body: ${response.body}");
@@ -41,7 +40,8 @@ class AvailableSlotApi {
       } else {
         return {
           'success': false,
-          'message': responseData['message'] ?? 'Failed to fetch available slots',
+          'message':
+              responseData['message'] ?? 'Failed to fetch available slots',
         };
       }
     } catch (e) {

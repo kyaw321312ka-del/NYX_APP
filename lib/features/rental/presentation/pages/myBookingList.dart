@@ -16,12 +16,7 @@ class myBookingList extends StatefulWidget {
 }
 
 class _myBookingListState extends State<myBookingList> {
-  final List<String> statusFilter = [
-    "All",
-    "Pending",
-    "Completed",
-    "Cancel",
-  ];
+  final List<String> statusFilter = ["All", "Pending", "Completed", "Cancel"];
 
   String _selectedStatus = "All";
   List<BookingOrder> _allBookings = [];
@@ -62,8 +57,10 @@ class _myBookingListState extends State<myBookingList> {
     });
 
     try {
-      final sessionService =
-          Provider.of<SessionService>(context, listen: false);
+      final sessionService = Provider.of<SessionService>(
+        context,
+        listen: false,
+      );
       final token = sessionService.getToken();
 
       if (token == null) {
@@ -186,9 +183,11 @@ class _myBookingListState extends State<myBookingList> {
             children: [
               Icon(Icons.inbox_outlined, size: 64, color: Colors.grey),
               const SizedBox(height: 16),
-              Text(_selectedStatus == "All"
-                  ? 'No bookings found'
-                  : 'No $_selectedStatus bookings found'),
+              Text(
+                _selectedStatus == "All"
+                    ? 'No bookings found'
+                    : 'No $_selectedStatus bookings found',
+              ),
               const SizedBox(height: 8),
               const Text(
                 'Your booking history will appear here',
@@ -244,8 +243,10 @@ class _myBookingListState extends State<myBookingList> {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                color: Colors.white),
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: Colors.white,
+            ),
           ),
           const Expanded(
             child: Text(
@@ -372,7 +373,9 @@ class _myBookingListState extends State<myBookingList> {
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: statusColor.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(12),
@@ -392,8 +395,11 @@ class _myBookingListState extends State<myBookingList> {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today,
-                          size: 12, color: Colors.grey),
+                      const Icon(
+                        Icons.calendar_today,
+                        size: 12,
+                        color: Colors.grey,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         date,
@@ -455,20 +461,25 @@ class _myBookingListState extends State<myBookingList> {
               _detailRow("Payment Method", booking.paymentMethod),
               _detailRow("Customer", booking.customer),
               const Divider(),
-              const Text("Rental Items",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                "Rental Items",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
-              ...booking.items.map((item) => Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                            "${item.equipment ?? 'Item'} x ${item.quantity ?? 0}"),
-                        Text("${(item.total ?? 0).toString()} Ks"),
-                      ],
-                    ),
-                  )),
+              ...booking.items.map(
+                (item) => Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "${item.equipment ?? 'Item'} x ${item.quantity ?? 0}",
+                      ),
+                      Text("${(item.total ?? 0).toString()} Ks"),
+                    ],
+                  ),
+                ),
+              ),
               const Divider(),
               _detailRow("Court Fee", "${booking.courtFee} Ks"),
               _detailRow("Total", "${booking.total} Ks", isBold: true),

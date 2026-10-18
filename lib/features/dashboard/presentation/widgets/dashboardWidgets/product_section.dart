@@ -19,16 +19,15 @@ class ProductSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Show only first 4 products
-    final displayProducts = products.length > 4 ? products.sublist(0, 4) : products;
-    
+    final displayProducts = products.length > 4
+        ? products.sublist(0, 4)
+        : products;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 10),
-        SectionHeader(
-          title: sectionTitle,
-          onSeeAll: onSeeAll,
-        ),
+        SectionHeader(title: sectionTitle, onSeeAll: onSeeAll),
         // const SizedBox(height: 10),
         GridView.builder(
           shrinkWrap: true,

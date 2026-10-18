@@ -16,8 +16,14 @@ class TrainingDetail {
     return TrainingDetail(
       id: json['id'] as int? ?? 0,
       courseName: json['course_name']?.toString() ?? '',
-      levels: (json['levels'] as List?)?.map((e) => Level.fromJson(e)).toList() ?? [],
-      schedules: (json['schedules'] as List?)?.map((e) => Schedule.fromJson(e)).toList() ?? [],
+      levels:
+          (json['levels'] as List?)?.map((e) => Level.fromJson(e)).toList() ??
+          [],
+      schedules:
+          (json['schedules'] as List?)
+              ?.map((e) => Schedule.fromJson(e))
+              .toList() ??
+          [],
     );
   }
 }
@@ -33,7 +39,7 @@ class Level {
   final String? description;
   final String titleLevel;
   final String? coachImageUrl;
-  final String? instructorName;  // Fixed typo: was 'instsuctorName'
+  final String? instructorName; // Fixed typo: was 'instsuctorName'
   final String? learningImageUrl;
   final String? learningDescription;
   final String? categoryCardImageUrl;
@@ -49,7 +55,7 @@ class Level {
     this.description,
     required this.titleLevel,
     this.coachImageUrl,
-    this.instructorName,  // Fixed typo
+    this.instructorName, // Fixed typo
     this.learningImageUrl,
     this.learningDescription,
     this.categoryCardImageUrl,
@@ -67,7 +73,8 @@ class Level {
       description: json['description']?.toString(),
       titleLevel: json['title_level']?.toString() ?? '',
       coachImageUrl: json['coach_image_url']?.toString(),
-      instructorName: json['instructor_name']?.toString(),  // Fixed: 'instructor_name' not 'instsuctor_name'
+      instructorName: json['instructor_name']
+          ?.toString(), // Fixed: 'instructor_name' not 'instsuctor_name'
       learningImageUrl: json['learning_image_url']?.toString(),
       learningDescription: json['learning_description']?.toString(),
       categoryCardImageUrl: json['category_card_image_url']?.toString(),

@@ -8,10 +8,9 @@ class VenueApi {
     final Uri uri = Uri.parse("${Constant.API_URL}/rental/showvenue");
 
     try {
-      final http.Response response = await http.get(
-        uri,
-        headers: Constant.headers,
-      ).timeout(const Duration(seconds: 30));
+      final http.Response response = await http
+          .get(uri, headers: Constant.headers)
+          .timeout(const Duration(seconds: 30));
 
       print("📡 Venue Response Status: ${response.statusCode}");
       print("📡 Venue Response Body: ${response.body}");
@@ -41,7 +40,11 @@ class VenueApi {
       }
     } catch (e) {
       print("❌ Get Venues Error: $e");
-      return {'success': false, 'message': 'Unable to connect. Check your internet connection and try again.'};
+      return {
+        'success': false,
+        'message':
+            'Unable to connect. Check your internet connection and try again.',
+      };
     }
   }
 }

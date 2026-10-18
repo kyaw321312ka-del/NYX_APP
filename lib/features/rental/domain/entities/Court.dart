@@ -41,7 +41,9 @@ class Court {
       closeAt: json['close_at']?.toString() ?? '',
       aboutCourt: json['about_court']?.toString() ?? '',
       timeSlots: json['time_slots'] != null
-          ? (json['time_slots'] as List).map((e) => TimeSlot.fromJson(e)).toList()
+          ? (json['time_slots'] as List)
+                .map((e) => TimeSlot.fromJson(e))
+                .toList()
           : null,
       gallery: json['gallery'] != null
           ? (json['gallery'] as List).map((e) => Gallery.fromJson(e)).toList()
@@ -59,7 +61,9 @@ class Court {
           ? (json['rules'] as List).map((e) => Rule.fromJson(e)).toList()
           : null,
       equipment: json['equipment'] != null
-          ? (json['equipment'] as List).map((e) => Equipment.fromJson(e)).toList()
+          ? (json['equipment'] as List)
+                .map((e) => Equipment.fromJson(e))
+                .toList()
           : null,
     );
   }
@@ -87,9 +91,7 @@ class Gallery {
   Gallery({required this.courtImageUrl});
 
   factory Gallery.fromJson(Map<String, dynamic> json) {
-    return Gallery(
-      courtImageUrl: json['court_image_url']?.toString() ?? '',
-    );
+    return Gallery(courtImageUrl: json['court_image_url']?.toString() ?? '');
   }
 }
 
@@ -99,9 +101,7 @@ class ProCon {
   ProCon({required this.name});
 
   factory ProCon.fromJson(Map<String, dynamic> json) {
-    return ProCon(
-      name: json['name']?.toString() ?? '',
-    );
+    return ProCon(name: json['name']?.toString() ?? '');
   }
 }
 
@@ -111,9 +111,7 @@ class Service {
   Service({required this.name});
 
   factory Service.fromJson(Map<String, dynamic> json) {
-    return Service(
-      name: json['name']?.toString() ?? '',
-    );
+    return Service(name: json['name']?.toString() ?? '');
   }
 }
 

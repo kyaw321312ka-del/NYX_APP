@@ -8,10 +8,9 @@ class CanteenApi {
     final Uri uri = Uri.parse("${Constant.API_URL}/canteen/showmenu");
 
     try {
-      final http.Response response = await http.get(
-        uri,
-        headers: Constant.headers,
-      ).timeout(const Duration(seconds: 30));
+      final http.Response response = await http
+          .get(uri, headers: Constant.headers)
+          .timeout(const Duration(seconds: 30));
 
       print("📡 Canteen Response Status: ${response.statusCode}");
       print("📡 Canteen Response Body: ${response.body}");
@@ -41,7 +40,11 @@ class CanteenApi {
       }
     } catch (e) {
       print("❌ Get Canteen Items Error: $e");
-      return {'success': false, 'message': 'Unable to connect. Check your internet connection and try again.'};
+      return {
+        'success': false,
+        'message':
+            'Unable to connect. Check your internet connection and try again.',
+      };
     }
   }
 }

@@ -4,7 +4,11 @@ import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 
 class TokenExpiredDialog {
-  static void show(BuildContext context, {required SessionService sessionService, required CartService cartService}) {
+  static void show(
+    BuildContext context, {
+    required SessionService sessionService,
+    required CartService cartService,
+  }) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -32,7 +36,7 @@ class TokenExpiredDialog {
               onPressed: () async {
                 // Clear session
                 await sessionService.logout();
-                
+
                 // Navigate to login page
                 Navigator.pushAndRemoveUntil(
                   context,
@@ -45,9 +49,7 @@ class TokenExpiredDialog {
                   (route) => false,
                 );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               child: const Text('Login Now'),
             ),
           ],

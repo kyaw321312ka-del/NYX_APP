@@ -8,10 +8,9 @@ class CourtApi {
     final Uri uri = Uri.parse("${Constant.API_URL}/rental/showcourt/$venueId");
 
     try {
-      final http.Response response = await http.get(
-        uri,
-        headers: Constant.headers,
-      ).timeout(const Duration(seconds: 30));
+      final http.Response response = await http
+          .get(uri, headers: Constant.headers)
+          .timeout(const Duration(seconds: 30));
 
       print(" Court Response Status: ${response.statusCode}");
       print(" Court Response Body: ${response.body}");

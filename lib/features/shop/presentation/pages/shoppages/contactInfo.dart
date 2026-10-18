@@ -21,7 +21,7 @@ class _contactInfoState extends State<contactInfo> {
   final TextEditingController remarkController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-  
+
   bool _isLoading = true;
   bool _isSessionValid = true;
 
@@ -48,7 +48,10 @@ class _contactInfoState extends State<contactInfo> {
     });
 
     try {
-      final sessionService = Provider.of<SessionService>(context, listen: false);
+      final sessionService = Provider.of<SessionService>(
+        context,
+        listen: false,
+      );
       final String? token = sessionService.getToken();
 
       if (token == null || token.isEmpty) {
@@ -79,7 +82,6 @@ class _contactInfoState extends State<contactInfo> {
         _isSessionValid = true;
         _isLoading = false;
       });
-      
     } catch (e) {
       print("Error checking token: $e");
       setState(() {
@@ -92,13 +94,15 @@ class _contactInfoState extends State<contactInfo> {
 
   void _showSessionExpiredDialog() {
     if (!mounted) return;
-    
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) => AlertDialog(
         title: const Text('Session Expired'),
-        content: const Text('Your session has expired. Please login again to continue.'),
+        content: const Text(
+          'Your session has expired. Please login again to continue.',
+        ),
         actions: [
           TextButton(
             onPressed: () {
@@ -109,8 +113,14 @@ class _contactInfoState extends State<contactInfo> {
           ),
           ElevatedButton(
             onPressed: () async {
-              final sessionService = Provider.of<SessionService>(context, listen: false);
-              final cartService = Provider.of<CartService>(context, listen: false);
+              final sessionService = Provider.of<SessionService>(
+                context,
+                listen: false,
+              );
+              final cartService = Provider.of<CartService>(
+                context,
+                listen: false,
+              );
               await sessionService.logout();
               if (mounted) {
                 Navigator.pushAndRemoveUntil(
@@ -125,9 +135,7 @@ class _contactInfoState extends State<contactInfo> {
                 );
               }
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Login Now'),
           ),
         ],
@@ -152,7 +160,7 @@ class _contactInfoState extends State<contactInfo> {
         ),
       );
     }
-    
+
     // If session expired, show error screen
     if (!_isSessionValid) {
       return Scaffold(
@@ -174,8 +182,14 @@ class _contactInfoState extends State<contactInfo> {
               const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () async {
-                  final sessionService = Provider.of<SessionService>(context, listen: false);
-                  final cartService = Provider.of<CartService>(context, listen: false);
+                  final sessionService = Provider.of<SessionService>(
+                    context,
+                    listen: false,
+                  );
+                  final cartService = Provider.of<CartService>(
+                    context,
+                    listen: false,
+                  );
                   await sessionService.logout();
                   if (context.mounted) {
                     Navigator.pushAndRemoveUntil(
@@ -192,7 +206,10 @@ class _contactInfoState extends State<contactInfo> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 30,
+                    vertical: 12,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -334,7 +351,10 @@ class _contactInfoState extends State<contactInfo> {
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(color: Colors.red),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
             ),
             validator: (value) {
               if (isRequired) {
@@ -342,12 +362,16 @@ class _contactInfoState extends State<contactInfo> {
                   return "$label is required";
                 }
               }
-              if (label == "Email Address" && value != null && value.isNotEmpty) {
+              if (label == "Email Address" &&
+                  value != null &&
+                  value.isNotEmpty) {
                 if (!value.contains('@') || !value.contains('.')) {
                   return "Enter a valid email address";
                 }
               }
-              if (label == "Phone Number" && value != null && value.isNotEmpty) {
+              if (label == "Phone Number" &&
+                  value != null &&
+                  value.isNotEmpty) {
                 if (value.length < 9 || value.length > 11) {
                   return "Enter a valid phone number";
                 }
@@ -372,7 +396,10 @@ class _contactInfoState extends State<contactInfo> {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: Colors.white,
+            ),
           ),
           const Expanded(
             child: Text(
@@ -452,10 +479,8 @@ class _contactInfoState extends State<contactInfo> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => Payment(
-          totalAmount: totalAmount,
-          contactInfo: contactInfo,
-        ),
+        builder: (context) =>
+            Payment(totalAmount: totalAmount, contactInfo: contactInfo),
       ),
     );
   }

@@ -18,10 +18,8 @@ class CartItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = item.product.images.isNotEmpty 
-        ? item.product.images
-        : '';
-    
+    final imageUrl = item.product.images.isNotEmpty ? item.product.images : '';
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       padding: const EdgeInsets.all(10),
@@ -49,7 +47,11 @@ class CartItemCard extends StatelessWidget {
                       height: 80,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
-                        return const Icon(Icons.image, size: 40, color: Colors.white);
+                        return const Icon(
+                          Icons.image,
+                          size: 40,
+                          color: Colors.white,
+                        );
                       },
                     ),
                   )
@@ -74,10 +76,7 @@ class CartItemCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   item.product.category,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.white70,
-                  ),
+                  style: const TextStyle(fontSize: 12, color: Colors.white70),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -114,7 +113,11 @@ class CartItemCard extends StatelessWidget {
                   children: [
                     GestureDetector(
                       onTap: onDecrease,
-                      child: const Icon(Icons.remove, color: Colors.white, size: 18),
+                      child: const Icon(
+                        Icons.remove,
+                        color: Colors.white,
+                        size: 18,
+                      ),
                     ),
                     Text(
                       '${item.quantity}',
@@ -126,7 +129,11 @@ class CartItemCard extends StatelessWidget {
                     ),
                     GestureDetector(
                       onTap: onIncrease,
-                      child: const Icon(Icons.add, color: Colors.white, size: 18),
+                      child: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: 18,
+                      ),
                     ),
                   ],
                 ),

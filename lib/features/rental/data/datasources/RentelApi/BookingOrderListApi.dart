@@ -9,17 +9,19 @@ class BookingOrderListApi {
     required String token,
   }) async {
     final Uri uri = Uri.parse("${Constant.API_URL}/rental/showmobilebooking");
-    
+
     print("Booking List URL: $uri");
-    
+
     try {
-      final response = await http.get(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      ).timeout(const Duration(seconds: 30));
+      final response = await http
+          .get(
+            uri,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+          )
+          .timeout(const Duration(seconds: 30));
 
       print("Booking List Response Status: ${response.statusCode}");
       print("Booking List Response Body: ${response.body}");
@@ -40,7 +42,8 @@ class BookingOrderListApi {
           return {
             'success': true,
             'data': bookings,
-            'message': responseData['message'] ?? 'Bookings fetched successfully',
+            'message':
+                responseData['message'] ?? 'Bookings fetched successfully',
           };
         } else {
           return {

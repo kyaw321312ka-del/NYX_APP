@@ -14,7 +14,7 @@ class EditProfile extends StatefulWidget {
   final CartService? cartService;
 
   const EditProfile({
-    super.key, 
+    super.key,
     required this.sessionService,
     this.cartService,
   });
@@ -38,8 +38,8 @@ class _EditProfileState extends State<EditProfile> {
   File? _selectedImage;
   bool _isUploading = false;
   final ImagePicker _picker = ImagePicker();
-  String? _warning;  // Add warning variable
-  bool _showWarning = false;  // Add this
+  String? _warning; // Add warning variable
+  bool _showWarning = false; // Add this
 
   @override
   void initState() {
@@ -64,7 +64,9 @@ class _EditProfileState extends State<EditProfile> {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: const Text('Session Expired'),
-        content: const Text('Your session has expired. Please login again to continue.'),
+        content: const Text(
+          'Your session has expired. Please login again to continue.',
+        ),
         actions: [
           ElevatedButton(
             onPressed: () async {
@@ -82,9 +84,7 @@ class _EditProfileState extends State<EditProfile> {
                 );
               }
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Login Now'),
           ),
         ],
@@ -108,10 +108,10 @@ class _EditProfileState extends State<EditProfile> {
 
   Future<void> _loadUserProfile() async {
     if (!mounted) return;
-    
+
     //  Check token first
     if (!_isTokenValid()) return;
-    
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -124,7 +124,8 @@ class _EditProfileState extends State<EditProfile> {
       if (token == null || token.isEmpty) {
         if (mounted) {
           setState(() {
-            _errorMessage = 'No authentication token found.\nPlease login again.';
+            _errorMessage =
+                'No authentication token found.\nPlease login again.';
             _isLoading = false;
           });
           _showSessionExpiredDialog();
@@ -135,7 +136,9 @@ class _EditProfileState extends State<EditProfile> {
       final result = await Api.getMyProfile(token: token);
 
       // Check for unauthorized/token expired
-      if (result['unauthorized'] == true || result['success'] == false && result['message']?.contains('expired') == true) {
+      if (result['unauthorized'] == true ||
+          result['success'] == false &&
+              result['message']?.contains('expired') == true) {
         await widget.sessionService.logout();
         _showSessionExpiredDialog();
         return;
@@ -168,7 +171,9 @@ class _EditProfileState extends State<EditProfile> {
   void _populateForm(Map<String, dynamic> userData) {
     _nameController.text = userData['name']?.toString() ?? '';
     final dob = userData['dateOfBirth'];
-    _dobController.text = dob != null && dob.toString().isNotEmpty ? dob.toString() : '';
+    _dobController.text = dob != null && dob.toString().isNotEmpty
+        ? dob.toString()
+        : '';
     _emailController.text = userData['email']?.toString() ?? '';
     _phoneController.text = userData['phone']?.toString() ?? '';
     _addressController.text = userData['address']?.toString() ?? '';
@@ -195,7 +200,7 @@ class _EditProfileState extends State<EditProfile> {
     );
 
     if (pickedDate != null) {
-      final String formattedDate = 
+      final String formattedDate =
           "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
       setState(() {
         _dobController.text = formattedDate;
@@ -211,12 +216,12 @@ class _EditProfileState extends State<EditProfile> {
         maxHeight: 500,
         imageQuality: 80,
       );
-      
+
       if (image != null) {
         setState(() {
           _selectedImage = File(image.path);
         });
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Image selected. Click Save Changes to upload.'),
@@ -237,12 +242,12 @@ class _EditProfileState extends State<EditProfile> {
         maxHeight: 500,
         imageQuality: 80,
       );
-      
+
       if (image != null) {
         setState(() {
           _selectedImage = File(image.path);
         });
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Photo taken. Click Save Changes to upload.'),
@@ -299,7 +304,7 @@ class _EditProfileState extends State<EditProfile> {
   Future<void> _updateProfile() async {
     //  Check token before updating
     if (!_isTokenValid()) return;
-    
+
     setState(() {
       _isUpdating = true;
       _errorMessage = null;
@@ -328,12 +333,13 @@ class _EditProfileState extends State<EditProfile> {
         return;
       }
 
-      final bool isSuccess = response['status'] == 'success' || 
-                             response['status'] == 'Edit Profile';
+      final bool isSuccess =
+          response['status'] == 'success' ||
+          response['status'] == 'Edit Profile';
 
       if (isSuccess) {
         final String? newToken = response['new_token'];
-        
+
         if (newToken != null && newToken.isNotEmpty) {
           await widget.sessionService.saveToken(newToken);
           print(' New token saved');
@@ -353,7 +359,7 @@ class _EditProfileState extends State<EditProfile> {
         });
 
         await _loadUserProfile();
-        
+
         if (mounted) {
           setState(() {
             _isUpdating = false;
@@ -379,48 +385,55 @@ class _EditProfileState extends State<EditProfile> {
 
   Future<Map<String, dynamic>> _updateProfileWithImage(String token) async {
     final Uri uri = Uri.parse("${Constant.API_URL}/editProfiled/update");
-    
+
     final request = http.MultipartRequest('PUT', uri);
-    
+
     request.headers.addAll({
       'Authorization': 'Bearer $token',
       'Accept': 'application/json',
     });
-    
+
     request.fields['name'] = _nameController.text.trim();
     request.fields['email'] = _emailController.text.trim();
     request.fields['phone'] = _phoneController.text.trim();
     request.fields['dateOfbirth'] = _dobController.text.trim();
     request.fields['address'] = _addressController.text.trim();
-    
+
     if (_selectedImage != null) {
       request.files.add(
         await http.MultipartFile.fromPath('image', _selectedImage!.path),
       );
     }
-    
+
     print(" Update URL: $uri");
     print(" Fields: ${request.fields}");
-    
+
     try {
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
-      
+
       print("Update Response Status: ${response.statusCode}");
       print("Update Response Body: ${response.body}");
-      
+
       if (response.statusCode == 401) {
-        return {'status': 'error', 'unauthorized': true, 'message': 'Session expired'};
+        return {
+          'status': 'error',
+          'unauthorized': true,
+          'message': 'Session expired',
+        };
       }
-      
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         if (response.body.isEmpty) {
-          return {'status': 'success', 'message': 'Profile updated successfully'};
+          return {
+            'status': 'success',
+            'message': 'Profile updated successfully',
+          };
         }
-        
+
         final responseData = jsonDecode(response.body);
         final String? tokenFromResponse = responseData['result'];
-        
+
         return {
           'status': responseData['status'],
           'message': responseData['status'] ?? 'Profile updated',
@@ -448,7 +461,11 @@ class _EditProfileState extends State<EditProfile> {
       ),
       child: Row(
         children: [
-          Icon(Icons.warning_amber_rounded, color: Colors.orange.shade700, size: 24),
+          Icon(
+            Icons.warning_amber_rounded,
+            color: Colors.orange.shade700,
+            size: 24,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -462,7 +479,6 @@ class _EditProfileState extends State<EditProfile> {
                     color: Colors.orange,
                   ),
                 ),
-               
               ],
             ),
           ),
@@ -484,7 +500,11 @@ class _EditProfileState extends State<EditProfile> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                      const Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.red,
+                      ),
                       const SizedBox(height: 20),
                       Text(_errorMessage!, textAlign: TextAlign.center),
                       const SizedBox(height: 20),
@@ -507,10 +527,14 @@ class _EditProfileState extends State<EditProfile> {
                     _AccPhoto(),
                     const SizedBox(height: 5),
                     _edit(),
-                    if (_showWarning) _warningBanner(),  // Add warning banner
+                    if (_showWarning) _warningBanner(), // Add warning banner
                     const SizedBox(height: 10),
                     _buildTextField("Name", _nameController),
-                    _buildTextField("Date of Birth", _dobController, isDate: true),
+                    _buildTextField(
+                      "Date of Birth",
+                      _dobController,
+                      isDate: true,
+                    ),
                     _buildTextField("Email", _emailController),
                     _buildTextField("Phone", _phoneController),
                     _buildTextField("Address", _addressController),
@@ -532,7 +556,10 @@ class _EditProfileState extends State<EditProfile> {
         children: [
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: Colors.white,
+            ),
           ),
           const Expanded(
             child: Text(
@@ -570,22 +597,22 @@ class _EditProfileState extends State<EditProfile> {
                 ),
               )
             : _imageUrl != null && _imageUrl!.isNotEmpty
-                ? ClipOval(
-                    child: Image.network(
-                      _imageUrl!,
-                      width: 120,
-                      height: 120,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return const Center(child: CircularProgressIndicator());
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(Icons.person, size: 60);
-                      },
-                    ),
-                  )
-                : const Icon(Icons.person, size: 60),
+            ? ClipOval(
+                child: Image.network(
+                  _imageUrl!,
+                  width: 120,
+                  height: 120,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return const Center(child: CircularProgressIndicator());
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(Icons.person, size: 60);
+                  },
+                ),
+              )
+            : const Icon(Icons.person, size: 60),
       ),
     );
   }
@@ -600,7 +627,11 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, {bool isDate = false}) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    bool isDate = false,
+  }) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: TextField(
@@ -609,9 +640,7 @@ class _EditProfileState extends State<EditProfile> {
         onTap: isDate ? _selectDate : null,
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           suffixIcon: isDate ? const Icon(Icons.calendar_today) : null,
         ),
       ),
@@ -633,9 +662,15 @@ class _EditProfileState extends State<EditProfile> {
             ? const SizedBox(
                 width: 20,
                 height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
               )
-            : const Text('Save Changes', style: TextStyle(fontSize: 16 , color: Colors.white)),
+            : const Text(
+                'Save Changes',
+                style: TextStyle(fontSize: 16, color: Colors.white),
+              ),
       ),
     );
   }

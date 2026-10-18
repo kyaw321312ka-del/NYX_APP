@@ -9,7 +9,6 @@ class contactInfoSnack extends StatefulWidget {
 }
 
 class _contactInfoSnackState extends State<contactInfoSnack> {
-
   final TextEditingController input = TextEditingController();
 
   @override
@@ -57,13 +56,10 @@ class _contactInfoSnackState extends State<contactInfoSnack> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           IconButton(
-            onPressed: (){
+            onPressed: () {
               Navigator.pop(context);
-            }, 
-            icon: Icon(
-              Icons.arrow_back_ios_new_rounded, 
-              color: Colors.white,
-            ),
+            },
+            icon: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           ),
 
           Expanded(
@@ -73,7 +69,7 @@ class _contactInfoSnackState extends State<contactInfoSnack> {
                 fontFamily: "Custom",
                 color: Colors.white,
                 fontSize: 20,
-                fontWeight: FontWeight.w600
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -86,13 +82,14 @@ class _contactInfoSnackState extends State<contactInfoSnack> {
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        child: Text(title,
-         style: const TextStyle(
-          color: Color.fromARGB(255, 13, 27, 42), 
-          fontWeight: FontWeight.w700,
-          fontFamily: 'Custom',
-          fontSize: 22
-          )
+        child: Text(
+          title,
+          style: const TextStyle(
+            color: Color.fromARGB(255, 13, 27, 42),
+            fontWeight: FontWeight.w700,
+            fontFamily: 'Custom',
+            fontSize: 22,
+          ),
         ),
       ),
     );
@@ -101,18 +98,19 @@ class _contactInfoSnackState extends State<contactInfoSnack> {
   Widget _section1(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: Text(title,
-       style: const TextStyle(
-        color: Color.fromARGB(255, 13, 27, 42), 
-        fontWeight: FontWeight.w500,
-        fontFamily: 'Custom',
-        fontSize: 15,
-        )
+      child: Text(
+        title,
+        style: const TextStyle(
+          color: Color.fromARGB(255, 13, 27, 42),
+          fontWeight: FontWeight.w500,
+          fontFamily: 'Custom',
+          fontSize: 15,
+        ),
       ),
     );
   }
 
-  Widget _input(String text){
+  Widget _input(String text) {
     return Container(
       height: 50,
       margin: EdgeInsets.symmetric(horizontal: 5),
@@ -126,23 +124,21 @@ class _contactInfoSnackState extends State<contactInfoSnack> {
           hintText: text,
           filled: true,
           fillColor: Color.fromARGB(255, 13, 27, 42),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15)
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
         ),
-      )
+      ),
     );
   }
 
-  Widget _continue(){
+  Widget _continue() {
     return Center(
       child: ElevatedButton.icon(
-        onPressed: (){
+        onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => Payment()),
           );
-        }, 
+        },
         label: Text(
           "Continue",
           style: TextStyle(
@@ -151,12 +147,9 @@ class _contactInfoSnackState extends State<contactInfoSnack> {
             fontSize: 15,
           ),
         ),
-        icon: Icon(Icons.arrow_right_alt_sharp,color: Colors.white,),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red,
-        ),
+        icon: Icon(Icons.arrow_right_alt_sharp, color: Colors.white),
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
       ),
     );
   }
-
 }

@@ -521,7 +521,7 @@ class _bookingFormState extends State<bookingForm> {
         ),
         onPressed: () {
           // Prepare updated booking data
-          
+
           final updatedBookingData = {
             'courtName': selectedCourtName,
             'courtPrice': courtFee,

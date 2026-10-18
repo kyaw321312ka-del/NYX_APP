@@ -250,10 +250,7 @@ class _DashBoardState extends State<DashBoard> {
     }
 
     if (_productsError != null) {
-      return AppErrorView(
-        message: _productsError!,
-        onRetry: _loadProducts,
-      );
+      return AppErrorView(message: _productsError!, onRetry: _loadProducts);
     }
 
     if (_allProducts.isEmpty) {

@@ -20,7 +20,7 @@ class _dashboardPagesState extends State<dashboardPages> {
               const SizedBox(height: 5),
               // _searchBar(),
               // _filterBar(),
-              _gridCards()
+              _gridCards(),
             ],
           ),
         ),
@@ -37,13 +37,10 @@ class _dashboardPagesState extends State<dashboardPages> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           IconButton(
-            onPressed: (){
+            onPressed: () {
               Navigator.pop(context);
-            }, 
-            icon: Icon(
-              Icons.arrow_back_ios_new_rounded, 
-              color: Colors.white,
-            ),
+            },
+            icon: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           ),
           Expanded(
             child: Text(
@@ -52,18 +49,14 @@ class _dashboardPagesState extends State<dashboardPages> {
                 fontFamily: "Custom",
                 color: Colors.white,
                 fontSize: 20,
-                fontWeight: FontWeight.w600
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
           SizedBox(
             child: IconButton(
-              onPressed: (){
-              }, 
-              icon: Icon(
-                Icons.shopping_cart_rounded, 
-                color: Colors.white,
-              ),
+              onPressed: () {},
+              icon: Icon(Icons.shopping_cart_rounded, color: Colors.white),
             ),
           ),
         ],
@@ -104,9 +97,7 @@ class _dashboardPagesState extends State<dashboardPages> {
             ),
             child: Column(
               children: [
-                const Expanded(
-                  child: Icon(Icons.image, size: 160),
-                ),
+                const Expanded(child: Icon(Icons.image, size: 160)),
                 Padding(
                   padding: const EdgeInsets.all(6),
                   child: Text(

@@ -2,10 +2,7 @@ class StudentEnrollment {
   final StudentInfo studentInfo;
   final List<ScheduleData> scheduleData;
 
-  StudentEnrollment({
-    required this.studentInfo,
-    required this.scheduleData,
-  });
+  StudentEnrollment({required this.studentInfo, required this.scheduleData});
 
   factory StudentEnrollment.fromJson(Map<String, dynamic> json) {
     return StudentEnrollment(

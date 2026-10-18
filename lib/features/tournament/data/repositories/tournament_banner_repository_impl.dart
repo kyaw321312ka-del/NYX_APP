@@ -8,6 +8,5 @@ class TournamentBannerRepositoryImpl implements TournamentBannerRepository {
   final TournamentBannerRemoteDataSource _remoteDataSource;
 
   @override
-  Future<List<TournamentBanner>> getBanners() =>
-      _remoteDataSource.getBanners();
+  Future<List<TournamentBanner>> getBanners() => _remoteDataSource.getBanners();
 }

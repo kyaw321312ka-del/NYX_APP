@@ -16,12 +16,7 @@ class orderHistory extends StatefulWidget {
 }
 
 class _orderHistoryState extends State<orderHistory> {
-  final List<String> statusFilter = [
-    "All",
-    "Pending",
-    "Completed",
-    "Cancel",
-  ];
+  final List<String> statusFilter = ["All", "Pending", "Completed", "Cancel"];
 
   String _selectedStatus = "All";
   List<dynamic> _allOrders = [];
@@ -62,8 +57,10 @@ class _orderHistoryState extends State<orderHistory> {
     });
 
     try {
-      final sessionService =
-          Provider.of<SessionService>(context, listen: false);
+      final sessionService = Provider.of<SessionService>(
+        context,
+        listen: false,
+      );
       final user = sessionService.getStoredUser();
       final userId = user?.id ?? 0;
       final token = sessionService.getToken();
@@ -167,8 +164,9 @@ class _orderHistoryState extends State<orderHistory> {
         builder: (context) => slipPage(
           paymentMethod: paymentMethod,
           transactionNumber: order['transaction_number']?.toString(),
-          totalAmount:
-              total is int ? total.toDouble() : (total as double? ?? 0.0),
+          totalAmount: total is int
+              ? total.toDouble()
+              : (total as double? ?? 0.0),
           contactInfo: contactInfo,
           orderResponse: order,
         ),
@@ -229,9 +227,11 @@ class _orderHistoryState extends State<orderHistory> {
             children: [
               Icon(Icons.inbox_outlined, size: 64, color: Colors.grey),
               const SizedBox(height: 16),
-              Text(_selectedStatus == "All"
-                  ? 'No orders found'
-                  : 'No $_selectedStatus orders found'),
+              Text(
+                _selectedStatus == "All"
+                    ? 'No orders found'
+                    : 'No $_selectedStatus orders found',
+              ),
               const SizedBox(height: 8),
               const Text(
                 'Your order history will appear here',
@@ -288,8 +288,10 @@ class _orderHistoryState extends State<orderHistory> {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                color: Colors.white),
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: Colors.white,
+            ),
           ),
           const Expanded(
             child: Text(
@@ -397,8 +399,11 @@ class _orderHistoryState extends State<orderHistory> {
                 color: const Color(0xFF0D1B2A),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child:
-                  const Icon(Icons.receipt_long, color: Colors.white, size: 28),
+              child: const Icon(
+                Icons.receipt_long,
+                color: Colors.white,
+                size: 28,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -418,7 +423,9 @@ class _orderHistoryState extends State<orderHistory> {
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: color.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(12),
@@ -438,8 +445,11 @@ class _orderHistoryState extends State<orderHistory> {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today,
-                          size: 12, color: Colors.grey),
+                      const Icon(
+                        Icons.calendar_today,
+                        size: 12,
+                        color: Colors.grey,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         date,
@@ -450,8 +460,11 @@ class _orderHistoryState extends State<orderHistory> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Icon(Icons.shopping_bag,
-                          size: 12, color: Colors.grey),
+                      const Icon(
+                        Icons.shopping_bag,
+                        size: 12,
+                        color: Colors.grey,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         '$itemCount items',

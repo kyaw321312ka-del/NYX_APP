@@ -26,8 +26,7 @@ class ServicesController extends ChangeNotifier {
   ServicesSectionState<Training> trainings =
       const ServicesSectionState<Training>();
   ServicesSectionState<Venue> venues = const ServicesSectionState<Venue>();
-  ServicesSectionState<Canteen> canteen =
-      const ServicesSectionState<Canteen>();
+  ServicesSectionState<Canteen> canteen = const ServicesSectionState<Canteen>();
   bool isRefreshing = false;
 
   Future<void> loadAll() async {
@@ -75,10 +74,7 @@ class ServicesController extends ChangeNotifier {
     required void Function(ServicesSectionState<T>) update,
   }) async {
     update(
-      ServicesSectionState<T>(
-        items: current.items,
-        isLoading: !isRefreshing,
-      ),
+      ServicesSectionState<T>(items: current.items, isLoading: !isRefreshing),
     );
     notifyListeners();
 

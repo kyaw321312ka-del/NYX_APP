@@ -23,11 +23,17 @@ class classesSlip extends StatefulWidget {
 }
 
 class _classesSlipState extends State<classesSlip> {
-  String orderNo = "#" + DateTime.now().millisecondsSinceEpoch.toString().substring(8, 13);
-  String date = DateTime.now().day.toString().padLeft(2, '0') + "/" +
-      DateTime.now().month.toString().padLeft(2, '0') + "/" +
+  String orderNo =
+      "#" + DateTime.now().millisecondsSinceEpoch.toString().substring(8, 13);
+  String date =
+      DateTime.now().day.toString().padLeft(2, '0') +
+      "/" +
+      DateTime.now().month.toString().padLeft(2, '0') +
+      "/" +
       DateTime.now().year.toString();
-  String time = DateTime.now().hour.toString().padLeft(2, '0') + ":" +
+  String time =
+      DateTime.now().hour.toString().padLeft(2, '0') +
+      ":" +
       DateTime.now().minute.toString().padLeft(2, '0');
 
   @override
@@ -36,13 +42,14 @@ class _classesSlipState extends State<classesSlip> {
     final paymentMethod = widget.paymentMethod ?? "N/A";
     final transactionNumber = widget.transactionNumber ?? "N/A";
     final responseData = widget.responseData ?? {};
-    
+
     // Extract data from response
     final studentInfo = responseData['data']?['studentInfo'] ?? {};
     final responseDate = studentInfo['Data'] ?? date;
     final responseTime = studentInfo['Time'] ?? time;
-    final studentName = studentInfo['name'] ?? enrollmentData['fullname'] ?? "Student";
-    
+    final studentName =
+        studentInfo['name'] ?? enrollmentData['fullname'] ?? "Student";
+
     // Extract enrollment details
     String fullname = enrollmentData['fullname'] ?? "N/A";
     String gender = enrollmentData['gender'] ?? "N/A";
@@ -50,7 +57,8 @@ class _classesSlipState extends State<classesSlip> {
     String phone = enrollmentData['phone'] ?? "N/A";
     String email = enrollmentData['email'] ?? "N/A";
     String address = enrollmentData['address'] ?? "N/A";
-    String trainingTitle = enrollmentData['trainingTitle'] ?? "Training Program";
+    String trainingTitle =
+        enrollmentData['trainingTitle'] ?? "Training Program";
     String trainingLevel = enrollmentData['levelName'] ?? "Beginner Level";
     int price = enrollmentData['price'] ?? 0;
     String timeSlot = enrollmentData['timeSlot'] ?? "Not specified";
@@ -101,7 +109,10 @@ class _classesSlipState extends State<classesSlip> {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: Colors.white,
+            ),
           ),
           const Expanded(
             child: Text(
@@ -228,7 +239,11 @@ class _classesSlipState extends State<classesSlip> {
           const SizedBox(height: 15),
           const Divider(color: Colors.white54),
           const SizedBox(height: 10),
-          _priceRow("Total Amount :", "${price.toStringAsFixed(0)} Ks", isBold: true),
+          _priceRow(
+            "Total Amount :",
+            "${price.toStringAsFixed(0)} Ks",
+            isBold: true,
+          ),
           const SizedBox(height: 15),
         ],
       ),
@@ -282,7 +297,9 @@ class _classesSlipState extends State<classesSlip> {
             amount,
             style: TextStyle(
               fontFamily: "Custom",
-              color: isBold ? const Color.fromARGB(255, 51, 252, 57) : Colors.white,
+              color: isBold
+                  ? const Color.fromARGB(255, 51, 252, 57)
+                  : Colors.white,
               fontSize: isBold ? 18 : 15,
               fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
             ),
@@ -310,9 +327,15 @@ class _classesSlipState extends State<classesSlip> {
               ),
               icon: const Icon(Icons.home, size: 22),
               onPressed: () {
-                final sessionService = Provider.of<SessionService>(context, listen: false);
-                final cartService = Provider.of<CartService>(context, listen: false);
-                
+                final sessionService = Provider.of<SessionService>(
+                  context,
+                  listen: false,
+                );
+                final cartService = Provider.of<CartService>(
+                  context,
+                  listen: false,
+                );
+
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
