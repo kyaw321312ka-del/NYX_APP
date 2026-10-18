@@ -16,7 +16,6 @@ class DeleteAccount extends StatefulWidget {
 
 class _DeleteAccountState extends State<DeleteAccount> {
   bool _isLoading = false;
-  bool _isConfirmed = false;
 
   Future<void> _deleteAccount() async {
     setState(() {
@@ -140,9 +139,6 @@ class _DeleteAccountState extends State<DeleteAccount> {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
-                setState(() {
-                  _isConfirmed = true;
-                });
                 _deleteAccount();
               },
               style: ElevatedButton.styleFrom(

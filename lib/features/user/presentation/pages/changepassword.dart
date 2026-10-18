@@ -86,8 +86,6 @@ class _ChangepasswordState extends State<Changepassword> {
         'changePassword': newPasswordController.text.trim(),
       });
 
-      print("Change Password URL: $uri");
-
       final response = await http.post(
         uri,
         headers: {
@@ -96,8 +94,6 @@ class _ChangepasswordState extends State<Changepassword> {
         }..['Authorization'] = 'Bearer $token',
         body: requestBody,
       );
-
-      print("Response Status: ${response.statusCode}");
 
       if (!mounted) return;
 
@@ -175,7 +171,6 @@ class _ChangepasswordState extends State<Changepassword> {
         );
       }
     } catch (e) {
-      print("Change Password Error: $e");
       _showSnackBar('Network error: ${e.toString()}', Colors.red);
     } finally {
       if (mounted) {
@@ -447,7 +442,7 @@ class _ChangepasswordState extends State<Changepassword> {
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 5,
                 offset: const Offset(0, 2),
               ),

@@ -2,7 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:nyxproject/core/utils/app_constants.dart';
 
-class Forgetpasswordapi {
+class ForgetPasswordApi {
   // 1. Forget Password - Send OTP
   // Endpoint: ${Constant.API_URL}/auth/forgetpassword
   static Future<Map<String, dynamic>> forgetPassword({
@@ -10,17 +10,11 @@ class Forgetpasswordapi {
   }) async {
     try {
       final url = Uri.parse('${Constant.API_URL}/auth/forgetpassword');
-      print(" Sending OTP Request to: $url");
-      print(" Email: $email");
-
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'email': email}),
       );
-
-      print(" Response Status: ${response.statusCode}");
-      print(" Response Body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final Map<String, dynamic> data = json.decode(response.body);
@@ -47,9 +41,11 @@ class Forgetpasswordapi {
           'message': 'Server error: ${response.statusCode}',
         };
       }
-    } catch (e) {
-      print(" Error: $e");
-      return {'success': false, 'message': 'Connection error: $e'};
+    } on Exception {
+      return {
+        'success': false,
+        'message': 'Unable to connect. Check your internet connection.',
+      };
     }
   }
 
@@ -61,18 +57,11 @@ class Forgetpasswordapi {
   }) async {
     try {
       final url = Uri.parse('${Constant.API_URL}/auth/verifyforgetpassword');
-      print(" Verifying OTP at: $url");
-      print(" TempToken: $tempToken");
-      print(" OTP: $otp");
-
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'tempToken': tempToken, 'otp': otp}),
       );
-
-      print(" Response Status: ${response.statusCode}");
-      print(" Response Body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final Map<String, dynamic> data = json.decode(response.body);
@@ -98,9 +87,11 @@ class Forgetpasswordapi {
           'message': 'Server error: ${response.statusCode}',
         };
       }
-    } catch (e) {
-      print(" Error: $e");
-      return {'success': false, 'message': 'Error: $e'};
+    } on Exception {
+      return {
+        'success': false,
+        'message': 'Unable to verify the code. Please try again.',
+      };
     }
   }
 
@@ -113,11 +104,6 @@ class Forgetpasswordapi {
   }) async {
     try {
       final url = Uri.parse('${Constant.API_URL}/auth/verify_update_password');
-      print(" Updating password at: $url");
-      print(" ResetToken: $tempToken");
-      print(" New Password: $changePassword");
-      print(" Email: $email");
-
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -127,9 +113,6 @@ class Forgetpasswordapi {
           'email': email,
         }),
       );
-
-      print(" Response Status: ${response.statusCode}");
-      print(" Response Body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final Map<String, dynamic> data = json.decode(response.body);
@@ -153,9 +136,11 @@ class Forgetpasswordapi {
           'message': 'Server error: ${response.statusCode}',
         };
       }
-    } catch (e) {
-      print(" Error: $e");
-      return {'success': false, 'message': 'Error: $e'};
+    } on Exception {
+      return {
+        'success': false,
+        'message': 'Unable to update the password. Please try again.',
+      };
     }
   }
 }

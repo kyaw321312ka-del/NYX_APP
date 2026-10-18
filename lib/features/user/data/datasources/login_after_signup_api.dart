@@ -2,22 +2,17 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:nyxproject/core/utils/app_constants.dart';
 
-class Loginaftersignupapi {
+class LoginAfterSignupApi {
   static Future<Map<String, dynamic>> loginAfterSignup(
     String email,
     String password,
   ) async {
     try {
-      print("📡 Calling login API with email: $email");
-
       final response = await http.post(
         Uri.parse("${Constant.API_URL}/auth/login"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'emailOrphone': email, 'password': password}),
       );
-
-      print("📡 Response Status: ${response.statusCode}");
-      print("📡 Response Body: ${response.body}");
 
       final data = jsonDecode(response.body);
 
@@ -31,7 +26,6 @@ class Loginaftersignupapi {
         return {'success': false, 'message': data['message'] ?? 'Login failed'};
       }
     } catch (e) {
-      print("❌ Login After Signup Error: $e");
       return {'success': false, 'message': 'Error: $e'};
     }
   }

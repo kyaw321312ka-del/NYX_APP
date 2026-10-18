@@ -11,22 +11,16 @@ class SessionService extends ChangeNotifier {
   static const String _keyTokenExpiry = 'token_expiry';
 
   final LocalStorage _storage;
-  bool _isLoggedIn = false;
-  User? _currentUser;
 
   SessionService({LocalStorage? storage})
     : _storage = storage ?? LocalStorage();
 
   Future<void> init() async {
     await _storage.init();
-    _isLoggedIn = _storage.getBool(_keyIsLoggedIn) ?? false;
-    _currentUser = getStoredUser();
     notifyListeners();
   }
 
   Future<void> saveSession(User user, String token) async {
-    print(" Saving session - User: ${user.name}, ID: ${user.id}");
-
     final userJson = user.toJson();
 
     //  Calculate token expiry (e.g., 7 days from now)
@@ -39,12 +33,6 @@ class SessionService extends ChangeNotifier {
     await _storage.setString(_keyUserData, jsonEncode(userJson));
     await _storage.setInt(_keyTokenExpiry, expiryTime);
 
-    _isLoggedIn = true;
-    _currentUser = user;
-
-    print(
-      " Session saved, token expires at: ${DateTime.fromMillisecondsSinceEpoch(expiryTime)}",
-    );
     notifyListeners();
   }
 
@@ -79,10 +67,6 @@ class SessionService extends ChangeNotifier {
     final expiryDate = DateTime.fromMillisecondsSinceEpoch(expiryTime);
     final isExpired = DateTime.now().isAfter(expiryDate);
 
-    if (isExpired) {
-      print(" Token expired at: $expiryDate");
-    }
-
     return isExpired;
   }
 
@@ -100,8 +84,7 @@ class SessionService extends ChangeNotifier {
       try {
         final jsonData = jsonDecode(userData);
         return User.fromJson(jsonData);
-      } catch (e) {
-        print(" Error parsing user data: $e");
+      } catch (_) {
         return null;
       }
     }
@@ -111,7 +94,6 @@ class SessionService extends ChangeNotifier {
   String? getToken() {
     //  Check if token is expired before returning
     if (isTokenExpired()) {
-      print(" Token is expired, returning null");
       return null;
     }
     return _storage.getString(_keyUserToken);
@@ -122,8 +104,6 @@ class SessionService extends ChangeNotifier {
     await _storage.remove(_keyUserData);
     await _storage.remove(_keyUserToken);
     await _storage.remove(_keyTokenExpiry);
-    _isLoggedIn = false;
-    _currentUser = null;
     notifyListeners();
   }
 

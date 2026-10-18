@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nyxproject/core/error/app_error_message.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
-import 'package:nyxproject/features/user/data/datasources/ContactusApi.dart';
-import 'package:nyxproject/features/user/data/models/Contactus.dart';
+import 'package:nyxproject/features/user/data/datasources/contact_us_api.dart';
+import 'package:nyxproject/features/user/data/models/contact_us.dart';
 import 'package:nyxproject/features/training/domain/entities/TrainingDetail.dart';
 import 'package:nyxproject/features/training/presentation/pages/classes/enrollForm.dart';
 import 'package:nyxproject/features/training/data/datasources/ClassApi/TrainingDetailApi.dart';
@@ -795,10 +795,12 @@ class _ClassDetailsState extends State<ClassDetails> {
       child: ElevatedButton(
         onPressed: () {
           if (selectedLevel != null) {
-            print("Selected Level ID: ${selectedLevel.id}");
-            print("Selected Level Title: ${selectedLevel.titleLevel}");
-            print("Selected Level Price: ${selectedLevel.price}");
-            print("Selected Level Description: ${selectedLevel.description}");
+            debugPrint("Selected Level ID: ${selectedLevel.id}");
+            debugPrint("Selected Level Title: ${selectedLevel.titleLevel}");
+            debugPrint("Selected Level Price: ${selectedLevel.price}");
+            debugPrint(
+              "Selected Level Description: ${selectedLevel.description}",
+            );
 
             Navigator.push(
               context,
@@ -876,7 +878,7 @@ class _ClassDetailsState extends State<ClassDetails> {
               InkWell(
                 onTap: () {
                   // Optionally add phone call functionality
-                  print("Contact number tapped: $phoneNumber");
+                  debugPrint("Contact number tapped: $phoneNumber");
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -904,13 +906,13 @@ class _ClassDetailsState extends State<ClassDetails> {
   // Add this method to fetch contact info
   Future<ContactUsData?> _fetchContactInfo() async {
     try {
-      final result = await ContactusApi.getGeneralInfo();
+      final result = await ContactUsApi.getGeneralInfo();
       if (result['success'] == true) {
         return result['data'] as ContactUsData;
       }
       return null;
     } catch (e) {
-      print("Error fetching contact info: $e");
+      debugPrint("Error fetching contact info: $e");
       return null;
     }
   }

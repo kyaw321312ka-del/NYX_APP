@@ -1,6 +1,5 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/user/data/datasources/LoginAfterSignupApi.dart';
+import 'package:nyxproject/features/user/data/datasources/login_after_signup_api.dart';
 import 'package:nyxproject/features/user/domain/entities/user.dart';
 import 'package:nyxproject/features/dashboard/presentation/pages/layout.dart';
 import 'package:nyxproject/features/user/presentation/pages/login.dart';
@@ -31,13 +30,10 @@ class OTP extends StatefulWidget {
 class _OTPState extends State<OTP> {
   final TextEditingController otpController = TextEditingController();
   bool _isLoading = false;
-  int _resendCooldown = 0;
-  Timer? _cooldownTimer;
 
   @override
   void dispose() {
     otpController.dispose();
-    _cooldownTimer?.cancel();
     super.dispose();
   }
 
@@ -55,7 +51,6 @@ class _OTPState extends State<OTP> {
               const SizedBox(height: 15),
               _verifyBTN(),
               const SizedBox(height: 20),
-              _resendButton(),
             ],
           ),
         ),
@@ -188,54 +183,6 @@ class _OTPState extends State<OTP> {
     );
   }
 
-  Widget _resendButton() {
-    return Center(
-      // child: TextButton(
-      //   onPressed: _resendCooldown > 0 ? null : _resendOTP,
-      //   child: Text(
-      //     _resendCooldown > 0
-      //         ? "Resend OTP in ${_resendCooldown}s"
-      //         : "Resend OTP",
-      //     style: TextStyle(
-      //       color: _resendCooldown > 0 ? Colors.grey : Colors.red,
-      //       fontFamily: "Custom",
-      //       fontSize: 14,
-      //     ),
-      //   ),
-      // ),
-    );
-  }
-
-  Future<void> _resendOTP() async {
-    setState(() {
-      _resendCooldown = 60;
-    });
-
-    _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (mounted && _resendCooldown > 0) {
-        setState(() {
-          _resendCooldown--;
-        });
-      } else {
-        timer.cancel();
-      }
-    });
-
-    try {
-      final result = await Api.sendOtpCode(email: widget.email);
-      if (mounted && result['success'] == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("OTP resent successfully!"),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    } catch (e) {
-      print("Error resending OTP: $e");
-    }
-  }
-
   Future<void> _verifyOtp() async {
     final String otp = otpController.text.trim();
 
@@ -259,19 +206,13 @@ class _OTPState extends State<OTP> {
       if (!mounted) return;
 
       if (verifyResult['success'] == true) {
-        print(" OTP Verified Successfully");
-        print(" Email: ${widget.email}");
-        print(" Password: ${widget.password}");
-
-        final loginResult = await Loginaftersignupapi.loginAfterSignup(
+        final loginResult = await LoginAfterSignupApi.loginAfterSignup(
           widget.email,
           widget.password,
         );
-
-        print(" Login Result: $loginResult");
+        if (!mounted) return;
 
         if (loginResult['success'] == true) {
-          print(" Auto Login Successful");
           final token = loginResult['token'];
 
           // Extract user data from the token or create from email
@@ -285,9 +226,6 @@ class _OTPState extends State<OTP> {
             email: widget.email,
             phone: '',
           );
-
-          print(" Token: $token");
-          print(" User: ${user.name}");
 
           await widget.sessionService.saveSession(user, token);
 
@@ -304,34 +242,30 @@ class _OTPState extends State<OTP> {
                 phone: fullUserData['phone']?.toString() ?? '',
               );
               await widget.sessionService.saveSession(updatedUser, token);
-              print(" Full user profile fetched");
             }
-          } catch (e) {
-            print(" Could not fetch full profile: $e");
+          } on Exception catch (error) {
+            debugPrint('Optional profile enrichment failed: $error');
           }
 
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Account created and logged in successfully!"),
-                backgroundColor: Colors.green,
-              ),
-            );
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Account created and logged in successfully!"),
+              backgroundColor: Colors.green,
+            ),
+          );
 
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MainDashboard(
-                  sessionService: widget.sessionService,
-                  cartService: widget.cartService,
-                ),
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MainDashboard(
+                sessionService: widget.sessionService,
+                cartService: widget.cartService,
               ),
-              (route) => false,
-            );
-          }
+            ),
+            (route) => false,
+          );
         } else {
-          print("❌ Auto Login Failed: ${loginResult['message']}");
-
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text("Account verified! Please login manually."),
@@ -358,7 +292,6 @@ class _OTPState extends State<OTP> {
         );
       }
     } catch (e) {
-      print("❌ Error in OTP verification: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),

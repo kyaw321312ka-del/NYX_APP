@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:nyxproject/core/utils/app_constants.dart';
-import 'package:nyxproject/features/user/data/models/Contactus.dart';
+import 'package:nyxproject/features/user/data/models/contact_us.dart';
 
-class ContactusApi {
+class ContactUsApi {
   static Future<Map<String, dynamic>> getGeneralInfo() async {
     try {
       final response = await http.get(

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/user/data/datasources/ForgetPasswordApi.dart';
+import 'package:nyxproject/features/user/data/datasources/forget_password_api.dart';
 
 class ForgetPassword extends StatefulWidget {
   final String email;
@@ -436,7 +436,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
     });
 
     try {
-      final result = await Forgetpasswordapi.forgetPassword(email: email);
+      final result = await ForgetPasswordApi.forgetPassword(email: email);
 
       if (!mounted) return;
 
@@ -478,7 +478,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
     });
 
     try {
-      final result = await Forgetpasswordapi.verifyForgetPassword(
+      final result = await ForgetPasswordApi.verifyForgetPassword(
         tempToken: _tempToken!,
         otp: otp,
       );
@@ -528,7 +528,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
     });
 
     try {
-      final result = await Forgetpasswordapi.verifyUpdatePassword(
+      final result = await ForgetPasswordApi.verifyUpdatePassword(
         tempToken: _resetToken!,
         changePassword: newPassword,
         email: emailController.text.trim(),
@@ -565,7 +565,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
     });
 
     try {
-      final result = await Forgetpasswordapi.forgetPassword(
+      final result = await ForgetPasswordApi.forgetPassword(
         email: emailController.text.trim(),
       );
 

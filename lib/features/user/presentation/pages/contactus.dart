@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/user/data/datasources/ContactusApi.dart';
-import 'package:nyxproject/features/user/data/models/Contactus.dart';
+import 'package:nyxproject/features/user/data/datasources/contact_us_api.dart';
+import 'package:nyxproject/features/user/data/models/contact_us.dart';
 
 class ContactUs extends StatefulWidget {
   const ContactUs({super.key});
@@ -29,7 +29,7 @@ class _ContactUsState extends State<ContactUs> {
     });
 
     try {
-      final result = await ContactusApi.getGeneralInfo();
+      final result = await ContactUsApi.getGeneralInfo();
 
       if (result['success'] == true && result['data'] != null) {
         setState(() {

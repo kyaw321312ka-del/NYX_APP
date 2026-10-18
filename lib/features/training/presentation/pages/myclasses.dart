@@ -58,7 +58,7 @@ class _ClassesState extends State<Classes> {
           _enrollments = result['data'] ?? [];
           _isLoading = false;
         });
-        print('✅ Loaded ${_enrollments.length} enrollments');
+        debugPrint('Loaded ${_enrollments.length} enrollments');
       } else {
         setState(() {
           _error = AppErrorMessage.from(
@@ -190,7 +190,7 @@ class _ClassesState extends State<Classes> {
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

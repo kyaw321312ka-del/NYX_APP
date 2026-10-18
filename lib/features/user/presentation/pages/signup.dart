@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/user/presentation/pages/OTP.dart';
+import 'package:nyxproject/features/user/presentation/pages/otp_page.dart';
 import 'package:nyxproject/features/user/presentation/pages/login.dart';
 import 'package:nyxproject/features/user/presentation/pages/terms.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
