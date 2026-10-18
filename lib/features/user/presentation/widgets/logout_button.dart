@@ -1,6 +1,6 @@
 // lib/widgets/accountWidgets/logout_button.dart
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/dashboard/presentation/pages/main_dashboard.dart';
+import 'package:nyxproject/features/dashboard/presentation/pages/layout.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 

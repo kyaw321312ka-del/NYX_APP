@@ -1,0 +1,263 @@
+﻿import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:nyxproject/features/rental/presentation/pages/walkin/walkin.dart';
+import 'package:provider/provider.dart';
+import 'package:nyxproject/features/dashboard/presentation/pages/dashboard.dart';
+import 'package:nyxproject/features/dashboard/presentation/pages/services.dart';
+import 'package:nyxproject/features/shop/presentation/pages/shop.dart';
+import 'package:nyxproject/features/user/presentation/pages/account.dart';
+import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
+import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
+import 'package:nyxproject/features/cart/presentation/pages/cart.dart';
+
+class MainDashboard extends StatefulWidget {
+  final SessionService sessionService;
+  final CartService? cartService;
+
+  const MainDashboard({
+    super.key,
+    required this.sessionService,
+    this.cartService,
+  });
+
+  @override
+  State<MainDashboard> createState() => _MainDashboardState();
+}
+
+class _MainDashboardState extends State<MainDashboard> {
+  int currentPageIndex = 0;
+  String? language;
+  bool _isExitDialogOpen = false;
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      DashBoard(
+        sessionService: widget.sessionService,
+        cartService: widget.cartService,
+      ),
+      ShopPage(cartService: widget.cartService),
+      const Services(),
+      const WalkInScreen(),
+      AccountPage(sessionService: widget.sessionService),
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          _confirmExit();
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              _header(),
+              const SizedBox(height: 0),
+              Expanded(
+                child: IndexedStack(index: currentPageIndex, children: _pages),
+              ),
+            ],
+          ),
+        ),
+        bottomNavigationBar: Container(
+          margin: const EdgeInsets.fromLTRB(14, 8, 14, 12),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color.fromARGB(255, 13, 27, 42),
+            borderRadius: BorderRadius.circular(30),
+            // boxShadow: [
+            //   BoxShadow(
+            //     color: const Color(0xFF08131F),
+            //     offset: const Offset(8, 8),
+            //     blurRadius: 14,
+            //     spreadRadius: 1,
+            //   ),
+            //   BoxShadow(
+            //     color: const Color(0xFF1A354F),
+            //     offset: const Offset(-7, -7),
+            //     blurRadius: 12,
+            //     spreadRadius: 1,
+            //   ),
+            // ],
+          ),
+          child: Theme(
+            data: Theme.of(context).copyWith(canvasColor: Colors.transparent),
+            child: BottomNavigationBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              selectedItemColor: Colors.white,
+              unselectedItemColor: Colors.grey,
+              selectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 11,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 10,
+              ),
+              type: BottomNavigationBarType.fixed,
+              currentIndex: currentPageIndex,
+              onTap: (index) {
+                setState(() {
+                  currentPageIndex = index;
+                });
+              },
+              items: const [
+                BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+                BottomNavigationBarItem(icon: Icon(Icons.store), label: "Shop"),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.class_),
+                  label: "Services",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.directions_walk_outlined),
+                  label: "Walk-In",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person),
+                  label: "Account",
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmExit() async {
+    if (_isExitDialogOpen) return;
+    _isExitDialogOpen = true;
+
+    try {
+      final shouldExit = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Exit app?'),
+          content: const Text('Are you sure you want to exit?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Exit'),
+            ),
+          ],
+        ),
+      );
+
+      if (shouldExit == true) {
+        await SystemNavigator.pop();
+      }
+    } finally {
+      _isExitDialogOpen = false;
+    }
+  }
+
+  Widget _header() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(14, 8, 14, 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 13, 27, 42),
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          SizedBox(
+            height: 48,
+            child: Image.asset(
+              'assets/images/logo1.png',
+              fit: BoxFit.fill,
+              errorBuilder: (context, error, stackTrace) {
+                return const Text(
+                  'NYX',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                );
+              },
+            ),
+          ),
+          Row(
+            children: [
+              // IconButton(
+              //   onPressed: () {
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(
+              //         builder: (context) => const tournamentMain(),
+              //       ),
+              //     );
+              //   },
+              //   icon: FaIcon(
+              //     FontAwesomeIcons.trophy,
+              //     size: 20,
+              //     color: Colors.white,
+              //   ),
+              // ),
+              Stack(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CartPage(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.shopping_cart_outlined,
+                      color: Colors.white,
+                    ),
+                  ),
+                  // Cart badge
+                  Consumer<CartService>(
+                    builder: (context, cartService, child) {
+                      if (cartService.itemCount > 0) {
+                        return Positioned(
+                          right: 4,
+                          top: 4,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Text(
+                              '${cartService.itemCount}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
