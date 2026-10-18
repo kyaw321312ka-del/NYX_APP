@@ -7,7 +7,7 @@ import 'package:nyxproject/features/cart/presentation/widgets/cartWidgets/empty_
 import 'package:nyxproject/features/cart/presentation/widgets/cartWidgets/login_dialog.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:provider/provider.dart';
-import 'package:nyxproject/features/shop/presentation/pages/shoppages/contactInfo.dart';
+import 'package:nyxproject/features/shop/presentation/pages/shoppages/contact_info.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 
 class CartPage extends StatelessWidget {
@@ -72,7 +72,7 @@ class CartPage extends StatelessWidget {
         session.getToken() != null) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const contactInfo()),
+        MaterialPageRoute(builder: (context) => const ContactInfo()),
       );
     } else {
       LoginDialog.show(context: context, session: session);

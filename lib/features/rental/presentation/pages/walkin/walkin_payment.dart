@@ -1,12 +1,10 @@
 import 'dart:io';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:nyxproject/core/utils/app_constants.dart';
-import 'package:nyxproject/features/orders/data/datasources/PaymentApi.dart';
-import 'package:nyxproject/features/rental/data/datasources/RentelApi/WalkinBookinApi.dart';
-import 'package:nyxproject/features/orders/domain/entities/Payment.dart';
-import 'package:nyxproject/features/rental/domain/entities/WalkinBookin.dart';
+import 'package:nyxproject/features/orders/data/datasources/payment_api.dart';
+import 'package:nyxproject/features/rental/data/datasources/RentelApi/walkin_bookin_api.dart';
+import 'package:nyxproject/features/orders/domain/entities/payment.dart';
+import 'package:nyxproject/features/rental/domain/entities/walkin_bookin.dart';
 import 'package:nyxproject/features/rental/presentation/pages/walkin/walkin_slip.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:provider/provider.dart';
@@ -244,8 +242,8 @@ class _WalkinPaymentState extends State<WalkinPayment> {
           _transactionImage = File(image.path);
         });
       }
-    } catch (e) {
-      print('Error picking image: $e');
+    } catch (_) {
+      return;
     }
   }
 
@@ -263,13 +261,9 @@ class _WalkinPaymentState extends State<WalkinPayment> {
           _transactionImage = File(image.path);
         });
       }
-    } catch (e) {
-      print('Error picking image: $e');
+    } catch (_) {
+      return;
     }
-  }
-
-  bool _showTransactionInput() {
-    return selectedPaymentMethod != null;
   }
 
   Widget _imageUploadSection() {
@@ -562,10 +556,16 @@ class _WalkinPaymentState extends State<WalkinPayment> {
       );
     }
 
-    return Container(
+    return RadioGroup<String>(
+      groupValue: selectedPaymentId,
+      onChanged: (value) {
+        setState(() {
+          selectedPaymentId = value.toString();
+          input.clear();
+        });
+      },
       child: Column(
         children: _paymentMethods.map((method) {
-          bool isSelected = selectedPaymentId == method.id.toString();
           return ListTile(
             title: Text(
               method.paymentMethod,
@@ -574,16 +574,7 @@ class _WalkinPaymentState extends State<WalkinPayment> {
                 color: Color.fromARGB(255, 13, 27, 42),
               ),
             ),
-            leading: Radio(
-              value: method.id.toString(),
-              groupValue: selectedPaymentId,
-              onChanged: (value) {
-                setState(() {
-                  selectedPaymentId = value.toString();
-                  input.clear();
-                });
-              },
-            ),
+            leading: Radio(value: method.id.toString()),
             trailing: method.paymentImageUrl.isNotEmpty
                 ? Image.network(
                     method.paymentImageUrl,
@@ -679,29 +670,6 @@ class _WalkinPaymentState extends State<WalkinPayment> {
     );
   }
 
-  Widget _input(String text) {
-    return Center(
-      child: Container(
-        height: 50,
-        width: 300,
-        margin: const EdgeInsets.symmetric(horizontal: 5),
-        child: TextFormField(
-          controller: input,
-          style: const TextStyle(
-            fontFamily: "Custom",
-            color: Color.fromARGB(255, 255, 255, 255),
-          ),
-          decoration: InputDecoration(
-            hintText: text,
-            filled: true,
-            fillColor: const Color.fromARGB(255, 13, 27, 42),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _confirm() {
     return Center(
       child: ElevatedButton(
@@ -766,16 +734,8 @@ class _WalkinPaymentState extends State<WalkinPayment> {
         listen: false,
       );
       final token = sessionService.getToken();
-      final user = sessionService.getStoredUser();
 
       final bookingData = widget.bookingData ?? {};
-
-      // Get court time slot IDs
-      List<int> courtTimeSlotIds = [];
-      var selectedTimeSlot = bookingData['selectedTimeSlot'];
-      if (selectedTimeSlot != null && selectedTimeSlot.id != null) {
-        courtTimeSlotIds = [selectedTimeSlot.id];
-      }
 
       // Build equipment items list for API - USE equipment_id
       List<Map<String, dynamic>> items = [];
@@ -802,18 +762,12 @@ class _WalkinPaymentState extends State<WalkinPayment> {
 
           if (equipmentId != null) {
             items.add({'equipment_id': equipmentId, 'quantity': entry.value});
-          } else {
-            print("Warning: No equipment ID found for ${entry.key}");
-          }
+          } else {}
         }
       }
 
       // Format date
       String formattedDate = bookingDate;
-
-      print("Submitting booking with:");
-      print("Items: $items");
-      print("Court Time Slot IDs: $courtTimeSlotIds");
 
       // Submit to API
       final result = await WalkinBookinApi.addWalkInBooking(
@@ -865,7 +819,6 @@ class _WalkinPaymentState extends State<WalkinPayment> {
         );
       }
     } catch (e) {
-      print("Error in submitBooking: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error: ${e.toString()}'),

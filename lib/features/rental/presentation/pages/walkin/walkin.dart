@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:nyxproject/core/error/app_error_message.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
-import 'package:nyxproject/features/rental/data/datasources/RentelApi/WalkInCourtApi.dart';
-import 'package:nyxproject/features/rental/domain/entities/WalkInCourt.dart';
-import 'package:nyxproject/features/rental/presentation/pages/walkin/walkinCourt.dart'
+import 'package:nyxproject/features/rental/data/datasources/RentelApi/walk_in_court_api.dart';
+import 'package:nyxproject/features/rental/domain/entities/walk_in_court.dart'
+    as model;
+import 'package:nyxproject/features/rental/presentation/pages/walkin/walkin_court.dart'
     as walkin_details;
 
 class WalkInScreen extends StatefulWidget {
@@ -14,7 +15,7 @@ class WalkInScreen extends StatefulWidget {
 }
 
 class _WalkInScreenState extends State<WalkInScreen> {
-  List<WalkInCourt> courts = [];
+  List<model.WalkInCourt> courts = [];
   String? selectedVenue;
   String? errorMessage;
   bool isLoading = true;
@@ -38,7 +39,7 @@ class _WalkInScreenState extends State<WalkInScreen> {
       setState(() {
         isLoading = false;
         if (result['success'] == true) {
-          courts = List<WalkInCourt>.from(result['data'] ?? []);
+          courts = List<model.WalkInCourt>.from(result['data'] ?? []);
           if (selectedVenue != null &&
               !courts.any((court) => court.venueName == selectedVenue)) {
             selectedVenue = null;
@@ -203,7 +204,7 @@ class _WalkInScreenState extends State<WalkInScreen> {
     );
   }
 
-  Widget _buildVenueCard(BuildContext context, WalkInCourt court) {
+  Widget _buildVenueCard(BuildContext context, model.WalkInCourt court) {
     double screenWidth = MediaQuery.sizeOf(context).width;
     double screenHeight = MediaQuery.sizeOf(context).height;
     return GestureDetector(
@@ -301,7 +302,7 @@ class _WalkInScreenState extends State<WalkInScreen> {
   }
 
   Widget _buildCourtImage(
-    WalkInCourt court,
+    model.WalkInCourt court,
     double screenWidth,
     double screenHeight,
   ) {

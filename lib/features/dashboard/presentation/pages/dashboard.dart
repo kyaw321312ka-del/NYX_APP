@@ -2,13 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:nyxproject/core/error/app_error_message.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
-import 'package:nyxproject/features/dashboard/data/datasources/HomeBannerApi.dart';
-import 'package:nyxproject/features/shop/data/datasources/GetallproductApi.dart';
-import 'package:nyxproject/features/shop/domain/entities/Category.dart';
-import 'package:nyxproject/features/dashboard/domain/entities/HomeBanner.dart';
+import 'package:nyxproject/features/dashboard/data/datasources/home_banner_api.dart';
+import 'package:nyxproject/features/shop/data/datasources/getallproduct_api.dart';
+import 'package:nyxproject/features/shop/domain/entities/category.dart';
+import 'package:nyxproject/features/dashboard/domain/entities/home_banner.dart';
 import 'package:nyxproject/features/shop/domain/entities/product.dart';
-import 'package:nyxproject/features/shop/presentation/pages/shoppages/categoryPage.dart';
-import 'package:nyxproject/features/shop/presentation/pages/shoppages/tagPage.dart';
+import 'package:nyxproject/features/shop/presentation/pages/shoppages/category_page.dart';
+import 'package:nyxproject/features/shop/presentation/pages/shoppages/tag_page.dart';
 import 'package:nyxproject/features/dashboard/presentation/widgets/dashboardWidgets/banner_widget.dart';
 import 'package:nyxproject/features/dashboard/presentation/widgets/dashboardWidgets/categories_widget.dart';
 import 'package:nyxproject/features/dashboard/presentation/widgets/dashboardWidgets/product_section.dart';
@@ -111,7 +111,6 @@ class _DashBoardState extends State<DashBoard> {
           _categoriesList = result['data'] ?? [];
           _isLoadingCategories = false;
         });
-        print(' Loaded ${_categoriesList.length} categories');
       } else {
         setState(() {
           _categoriesError = AppErrorMessage.from(
@@ -147,7 +146,6 @@ class _DashBoardState extends State<DashBoard> {
           _allProducts = result['data'] ?? [];
           _isLoadingProducts = false;
         });
-        print(' Loaded ${_allProducts.length} products');
       } else {
         setState(() {
           _productsError = AppErrorMessage.from(

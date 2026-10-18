@@ -386,7 +386,7 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   Future<Map<String, dynamic>> _updateProfileWithImage(String token) async {
-    final Uri uri = Uri.parse("${Constant.API_URL}/editProfiled/update");
+    final Uri uri = Uri.parse("${Constant.apiUrl}/editProfiled/update");
 
     final request = http.MultipartRequest('PUT', uri);
 

@@ -30,7 +30,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
       }
 
       final response = await http.put(
-        Uri.parse('${Constant.API_URL}/auth/delete_acc'),
+        Uri.parse('${Constant.apiUrl}/auth/delete_acc'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

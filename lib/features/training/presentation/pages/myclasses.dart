@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nyxproject/core/error/app_error_message.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
-import 'package:nyxproject/features/training/domain/entities/StudentEnrollment.dart';
-import 'package:nyxproject/features/training/data/datasources/ClassApi/StudentEnrollmentApi.dart';
+import 'package:nyxproject/features/training/domain/entities/student_enrollment.dart';
+import 'package:nyxproject/features/training/data/datasources/ClassApi/student_enrollment_api.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -248,7 +248,7 @@ class _ClassesState extends State<Classes> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Student Name
+                // Student name
                 Row(
                   children: [
                     const Icon(Icons.person, size: 18, color: Colors.red),

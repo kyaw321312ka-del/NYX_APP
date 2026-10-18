@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/rental/domain/entities/RentalBooking.dart';
+import 'package:nyxproject/features/rental/domain/entities/rental_booking.dart';
 import 'package:nyxproject/features/dashboard/presentation/pages/layout.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:provider/provider.dart';
 
-class rentalSlip extends StatefulWidget {
+class RentalSlip extends StatefulWidget {
   final Map<String, dynamic>? bookingData;
   final String? paymentMethod;
   final String? transactionNumber;
   final RentalBooking? rentalBooking;
   final String? courtName;
 
-  const rentalSlip({
+  const RentalSlip({
     super.key,
     this.bookingData,
     this.paymentMethod,
@@ -22,22 +22,16 @@ class rentalSlip extends StatefulWidget {
   });
 
   @override
-  State<rentalSlip> createState() => _rentalSlipState();
+  State<RentalSlip> createState() => _RentalSlipState();
 }
 
-class _rentalSlipState extends State<rentalSlip> {
+class _RentalSlipState extends State<RentalSlip> {
   String orderNo =
-      "#" + DateTime.now().millisecondsSinceEpoch.toString().substring(8, 13);
+      "#${DateTime.now().millisecondsSinceEpoch.toString().substring(8, 13)}";
   String date =
-      DateTime.now().day.toString().padLeft(2, '0') +
-      "/" +
-      DateTime.now().month.toString().padLeft(2, '0') +
-      "/" +
-      DateTime.now().year.toString();
+      "${DateTime.now().day.toString().padLeft(2, '0')}/${DateTime.now().month.toString().padLeft(2, '0')}/${DateTime.now().year}";
   String time =
-      DateTime.now().hour.toString().padLeft(2, '0') +
-      ":" +
-      DateTime.now().minute.toString().padLeft(2, '0');
+      "${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}";
 
   List<RentalItem> _rentalItems = [];
 
@@ -136,7 +130,7 @@ class _rentalSlipState extends State<rentalSlip> {
 
     int sessions = bookingData['sessionCount'] ?? 1;
     double totalAmount =
-        rentalBooking?.total?.toDouble() ??
+        rentalBooking?.total.toDouble() ??
         (bookingData['totalCharges'] is double
             ? bookingData['totalCharges']
             : (bookingData['totalCharges'] ?? 0).toDouble());

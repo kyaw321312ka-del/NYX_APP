@@ -1,4 +1,4 @@
-// lib/models/Training.dart
+// lib/models/training.dart
 class Training {
   final int id;
   final String mainProgramBannerImageUrl;

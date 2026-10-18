@@ -1,7 +1,7 @@
 // lib/pages/detailsPages/classesWidgets/trainings_widget.dart
 import 'package:flutter/material.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
-import 'package:nyxproject/features/training/domain/entities/Training.dart';
+import 'package:nyxproject/features/training/domain/entities/training.dart';
 import 'package:nyxproject/features/training/presentation/pages/classes/class_details.dart';
 
 class TrainingsWidget extends StatelessWidget {
@@ -85,7 +85,7 @@ class TrainingsWidget extends StatelessWidget {
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
                 spreadRadius: 5,
                 blurRadius: 5,
                 offset: const Offset(7, 5),

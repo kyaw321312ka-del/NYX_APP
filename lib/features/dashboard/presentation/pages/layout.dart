@@ -194,7 +194,7 @@ class _MainDashboardState extends State<MainDashboard> {
               //     Navigator.push(
               //       context,
               //       MaterialPageRoute(
-              //         builder: (context) => const tournamentMain(),
+              //         builder: (context) => const TournamentMain(),
               //       ),
               //     );
               //   },

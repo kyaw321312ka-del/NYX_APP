@@ -79,7 +79,7 @@ class _ChangepasswordState extends State<Changepassword> {
         return;
       }
 
-      final Uri uri = Uri.parse("${Constant.API_URL}/changepassword/password");
+      final Uri uri = Uri.parse("${Constant.apiUrl}/changepassword/password");
 
       final requestBody = jsonEncode({
         'password': currentPasswordController.text.trim(),

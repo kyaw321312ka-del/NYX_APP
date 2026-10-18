@@ -1,7 +1,7 @@
 // lib/pages/detailsPages/widgets/classesWidgets/canteen_grid.dart
 import 'package:flutter/material.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
-import 'package:nyxproject/features/dashboard/domain/entities/Canteen.dart';
+import 'package:nyxproject/features/dashboard/domain/entities/canteen.dart';
 import 'package:nyxproject/features/dashboard/presentation/widgets/servicesWidgets/canteen_card.dart';
 
 class CanteenGrid extends StatelessWidget {
@@ -66,9 +66,7 @@ class CanteenGrid extends StatelessWidget {
           item: item,
           screenWidth: screenWidth,
           screenHeight: screenHeight,
-          onTap: () {
-            print('Tapped on: ${item.name}');
-          },
+          onTap: () {},
         );
       },
     );

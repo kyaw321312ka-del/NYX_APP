@@ -1,5 +1,5 @@
 import 'package:nyxproject/core/error/api_exception.dart';
-import 'package:nyxproject/features/shop/data/datasources/GetallproductApi.dart';
+import 'package:nyxproject/features/shop/data/datasources/getallproduct_api.dart';
 import 'package:nyxproject/features/shop/domain/entities/product.dart';
 import 'package:nyxproject/features/shop/domain/repositories/shop_repository.dart';
 

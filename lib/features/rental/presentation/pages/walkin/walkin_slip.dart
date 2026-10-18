@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/rental/domain/entities/WalkinBookin.dart';
+import 'package:nyxproject/features/rental/domain/entities/walkin_bookin.dart';
 import 'package:nyxproject/features/dashboard/presentation/pages/layout.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
@@ -27,17 +27,11 @@ class WalkInSlip extends StatefulWidget {
 
 class _WalkInSlipState extends State<WalkInSlip> {
   String orderNo =
-      "#" + DateTime.now().millisecondsSinceEpoch.toString().substring(8, 13);
+      "#${DateTime.now().millisecondsSinceEpoch.toString().substring(8, 13)}";
   String date =
-      DateTime.now().day.toString().padLeft(2, '0') +
-      "/" +
-      DateTime.now().month.toString().padLeft(2, '0') +
-      "/" +
-      DateTime.now().year.toString();
+      "${DateTime.now().day.toString().padLeft(2, '0')}/${DateTime.now().month.toString().padLeft(2, '0')}/${DateTime.now().year}";
   String time =
-      DateTime.now().hour.toString().padLeft(2, '0') +
-      ":" +
-      DateTime.now().minute.toString().padLeft(2, '0');
+      "${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}";
 
   List<WalkinItem> _rentalItems = [];
 

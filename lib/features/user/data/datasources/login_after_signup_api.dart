@@ -9,7 +9,7 @@ class LoginAfterSignupApi {
   ) async {
     try {
       final response = await http.post(
-        Uri.parse("${Constant.API_URL}/auth/login"),
+        Uri.parse("${Constant.apiUrl}/auth/login"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'emailOrphone': email, 'password': password}),
       );

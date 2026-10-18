@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/shop/domain/entities/Pp.dart';
-// import 'package:nyxproject/features/shop/presentation/pages/shoppages/product-details.dart';
+import 'package:nyxproject/features/shop/domain/entities/pp.dart';
+// import 'package:nyxproject/features/shop/presentation/pages/shoppages/product_details.dart';
 // import 'package:nyxproject/features/shop/domain/entities/product.dart';
 
 class Catagory extends StatefulWidget {
@@ -241,7 +241,7 @@ class _CatagoryState extends State<Catagory> {
               decoration: BoxDecoration(
                 color: isSelected
                     ? Color(0xFF0D1B2A)
-                    : Colors.grey.withOpacity(0.2),
+                    : Colors.grey.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Center(

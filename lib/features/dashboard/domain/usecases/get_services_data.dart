@@ -1,7 +1,7 @@
-import 'package:nyxproject/features/dashboard/domain/entities/Canteen.dart';
+import 'package:nyxproject/features/dashboard/domain/entities/canteen.dart';
 import 'package:nyxproject/features/dashboard/domain/repositories/services_repository.dart';
-import 'package:nyxproject/features/rental/domain/entities/Venue.dart';
-import 'package:nyxproject/features/training/domain/entities/Training.dart';
+import 'package:nyxproject/features/rental/domain/entities/venue.dart';
+import 'package:nyxproject/features/training/domain/entities/training.dart';
 
 class GetServicesData {
   const GetServicesData(this._repository);

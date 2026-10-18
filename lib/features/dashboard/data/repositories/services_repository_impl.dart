@@ -1,11 +1,11 @@
 import 'package:nyxproject/core/error/api_exception.dart';
-import 'package:nyxproject/features/dashboard/data/datasources/CanteenApi.dart';
-import 'package:nyxproject/features/dashboard/domain/entities/Canteen.dart';
+import 'package:nyxproject/features/dashboard/data/datasources/canteen_api.dart';
+import 'package:nyxproject/features/dashboard/domain/entities/canteen.dart';
 import 'package:nyxproject/features/dashboard/domain/repositories/services_repository.dart';
-import 'package:nyxproject/features/rental/data/datasources/RentelApi/VenueApi.dart';
-import 'package:nyxproject/features/rental/domain/entities/Venue.dart';
-import 'package:nyxproject/features/training/data/datasources/ClassApi/TrainingApi.dart';
-import 'package:nyxproject/features/training/domain/entities/Training.dart';
+import 'package:nyxproject/features/rental/data/datasources/RentelApi/venue_api.dart';
+import 'package:nyxproject/features/rental/domain/entities/venue.dart';
+import 'package:nyxproject/features/training/data/datasources/ClassApi/training_api.dart';
+import 'package:nyxproject/features/training/domain/entities/training.dart';
 
 class ServicesRepositoryImpl implements ServicesRepository {
   @override

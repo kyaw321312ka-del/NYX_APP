@@ -103,7 +103,7 @@ class _ContactUsState extends State<ContactUs> {
                           _contactData!.logoImageUrl!.isNotEmpty)
                         _buildShopLogo(),
 
-                      // Shop Name
+                      // Shop name
                       if (_contactData!.shopName != null &&
                           _contactData!.shopName!.isNotEmpty)
                         _buildShopName(),

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/orders/presentation/pages/orderHistory.dart';
+import 'package:nyxproject/features/orders/presentation/pages/order_history.dart';
 
-class myOrder extends StatefulWidget {
-  const myOrder({super.key});
+class MyOrder extends StatefulWidget {
+  const MyOrder({super.key});
 
   @override
-  State<myOrder> createState() => _myOrderState();
+  State<MyOrder> createState() => _MyOrderState();
 }
 
-class _myOrderState extends State<myOrder> {
+class _MyOrderState extends State<MyOrder> {
   final List<String> status = ["All", "Pending", "Delivered", "Cancelled"];
 
   @override
@@ -70,7 +70,7 @@ class _myOrderState extends State<myOrder> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => orderHistory()),
+                MaterialPageRoute(builder: (context) => OrderHistory()),
               );
             },
             icon: Icon(Icons.calendar_month_rounded, color: Colors.white),
@@ -81,7 +81,7 @@ class _myOrderState extends State<myOrder> {
   }
 
   Widget _filterBar() {
-    return Container(
+    return SizedBox(
       height: 45,
       // margin: const EdgeInsets.all(10),
       child: ListView.builder(
@@ -101,7 +101,7 @@ class _myOrderState extends State<myOrder> {
               decoration: BoxDecoration(
                 color: isSelected
                     ? Color(0xFF0D1B2A)
-                    : Colors.grey.withOpacity(0.2),
+                    : Colors.grey.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(15),
               ),
               child: Center(
@@ -196,13 +196,21 @@ class _myOrderState extends State<myOrder> {
           Positioned(
             right: 5,
             bottom: 0,
-            child: Container(
+            child: SizedBox(
               width: 230,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
                     onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: Size(110, 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadiusGeometry.all(
+                          Radius.circular(15),
+                        ),
+                      ),
+                    ),
                     child: Text(
                       "Track Order",
                       style: TextStyle(
@@ -212,26 +220,9 @@ class _myOrderState extends State<myOrder> {
                         color: Colors.black,
                       ),
                     ),
-                    style: ElevatedButton.styleFrom(
-                      fixedSize: Size(110, 10),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadiusGeometry.all(
-                          Radius.circular(15),
-                        ),
-                      ),
-                    ),
                   ),
                   ElevatedButton(
                     onPressed: () {},
-                    child: Text(
-                      "Cancel",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontFamily: "Custom",
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
-                      ),
-                    ),
                     style: ElevatedButton.styleFrom(
                       fixedSize: Size(110, 10),
                       shape: RoundedRectangleBorder(
@@ -240,6 +231,15 @@ class _myOrderState extends State<myOrder> {
                         ),
                       ),
                       backgroundColor: Colors.red,
+                    ),
+                    child: Text(
+                      "Cancel",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontFamily: "Custom",
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ],
@@ -327,22 +327,13 @@ class _myOrderState extends State<myOrder> {
           Positioned(
             right: 5,
             bottom: 0,
-            child: Container(
+            child: SizedBox(
               width: 230,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
                     onPressed: () {},
-                    child: Text(
-                      "Reorder",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontFamily: "Custom",
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
-                      ),
-                    ),
                     style: ElevatedButton.styleFrom(
                       fixedSize: Size(110, 10),
                       shape: RoundedRectangleBorder(
@@ -352,11 +343,8 @@ class _myOrderState extends State<myOrder> {
                       ),
                       backgroundColor: const Color.fromARGB(255, 39, 242, 46),
                     ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {},
                     child: Text(
-                      "Rate Us",
+                      "Reorder",
                       style: TextStyle(
                         fontSize: 14,
                         fontFamily: "Custom",
@@ -364,6 +352,9 @@ class _myOrderState extends State<myOrder> {
                         color: Colors.white,
                       ),
                     ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {},
                     style: ElevatedButton.styleFrom(
                       fixedSize: Size(110, 10),
                       shape: RoundedRectangleBorder(
@@ -373,6 +364,15 @@ class _myOrderState extends State<myOrder> {
                       ),
                       backgroundColor: Colors.transparent,
                       side: BorderSide(width: 2, color: Colors.white),
+                    ),
+                    child: Text(
+                      "Rate Us",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: "Custom",
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ],

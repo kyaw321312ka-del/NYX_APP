@@ -4,12 +4,12 @@ import 'package:nyxproject/core/utils/app_constants.dart';
 
 class ForgetPasswordApi {
   // 1. Forget Password - Send OTP
-  // Endpoint: ${Constant.API_URL}/auth/forgetpassword
+  // Endpoint: ${Constant.apiUrl}/auth/forgetpassword
   static Future<Map<String, dynamic>> forgetPassword({
     required String email,
   }) async {
     try {
-      final url = Uri.parse('${Constant.API_URL}/auth/forgetpassword');
+      final url = Uri.parse('${Constant.apiUrl}/auth/forgetpassword');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -50,13 +50,13 @@ class ForgetPasswordApi {
   }
 
   // 2. Verify OTP for Forget Password
-  // Endpoint: ${Constant.API_URL}/auth/verifyforgetpassword
+  // Endpoint: ${Constant.apiUrl}/auth/verifyforgetpassword
   static Future<Map<String, dynamic>> verifyForgetPassword({
     required String tempToken,
     required String otp,
   }) async {
     try {
-      final url = Uri.parse('${Constant.API_URL}/auth/verifyforgetpassword');
+      final url = Uri.parse('${Constant.apiUrl}/auth/verifyforgetpassword');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -96,14 +96,14 @@ class ForgetPasswordApi {
   }
 
   // 3. Update Password after verification
-  // Endpoint: ${Constant.API_URL}/auth/verify_update_password
+  // Endpoint: ${Constant.apiUrl}/auth/verify_update_password
   static Future<Map<String, dynamic>> verifyUpdatePassword({
     required String tempToken,
     required String changePassword,
     required String email,
   }) async {
     try {
-      final url = Uri.parse('${Constant.API_URL}/auth/verify_update_password');
+      final url = Uri.parse('${Constant.apiUrl}/auth/verify_update_password');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},

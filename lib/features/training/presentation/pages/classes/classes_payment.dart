@@ -4,22 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:nyxproject/core/utils/app_constants.dart';
-import 'package:nyxproject/features/orders/data/datasources/PaymentApi.dart';
-import 'package:nyxproject/features/orders/domain/entities/Payment.dart';
+import 'package:nyxproject/features/orders/data/datasources/payment_api.dart';
+import 'package:nyxproject/features/orders/domain/entities/payment.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:nyxproject/features/training/presentation/pages/classes/classes_slip.dart';
 
-class classesPayment extends StatefulWidget {
+class ClassesPayment extends StatefulWidget {
   final Map<String, dynamic>? enrollmentData;
 
-  const classesPayment({super.key, this.enrollmentData});
+  const ClassesPayment({super.key, this.enrollmentData});
 
   @override
-  State<classesPayment> createState() => _classesPaymentState();
+  State<ClassesPayment> createState() => _ClassesPaymentState();
 }
 
-class _classesPaymentState extends State<classesPayment> {
+class _ClassesPaymentState extends State<ClassesPayment> {
   String? selectedPaymentId;
   final TextEditingController input = TextEditingController();
   File? _paymentImage;
@@ -108,7 +108,6 @@ class _classesPaymentState extends State<classesPayment> {
         });
       }
     } catch (e) {
-      print("Error loading payment methods: $e");
       setState(() {
         _paymentsError = 'Error loading payment methods: $e';
         _isLoadingPayments = false;
@@ -180,8 +179,8 @@ class _classesPaymentState extends State<classesPayment> {
           _paymentImage = File(image.path);
         });
       }
-    } catch (e) {
-      print('Error picking image: $e');
+    } catch (_) {
+      return;
     }
   }
 
@@ -199,8 +198,8 @@ class _classesPaymentState extends State<classesPayment> {
           _paymentImage = File(image.path);
         });
       }
-    } catch (e) {
-      print('Error picking image: $e');
+    } catch (_) {
+      return;
     }
   }
 
@@ -237,7 +236,7 @@ class _classesPaymentState extends State<classesPayment> {
       final token = sessionService.getToken();
 
       final Uri uri = Uri.parse(
-        "${Constant.API_URL}/training/addstudenttraining",
+        "${Constant.apiUrl}/training/addstudenttraining",
       );
       // Validate training IDs before sending
       if ((trainingProgramId == null || trainingProgramId == 0) ||
@@ -250,9 +249,6 @@ class _classesPaymentState extends State<classesPayment> {
             content: Text('Invalid training program or level selected'),
             backgroundColor: Colors.red,
           ),
-        );
-        print(
-          'Enrollment aborted: trainingProgramId=$trainingProgramId, trainingLevelId=$trainingLevelId',
         );
         return;
       }
@@ -274,8 +270,6 @@ class _classesPaymentState extends State<classesPayment> {
       request.fields['payment_id'] = selectedPaymentId!;
 
       // Debug: print assembled fields to console to aid server-side debugging
-      print('Submitting enrollment with fields: ');
-      request.fields.forEach((k, v) => print('  $k: $v'));
 
       // Add payment image
       request.files.add(
@@ -285,12 +279,10 @@ class _classesPaymentState extends State<classesPayment> {
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
+      if (!mounted) return;
       setState(() {
         _isProcessing = false;
       });
-
-      print("Response Status: ${response.statusCode}");
-      print("Response Body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
@@ -299,7 +291,7 @@ class _classesPaymentState extends State<classesPayment> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => classesSlip(
+              builder: (context) => ClassesSlip(
                 enrollmentData: widget.enrollmentData,
                 paymentMethod: selectedPaymentMethod?.paymentMethod ?? "N/A",
                 transactionNumber: input.text.trim(),
@@ -314,13 +306,16 @@ class _classesPaymentState extends State<classesPayment> {
           final errorData = jsonDecode(response.body);
           errorMessage =
               errorData['message'] ?? errorData['error'] ?? errorMessage;
-        } catch (e) {}
+        } catch (_) {
+          errorMessage = 'Failed to submit enrollment';
+        }
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
         );
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isProcessing = false;
       });
@@ -590,10 +585,16 @@ class _classesPaymentState extends State<classesPayment> {
       );
     }
 
-    return Container(
+    return RadioGroup<String>(
+      groupValue: selectedPaymentId,
+      onChanged: (value) {
+        setState(() {
+          selectedPaymentId = value.toString();
+          input.clear();
+        });
+      },
       child: Column(
         children: _paymentMethods.map((method) {
-          bool isSelected = selectedPaymentId == method.id.toString();
           return ListTile(
             title: Text(
               method.paymentMethod,
@@ -602,16 +603,7 @@ class _classesPaymentState extends State<classesPayment> {
                 color: Color.fromARGB(255, 13, 27, 42),
               ),
             ),
-            leading: Radio(
-              value: method.id.toString(),
-              groupValue: selectedPaymentId,
-              onChanged: (value) {
-                setState(() {
-                  selectedPaymentId = value.toString();
-                  input.clear();
-                });
-              },
-            ),
+            leading: Radio(value: method.id.toString()),
             trailing: method.paymentImageUrl.isNotEmpty
                 ? Image.network(
                     method.paymentImageUrl,
@@ -703,29 +695,6 @@ class _classesPaymentState extends State<classesPayment> {
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _input(String text) {
-    return Center(
-      child: Container(
-        height: 50,
-        width: 300,
-        margin: const EdgeInsets.symmetric(horizontal: 5),
-        child: TextFormField(
-          controller: input,
-          style: const TextStyle(
-            fontFamily: "Custom",
-            color: Color.fromARGB(255, 255, 255, 255),
-          ),
-          decoration: InputDecoration(
-            hintText: text,
-            filled: true,
-            fillColor: const Color.fromARGB(255, 13, 27, 42),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
-          ),
-        ),
       ),
     );
   }

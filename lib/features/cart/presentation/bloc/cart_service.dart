@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nyxproject/features/shop/domain/entities/product.dart';
 
 class CartService extends ChangeNotifier {
-  List<CartItem> _items = [];
+  final List<CartItem> _items = [];
 
   List<CartItem> get items => _items;
 

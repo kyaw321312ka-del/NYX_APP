@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:nyxproject/features/shop/domain/entities/Category.dart';
-import 'package:nyxproject/features/shop/domain/entities/Tag.dart';
+import 'package:nyxproject/features/shop/domain/entities/category.dart';
+import 'package:nyxproject/features/shop/domain/entities/tag.dart';
 import 'package:nyxproject/core/utils/app_constants.dart';
 
 class Api {
@@ -11,7 +11,7 @@ class Api {
     required String emailOrphone,
     required String password,
   }) async {
-    final Uri uri = Uri.parse("${Constant.API_URL}/auth/login");
+    final Uri uri = Uri.parse("${Constant.apiUrl}/auth/login");
     final String body = jsonEncode({
       "emailOrphone": emailOrphone.trim(),
       "password": password,
@@ -78,7 +78,7 @@ class Api {
     required String dateOfBirth,
     required String password,
   }) async {
-    final Uri uri = Uri.parse("${Constant.API_URL}/auth/createUser");
+    final Uri uri = Uri.parse("${Constant.apiUrl}/auth/createUser");
     final String body = jsonEncode({
       "name": name,
       "email": email.trim(),
@@ -88,15 +88,9 @@ class Api {
     });
 
     try {
-      print("Signup URL: $uri");
-      print("Signup Body: $body");
-
       final http.Response response = await http
           .post(uri, headers: Constant.headers, body: body)
           .timeout(const Duration(seconds: 30));
-
-      print("Response Status: ${response.statusCode}");
-      print("Response Body: ${response.body}");
 
       if (response.body.isEmpty) {
         return {'success': false, 'message': 'Empty response from server'};
@@ -148,7 +142,6 @@ class Api {
             'Signup ${response.statusCode >= 200 && response.statusCode < 300 ? "successful" : "failed"}',
       };
     } catch (e) {
-      print("Signup Error: $e");
       return {'success': false, 'message': 'Network error, please try again.'};
     }
   }
@@ -156,7 +149,7 @@ class Api {
   static Future<Map<String, dynamic>> sendOtpCode({
     required String email,
   }) async {
-    final Uri uri = Uri.parse("${Constant.API_URL}/auth/sendOtp");
+    final Uri uri = Uri.parse("${Constant.apiUrl}/auth/sendOtp");
     final String body = jsonEncode(<String, dynamic>{"email": email.trim()});
 
     try {
@@ -212,7 +205,7 @@ class Api {
     required String otp,
     required String tempToken,
   }) async {
-    final Uri uri = Uri.parse("${Constant.API_URL}/auth/verifyOtp");
+    final Uri uri = Uri.parse("${Constant.apiUrl}/auth/verifyOtp");
     final String body = jsonEncode(<String, dynamic>{
       "otp": otp.trim(),
       "tempToken": tempToken.trim(),
@@ -272,7 +265,7 @@ class Api {
   static Future<Map<String, dynamic>> getMyProfile({
     required String token,
   }) async {
-    final Uri uri = Uri.parse("${Constant.API_URL}/myprofile/showprofile");
+    final Uri uri = Uri.parse("${Constant.apiUrl}/myprofile/showprofile");
 
     try {
       final Map<String, String> authHeaders = {
@@ -283,9 +276,6 @@ class Api {
       final http.Response response = await http
           .get(uri, headers: authHeaders)
           .timeout(const Duration(seconds: 30));
-
-      print("Profile Response Status: ${response.statusCode}");
-      print("Profile Response Body: ${response.body}");
 
       // Check for 401 Unauthorized
       if (response.statusCode == 401) {
@@ -375,7 +365,6 @@ class Api {
 
       return {'success': false, 'message': 'Invalid response format'};
     } catch (e) {
-      print("Get Profile Error: $e");
       return {'success': false, 'message': 'Network error: $e'};
     }
   }
@@ -385,10 +374,7 @@ class Api {
     required String token,
     required Map<String, dynamic> userData,
   }) async {
-    final Uri uri = Uri.parse("${Constant.API_URL}/editProfiled/update");
-
-    print("📡 Update URL: $uri");
-    print("📦 Update Data: $userData");
+    final Uri uri = Uri.parse("${Constant.apiUrl}/editProfiled/update");
 
     try {
       final http.Response response = await http
@@ -398,9 +384,6 @@ class Api {
             body: jsonEncode(userData),
           )
           .timeout(const Duration(seconds: 30));
-
-      print("Update Response Status: ${response.statusCode}");
-      print("Update Response Body: ${response.body}");
 
       if (response.body.isEmpty) {
         return {'status': 'error', 'message': 'Empty response from server'};
@@ -434,11 +417,12 @@ class Api {
           final errorData = jsonDecode(response.body);
           errorMessage =
               errorData['message'] ?? errorData['status'] ?? errorMessage;
-        } catch (e) {}
+        } catch (_) {
+          errorMessage = 'Server error: ${response.statusCode}';
+        }
         return {'status': 'error', 'message': errorMessage};
       }
     } catch (e) {
-      print("Update Profile Error: $e");
       return {'status': 'error', 'message': 'Network error: $e'};
     }
   }
@@ -448,9 +432,7 @@ class Api {
     required String token,
     required File imageFile,
   }) async {
-    final Uri uri = Uri.parse("${Constant.API_URL}/editProfiled/uploadImage");
-
-    print("📡 Upload URL: $uri");
+    final Uri uri = Uri.parse("${Constant.apiUrl}/editProfiled/uploadImage");
 
     try {
       final request = http.MultipartRequest('POST', uri);
@@ -466,9 +448,6 @@ class Api {
 
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
-
-      print("Upload Response Status: ${response.statusCode}");
-      print("Upload Response Body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
@@ -493,7 +472,6 @@ class Api {
         };
       }
     } catch (e) {
-      print("Upload Image Error: $e");
       return {'status': 'error', 'message': 'Network error: $e'};
     }
   }
@@ -502,17 +480,12 @@ class Api {
 
   // Get all categories
   static Future<Map<String, dynamic>> getAllCategories() async {
-    final Uri uri = Uri.parse("${Constant.API_URL}/homecategory/category");
-
-    print("📡 Categories URL: $uri");
+    final Uri uri = Uri.parse("${Constant.apiUrl}/homecategory/category");
 
     try {
       final http.Response response = await http
           .get(uri, headers: Constant.headers)
           .timeout(const Duration(seconds: 30));
-
-      print("Categories Response Status: ${response.statusCode}");
-      print("Categories Response Body: ${response.body}");
 
       if (response.body.isEmpty) {
         return {'success': false, 'message': 'Empty response from server'};
@@ -555,24 +528,18 @@ class Api {
 
       return {'success': false, 'message': 'Invalid response format'};
     } catch (e) {
-      print("Get Categories Error: $e");
       return {'success': false, 'message': 'Network error: $e'};
     }
   }
 
   // Get home data with products grouped by tags
   static Future<Map<String, dynamic>> getHomeData() async {
-    final Uri uri = Uri.parse("${Constant.API_URL}/homeshow/home");
-
-    print("📡 Home Data URL: $uri");
+    final Uri uri = Uri.parse("${Constant.apiUrl}/homeshow/home");
 
     try {
       final http.Response response = await http
           .get(uri, headers: Constant.headers)
           .timeout(const Duration(seconds: 30));
-
-      print("Home Data Response Status: ${response.statusCode}");
-      print("Home Data Response Body: ${response.body}");
 
       if (response.body.isEmpty) {
         return {'success': false, 'message': 'Empty response from server'};
@@ -619,24 +586,18 @@ class Api {
 
       return {'success': false, 'message': 'Invalid response format'};
     } catch (e) {
-      print("Get Home Data Error: $e");
       return {'success': false, 'message': 'Network error: $e'};
     }
   }
 
   // Get all tags
   static Future<Map<String, dynamic>> getAllTags() async {
-    final Uri uri = Uri.parse("${Constant.BASE_URL}/showtag/showtags");
-
-    print("📡 Tags URL: $uri");
+    final Uri uri = Uri.parse("${Constant.baseUrl}/showtag/showtags");
 
     try {
       final http.Response response = await http
           .get(uri, headers: Constant.headers)
           .timeout(const Duration(seconds: 30));
-
-      print("Tags Response Status: ${response.statusCode}");
-      print("Tags Response Body: ${response.body}");
 
       if (response.body.isEmpty) {
         return {'success': false, 'message': 'Empty response from server'};
@@ -677,7 +638,6 @@ class Api {
 
       return {'success': false, 'message': 'Invalid response format'};
     } catch (e) {
-      print("Get Tags Error: $e");
       return {'success': false, 'message': 'Network error: $e'};
     }
   }

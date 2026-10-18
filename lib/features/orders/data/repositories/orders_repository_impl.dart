@@ -1,6 +1,6 @@
 import 'package:nyxproject/core/error/api_exception.dart';
-import 'package:nyxproject/features/orders/data/datasources/OrderApi.dart';
-import 'package:nyxproject/features/orders/domain/entities/Order.dart';
+import 'package:nyxproject/features/orders/data/datasources/order_api.dart';
+import 'package:nyxproject/features/orders/domain/entities/order.dart';
 import 'package:nyxproject/features/orders/domain/repositories/orders_repository.dart';
 
 class OrdersRepositoryImpl implements OrdersRepository {

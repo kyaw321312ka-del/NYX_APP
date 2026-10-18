@@ -1,26 +1,24 @@
 import 'dart:io';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:nyxproject/core/utils/app_constants.dart';
-import 'package:nyxproject/features/orders/data/datasources/PaymentApi.dart';
-import 'package:nyxproject/features/rental/data/datasources/RentelApi/RentalBookingApi.dart';
-import 'package:nyxproject/features/orders/domain/entities/Payment.dart';
-import 'package:nyxproject/features/rental/domain/entities/RentalBooking.dart';
+import 'package:nyxproject/features/orders/data/datasources/payment_api.dart';
+import 'package:nyxproject/features/rental/data/datasources/RentelApi/rental_booking_api.dart';
+import 'package:nyxproject/features/orders/domain/entities/payment.dart';
+import 'package:nyxproject/features/rental/domain/entities/rental_booking.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:nyxproject/features/rental/presentation/pages/rental/rental_slip.dart';
 
-class rentalPayment extends StatefulWidget {
+class RentalPayment extends StatefulWidget {
   final Map<String, dynamic>? bookingData;
 
-  const rentalPayment({super.key, this.bookingData});
+  const RentalPayment({super.key, this.bookingData});
 
   @override
-  State<rentalPayment> createState() => _rentalPaymentState();
+  State<RentalPayment> createState() => _RentalPaymentState();
 }
 
-class _rentalPaymentState extends State<rentalPayment> {
+class _RentalPaymentState extends State<RentalPayment> {
   String? selectedPaymentId;
   final TextEditingController input = TextEditingController();
   File? _transactionImage;
@@ -233,8 +231,8 @@ class _rentalPaymentState extends State<rentalPayment> {
           _transactionImage = File(image.path);
         });
       }
-    } catch (e) {
-      print('Error picking image: $e');
+    } catch (_) {
+      return;
     }
   }
 
@@ -252,13 +250,9 @@ class _rentalPaymentState extends State<rentalPayment> {
           _transactionImage = File(image.path);
         });
       }
-    } catch (e) {
-      print('Error picking image: $e');
+    } catch (_) {
+      return;
     }
-  }
-
-  bool _showTransactionInput() {
-    return selectedPaymentMethod != null;
   }
 
   Widget _imageUploadSection() {
@@ -551,10 +545,16 @@ class _rentalPaymentState extends State<rentalPayment> {
       );
     }
 
-    return Container(
+    return RadioGroup<String>(
+      groupValue: selectedPaymentId,
+      onChanged: (value) {
+        setState(() {
+          selectedPaymentId = value.toString();
+          input.clear();
+        });
+      },
       child: Column(
         children: _paymentMethods.map((method) {
-          bool isSelected = selectedPaymentId == method.id.toString();
           return ListTile(
             title: Text(
               method.paymentMethod,
@@ -563,16 +563,7 @@ class _rentalPaymentState extends State<rentalPayment> {
                 color: Color.fromARGB(255, 13, 27, 42),
               ),
             ),
-            leading: Radio(
-              value: method.id.toString(),
-              groupValue: selectedPaymentId,
-              onChanged: (value) {
-                setState(() {
-                  selectedPaymentId = value.toString();
-                  input.clear();
-                });
-              },
-            ),
+            leading: Radio(value: method.id.toString()),
             trailing: method.paymentImageUrl.isNotEmpty
                 ? Image.network(
                     method.paymentImageUrl,
@@ -668,29 +659,6 @@ class _rentalPaymentState extends State<rentalPayment> {
     );
   }
 
-  Widget _input(String text) {
-    return Center(
-      child: Container(
-        height: 50,
-        width: 300,
-        margin: const EdgeInsets.symmetric(horizontal: 5),
-        child: TextFormField(
-          controller: input,
-          style: const TextStyle(
-            fontFamily: "Custom",
-            color: Color.fromARGB(255, 255, 255, 255),
-          ),
-          decoration: InputDecoration(
-            hintText: text,
-            filled: true,
-            fillColor: const Color.fromARGB(255, 13, 27, 42),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _confirm() {
     return Center(
       child: ElevatedButton(
@@ -755,11 +723,10 @@ class _rentalPaymentState extends State<rentalPayment> {
         listen: false,
       );
       final token = sessionService.getToken();
-      final user = sessionService.getStoredUser();
 
       final bookingData = widget.bookingData ?? {};
 
-      // Get court time slot IDs
+      // Get Court time slot IDs
       List<int> courtTimeSlotIds = [];
       var selectedTimeSlot = bookingData['selectedTimeSlot'];
       if (selectedTimeSlot != null && selectedTimeSlot.id != null) {
@@ -791,18 +758,12 @@ class _rentalPaymentState extends State<rentalPayment> {
 
           if (equipmentId != null) {
             items.add({'equipment_id': equipmentId, 'quantity': entry.value});
-          } else {
-            print("Warning: No equipment ID found for ${entry.key}");
-          }
+          } else {}
         }
       }
 
       // Format date
       String formattedDate = bookingDate;
-
-      print("Submitting booking with:");
-      print("Items: $items");
-      print("Court Time Slot IDs: $courtTimeSlotIds");
 
       // Submit to API
       final result = await RentalBookingApi.addMobileRentalBooking(
@@ -839,7 +800,7 @@ class _rentalPaymentState extends State<rentalPayment> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => rentalSlip(
+            builder: (context) => RentalSlip(
               bookingData: bookingData,
               paymentMethod: selectedPaymentMethod?.paymentMethod ?? "N/A",
               transactionNumber: input.text.trim(),
@@ -857,7 +818,6 @@ class _rentalPaymentState extends State<rentalPayment> {
         );
       }
     } catch (e) {
-      print("Error in submitBooking: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error: ${e.toString()}'),

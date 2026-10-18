@@ -1,4 +1,4 @@
-import 'package:nyxproject/features/training/domain/entities/Training.dart';
+import 'package:nyxproject/features/training/domain/entities/training.dart';
 import 'package:nyxproject/features/training/domain/repositories/training_repository.dart';
 
 class GetTrainings {

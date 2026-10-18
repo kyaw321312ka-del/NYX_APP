@@ -4,11 +4,11 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nyxproject/core/utils/app_constants.dart';
-import 'package:nyxproject/features/orders/data/datasources/OrderApi.dart';
-import 'package:nyxproject/features/orders/data/datasources/PaymentApi.dart';
-import 'package:nyxproject/features/shop/data/datasources/TaxApi.dart'; // Add this import
-import 'package:nyxproject/features/orders/domain/entities/Payment.dart';
-import 'package:nyxproject/features/shop/domain/entities/Tax.dart'; // Add this import
+import 'package:nyxproject/features/orders/data/datasources/order_api.dart';
+import 'package:nyxproject/features/orders/data/datasources/payment_api.dart';
+import 'package:nyxproject/features/shop/data/datasources/tax_api.dart'; // Add this import
+import 'package:nyxproject/features/orders/domain/entities/payment.dart';
+import 'package:nyxproject/features/shop/domain/entities/tax.dart'; // Add this import
 import 'package:provider/provider.dart';
 import 'package:nyxproject/features/shop/presentation/pages/shoppages/slip.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
@@ -54,20 +54,17 @@ class _PaymentState extends State<Payment> {
           _tax = result['tax'];
           _taxRate = _tax?.tax.toDouble() ?? 0;
         });
-        print(' Tax loaded: ${_tax?.tax}%');
       } else {
         setState(() {
           // Default to 5% if API fails
           _taxRate = 5;
         });
-        print("Error fetching tax: ${result['message']}");
       }
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _taxRate = 5; // Default fallback
       });
-      print("Error: $e");
     }
   }
 
@@ -94,13 +91,11 @@ class _PaymentState extends State<Payment> {
         setState(() {
           _isLoadingPayments = false;
         });
-        print("Error fetching payment methods: ${result['message']}");
       }
     } catch (e) {
       setState(() {
         _isLoadingPayments = false;
       });
-      print("Error: $e");
     }
   }
 
@@ -175,8 +170,8 @@ class _PaymentState extends State<Payment> {
           _transactionImage = File(image.path);
         });
       }
-    } catch (e) {
-      print('Error picking image: $e');
+    } catch (_) {
+      return;
     }
   }
 
@@ -194,8 +189,8 @@ class _PaymentState extends State<Payment> {
           _transactionImage = File(image.path);
         });
       }
-    } catch (e) {
-      print('Error picking image: $e');
+    } catch (_) {
+      return;
     }
   }
 
@@ -226,7 +221,7 @@ class _PaymentState extends State<Payment> {
                 const SizedBox(height: 5),
                 _section("Contact Information"),
                 const SizedBox(height: 5),
-                _information("Name", contactInfo['name'] ?? 'N/A'),
+                _information("name", contactInfo['name'] ?? 'N/A'),
                 const SizedBox(height: 5),
                 _information("Phone Number", contactInfo['phone'] ?? 'N/A'),
                 const SizedBox(height: 5),
@@ -693,7 +688,7 @@ class _PaymentState extends State<Payment> {
       final deliveryFee = 0;
       final contactInfo = widget.contactInfo ?? {};
 
-      final Uri uri = Uri.parse("${Constant.API_URL}/cart/order");
+      final Uri uri = Uri.parse("${Constant.apiUrl}/cart/order");
       final request = http.MultipartRequest('POST', uri);
       final idempotencyKey = OrderApi.generateIdempotencyKey(userId: userId);
 
@@ -704,7 +699,7 @@ class _PaymentState extends State<Payment> {
       request.headers['Idempotency-Key'] = idempotencyKey;
 
       request.fields['user_id'] = userId.toString();
-      request.fields['customer_name'] = contactInfo['name'] ?? '';
+      request.fields['customer_name'] = contactInfo['Name'] ?? '';
       request.fields['phone'] = contactInfo['phone'] ?? '';
       request.fields['email'] = contactInfo['email'] ?? '';
       request.fields['delivery_address'] = contactInfo['address'] ?? '';
@@ -743,7 +738,7 @@ class _PaymentState extends State<Payment> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => slipPage(
+              builder: (context) => SlipPage(
                 paymentMethod: currentOption,
                 transactionNumber: input.text.trim(),
                 totalAmount: _grandTotal, // Use grand total

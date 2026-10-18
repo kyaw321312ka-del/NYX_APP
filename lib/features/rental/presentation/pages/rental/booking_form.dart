@@ -3,23 +3,23 @@ import 'package:nyxproject/features/rental/presentation/pages/rental/rental_paym
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:provider/provider.dart';
 
-class bookingForm extends StatefulWidget {
+class BookingForm extends StatefulWidget {
   final Map<String, dynamic>? bookingData;
 
-  const bookingForm({super.key, this.bookingData});
+  const BookingForm({super.key, this.bookingData});
 
   @override
-  State<bookingForm> createState() => _bookingFormState();
+  State<BookingForm> createState() => _BookingFormState();
 }
 
-class _bookingFormState extends State<bookingForm> {
+class _BookingFormState extends State<BookingForm> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController remarkController = TextEditingController();
   final TextEditingController dobController = TextEditingController();
 
-  String? Court;
-  String? TimeSlot;
+  String? court;
+  String? timeSlot;
   double sessionPrice = 0;
   double courtFee = 0;
   double rentalFees = 0;
@@ -57,7 +57,7 @@ class _bookingFormState extends State<bookingForm> {
         if (timeSlot != null) {
           selectedTimeSlotDisplay =
               "${_formatTime(timeSlot.startTime)} - ${_formatTime(timeSlot.endTime)}";
-          TimeSlot = selectedTimeSlotDisplay;
+          timeSlot = selectedTimeSlotDisplay;
         }
 
         // Load equipment quantities
@@ -94,22 +94,6 @@ class _bookingFormState extends State<bookingForm> {
     }
   }
 
-  Future<void> _selectDate() async {
-    DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-
-    if (pickedDate != null) {
-      setState(() {
-        dobController.text =
-            "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
-      });
-    }
-  }
-
   void calculateTotal() {
     setState(() {
       totalCharges = sessionPrice + rentalFees;
@@ -139,7 +123,7 @@ class _bookingFormState extends State<bookingForm> {
               _header(screenWidth, screenHeight),
               SizedBox(height: screenHeight * 0.02),
               _formInput1(
-                "Name",
+                "name",
                 "Enter your name",
                 nameController,
                 screenWidth,
@@ -273,7 +257,7 @@ class _bookingFormState extends State<bookingForm> {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                TimeSlot ?? "Not selected",
+                timeSlot ?? "Not selected",
                 style: TextStyle(
                   fontFamily: "Custom",
                   color: Colors.white,
@@ -345,7 +329,7 @@ class _bookingFormState extends State<bookingForm> {
             ),
           ),
           SizedBox(height: screenHeight * 0.008),
-          Container(
+          SizedBox(
             height: screenHeight * 0.06,
             child: TextFormField(
               controller: controller,
@@ -396,7 +380,7 @@ class _bookingFormState extends State<bookingForm> {
             ),
           ),
           SizedBox(height: screenHeight * 0.008),
-          Container(
+          SizedBox(
             height: screenHeight * 0.12,
             child: TextFormField(
               controller: controller,
@@ -421,31 +405,6 @@ class _bookingFormState extends State<bookingForm> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _input(
-    String text,
-    double screenWidth,
-    double screenHeight, {
-    bool enabled = true,
-  }) {
-    return Container(
-      height: screenHeight * 0.06,
-      child: TextFormField(
-        enabled: enabled,
-        initialValue: text,
-        style: TextStyle(
-          fontFamily: "Custom",
-          color: Colors.white,
-          fontSize: screenWidth * 0.04,
-        ),
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: const Color.fromARGB(255, 13, 27, 42),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        ),
       ),
     );
   }
@@ -492,20 +451,6 @@ class _bookingFormState extends State<bookingForm> {
     );
   }
 
-  Widget _selection2(String main, double screenWidth) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.01),
-      child: Text(
-        main,
-        style: TextStyle(
-          fontFamily: "Custom",
-          color: const Color.fromARGB(255, 13, 27, 42),
-          fontSize: screenWidth * 0.04,
-        ),
-      ),
-    );
-  }
-
   Widget _confirm(double screenWidth, double screenHeight) {
     return Center(
       child: ElevatedButton(
@@ -537,17 +482,17 @@ class _bookingFormState extends State<bookingForm> {
             'equipmentIds':
                 widget.bookingData?['equipmentIds'] ?? {}, // Add this line
             'remark': remarkController.text,
-            'name': nameController.text,
+            'Name': nameController.text,
             'phone': phoneController.text,
             'venueId': widget.bookingData?['venueId'] ?? 1,
             'courtId': widget.bookingData?['courtId'] ?? 1,
           };
-          // Use rentalPayment as a constructor (with capital R and P)
+          // Use RentalPayment as a constructor (with capital R and P)
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  rentalPayment(bookingData: updatedBookingData),
+                  RentalPayment(bookingData: updatedBookingData),
             ),
           );
         },

@@ -13,7 +13,7 @@ class TournamentBannerRemoteDataSourceImpl
   @override
   Future<List<TournamentBannerModel>> getBanners() async {
     final response = await http.get(
-      Uri.parse('${Constant.API_URL}/tournament/banner'),
+      Uri.parse('${Constant.apiUrl}/tournament/banner'),
     );
 
     if (response.statusCode < 200 || response.statusCode >= 300) {

@@ -5,10 +5,10 @@ import 'package:nyxproject/features/user/presentation/pages/contactus.dart';
 import 'package:nyxproject/features/user/presentation/pages/deleteaccount.dart';
 import 'package:nyxproject/features/user/presentation/pages/editprofile.dart';
 import 'package:nyxproject/features/training/presentation/pages/myclasses.dart';
-import 'package:nyxproject/features/rental/presentation/pages/myBookingList.dart';
-// import 'package:nyxproject/features/orders/presentation/pages/orderHistory.dart';
-import 'package:nyxproject/features/orders/presentation/pages/orderHistory.dart';
-import 'package:nyxproject/features/rental/presentation/pages/walkinBooking.dart';
+import 'package:nyxproject/features/rental/presentation/pages/my_booking_list.dart';
+// import 'package:nyxproject/features/orders/presentation/pages/order_history.dart';
+import 'package:nyxproject/features/orders/presentation/pages/order_history.dart';
+import 'package:nyxproject/features/rental/presentation/pages/walkin_booking.dart';
 import 'package:nyxproject/features/user/presentation/pages/terms.dart';
 import 'package:nyxproject/features/user/presentation/widgets/account_menu_item.dart';
 import 'package:nyxproject/features/user/presentation/widgets/account_section.dart';
@@ -80,7 +80,7 @@ class _AccountPageState extends State<AccountPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const orderHistory(),
+                      builder: (context) => const OrderHistory(),
                     ),
                   );
                 },
@@ -105,7 +105,7 @@ class _AccountPageState extends State<AccountPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const myBookingList(),
+                      builder: (context) => const MyBookingList(),
                     ),
                   );
                 },

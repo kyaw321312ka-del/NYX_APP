@@ -1,8 +1,8 @@
 // lib/pages/detailsPages/widgets/servicesWidgets/rentals_widget.dart
 import 'package:flutter/material.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
-import 'package:nyxproject/features/rental/domain/entities/Venue.dart';
-import 'package:nyxproject/features/rental/presentation/pages/rental/Courts.dart';
+import 'package:nyxproject/features/rental/domain/entities/venue.dart';
+import 'package:nyxproject/features/rental/presentation/pages/rental/courts.dart';
 
 class RentalsWidget extends StatelessWidget {
   final double screenWidth;
@@ -24,41 +24,39 @@ class RentalsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 10),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 10),
-            child: const Text(
-              "Court Rentals",
-              style: TextStyle(
-                fontSize: 19,
-                fontFamily: "Custom",
-                fontWeight: FontWeight.w700,
-                color: Colors.black,
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      key: const ValueKey("rentals"),
+      children: [
+        const SizedBox(height: 10),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 10),
+          child: const Text(
+            "Court Rentals",
+            style: TextStyle(
+              fontSize: 19,
+              fontFamily: "Custom",
+              fontWeight: FontWeight.w700,
+              color: Colors.black,
             ),
           ),
-          const SizedBox(height: 3),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 10),
-            child: const Text(
-              "Book your own private court.",
-              style: TextStyle(
-                fontSize: 15,
-                fontFamily: "Custom",
-                color: Colors.black,
-              ),
+        ),
+        const SizedBox(height: 3),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 10),
+          child: const Text(
+            "Book your own private court.",
+            style: TextStyle(
+              fontSize: 15,
+              fontFamily: "Custom",
+              color: Colors.black,
             ),
           ),
-          const SizedBox(height: 10),
-          _buildVenueList(context),
-          const SizedBox(height: 10),
-        ],
-        key: const ValueKey("rentals"),
-      ),
+        ),
+        const SizedBox(height: 10),
+        _buildVenueList(context),
+        const SizedBox(height: 10),
+      ],
     );
   }
 

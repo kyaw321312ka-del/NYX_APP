@@ -3,7 +3,7 @@ import 'package:nyxproject/features/cart/presentation/pages/cart.dart';
 import 'package:provider/provider.dart';
 import 'package:nyxproject/features/shop/domain/entities/product.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
-import 'package:nyxproject/features/shop/data/datasources/GetallproductApi.dart';
+import 'package:nyxproject/features/shop/data/datasources/getallproduct_api.dart';
 
 class ProductDetails extends StatefulWidget {
   final Product product;
@@ -179,7 +179,7 @@ class _ProductDetailsState extends State<ProductDetails> {
               Navigator.pop(context);
             },
             style: IconButton.styleFrom(
-              backgroundColor: Colors.white.withOpacity(0.08),
+              backgroundColor: Colors.white.withValues(alpha: 0.08),
             ),
             icon: const Icon(
               Icons.arrow_back_ios_new_rounded,
@@ -211,7 +211,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                   );
                 },
                 style: IconButton.styleFrom(
-                  backgroundColor: Colors.white.withOpacity(0.08),
+                  backgroundColor: Colors.white.withValues(alpha: 0.08),
                 ),
                 icon: const Icon(
                   Icons.shopping_cart_outlined,
@@ -262,7 +262,7 @@ class _ProductDetailsState extends State<ProductDetails> {
           border: Border.all(color: Colors.grey.shade200),
           boxShadow: [
             BoxShadow(
-              color: _navy.withOpacity(0.08),
+              color: _navy.withValues(alpha: 0.08),
               blurRadius: 16,
               offset: const Offset(0, 6),
             ),
@@ -324,7 +324,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                     "${widget.product.cost} Ks",
                     style: TextStyle(
                       fontFamily: "Custom",
-                      color: Colors.white.withOpacity(0.5),
+                      color: Colors.white.withValues(alpha: 0.5),
                       decoration: TextDecoration.lineThrough,
                       fontSize: 13,
                     ),
@@ -397,10 +397,10 @@ class _ProductDetailsState extends State<ProductDetails> {
                 Padding(
                   padding: const EdgeInsets.only(top: 2),
                   child: Text(
-                    "${_availableStock} available",
+                    "$_availableStock available",
                     style: TextStyle(
                       fontFamily: "Custom",
-                      color: Colors.white.withOpacity(0.6),
+                      color: Colors.white.withValues(alpha: 0.6),
                       fontSize: 11,
                     ),
                   ),
@@ -443,24 +443,6 @@ class _ProductDetailsState extends State<ProductDetails> {
     );
   }
 
-  Widget _circleAction({
-    required IconData icon,
-    required VoidCallback onPressed,
-  }) {
-    return Material(
-      color: Colors.white.withOpacity(0.08),
-      shape: const CircleBorder(),
-      child: InkWell(
-        customBorder: const CircleBorder(),
-        onTap: onPressed,
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Icon(icon, color: Colors.white, size: 20),
-        ),
-      ),
-    );
-  }
-
   Widget _optionSection({
     required String title,
     required List<String> options,
@@ -483,7 +465,7 @@ class _ProductDetailsState extends State<ProductDetails> {
             title,
             style: TextStyle(
               fontFamily: "Custom",
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
               fontSize: 12,
               fontWeight: FontWeight.w600,
               letterSpacing: 1,
@@ -495,7 +477,7 @@ class _ProductDetailsState extends State<ProductDetails> {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: options.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              separatorBuilder: (_, _) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
                 final bool isSelected = index == selectedIndexValue;
                 return GestureDetector(
@@ -507,7 +489,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                     decoration: ShapeDecoration(
                       color: isSelected
                           ? Colors.white
-                          : Colors.white.withOpacity(0.06),
+                          : Colors.white.withValues(alpha: 0.06),
                       shape: stadiumShape
                           ? const StadiumBorder(
                               side: BorderSide(color: Colors.white24),
@@ -675,7 +657,7 @@ class _ProductDetailsState extends State<ProductDetails> {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.grey.shade300.withOpacity(0.4),
+        color: Colors.grey.shade300.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -929,7 +911,7 @@ class _ProductDetailsState extends State<ProductDetails> {
           border: Border.all(color: Colors.grey.shade200),
           boxShadow: [
             BoxShadow(
-              color: _navy.withOpacity(0.06),
+              color: _navy.withValues(alpha: 0.06),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -1015,7 +997,7 @@ class _ProductDetailsState extends State<ProductDetails> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: _navy.withOpacity(0.08),
+            color: _navy.withValues(alpha: 0.08),
             blurRadius: 12,
             offset: const Offset(0, -4),
           ),

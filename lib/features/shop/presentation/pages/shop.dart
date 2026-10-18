@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nyxproject/core/error/app_error_message.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
-import 'package:nyxproject/features/shop/data/datasources/GetallproductApi.dart';
+import 'package:nyxproject/features/shop/data/datasources/getallproduct_api.dart';
 import 'package:nyxproject/features/shop/domain/entities/product.dart';
-import 'package:nyxproject/features/shop/presentation/pages/shoppages/product-details.dart';
+import 'package:nyxproject/features/shop/presentation/pages/shoppages/product_details.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 
 class ShopPage extends StatefulWidget {
@@ -49,16 +49,12 @@ class _ShopPageState extends State<ShopPage> {
     });
 
     try {
-      print("🔄 Loading products...");
       final result = await GetallproductApi.getAllProducts();
 
       if (!mounted) return; // ✅ Check before using setState
 
-      print("📊 Result success: ${result['success']}");
-
       if (result['success'] == true) {
         final products = result['data'] as List<Product>;
-        print("✅ Loaded ${products.length} products");
 
         setState(() {
           _allProducts = products;
@@ -69,7 +65,6 @@ class _ShopPageState extends State<ShopPage> {
         _extractBrands();
         _applyFilters();
       } else {
-        print("❌ API Error: ${result['message']}");
         setState(() {
           _errorMessage = AppErrorMessage.from(
             result['message'] ?? 'Failed to load products',
@@ -78,7 +73,6 @@ class _ShopPageState extends State<ShopPage> {
         });
       }
     } catch (e) {
-      print("❌ Exception: $e");
       if (!mounted) return; // ✅ Check before using setState
       setState(() {
         _errorMessage = AppErrorMessage.from(e);
@@ -99,7 +93,6 @@ class _ShopPageState extends State<ShopPage> {
     setState(() {
       _brands = brandSet.toList();
     });
-    print("📋 Extracted brands: $_brands");
   }
 
   void _clearSearch() {
@@ -189,8 +182,6 @@ class _ShopPageState extends State<ShopPage> {
     setState(() {
       _filteredProducts = results;
     });
-
-    print("📊 Filtered products: ${_filteredProducts.length}");
   }
 
   @override
@@ -292,7 +283,7 @@ class _ShopPageState extends State<ShopPage> {
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
+                  color: Colors.black.withValues(alpha: 0.06),
                   blurRadius: 6,
                   offset: const Offset(0, 3),
                 ),
@@ -520,7 +511,7 @@ class _ShopPageState extends State<ShopPage> {
               decoration: BoxDecoration(
                 color: isSelected
                     ? const Color(0xFF0D1B2A)
-                    : Colors.grey.withOpacity(0.2),
+                    : Colors.grey.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Center(

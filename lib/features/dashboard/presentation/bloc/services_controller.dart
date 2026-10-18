@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:nyxproject/core/error/app_error_message.dart';
-import 'package:nyxproject/features/dashboard/domain/entities/Canteen.dart';
+import 'package:nyxproject/features/dashboard/domain/entities/canteen.dart';
 import 'package:nyxproject/features/dashboard/domain/usecases/get_services_data.dart';
-import 'package:nyxproject/features/rental/domain/entities/Venue.dart';
-import 'package:nyxproject/features/training/domain/entities/Training.dart';
+import 'package:nyxproject/features/rental/domain/entities/venue.dart';
+import 'package:nyxproject/features/training/domain/entities/training.dart';
 
 @immutable
 class ServicesSectionState<T> {

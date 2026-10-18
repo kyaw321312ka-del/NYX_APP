@@ -4,11 +4,11 @@ import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 import 'package:nyxproject/features/user/presentation/pages/login.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:nyxproject/features/rental/data/datasources/RentelApi/AvaiSlotTimeApi.dart';
-import 'package:nyxproject/features/rental/data/datasources/RentelApi/VenueApi.dart';
-import 'package:nyxproject/features/rental/domain/entities/AvaiSlotTime.dart';
+import 'package:nyxproject/features/rental/data/datasources/RentelApi/avai_slot_time_api.dart';
+import 'package:nyxproject/features/rental/data/datasources/RentelApi/venue_api.dart';
+import 'package:nyxproject/features/rental/domain/entities/avai_slot_time.dart';
 import 'package:nyxproject/features/rental/presentation/pages/rental/booking_form.dart';
-import 'package:nyxproject/features/rental/domain/entities/Venue.dart';
+import 'package:nyxproject/features/rental/domain/entities/venue.dart';
 import 'package:nyxproject/features/rental/domain/entities/Court.dart';
 
 class CourtDetails extends StatefulWidget {
@@ -28,7 +28,6 @@ class CourtDetails extends StatefulWidget {
 }
 
 class _CourtDetailsState extends State<CourtDetails> {
-  bool _isChecked = false;
   int currentIndex = 0;
   int selectedVenueIndex = 0;
   DateTime selectedDate = DateTime.now();
@@ -384,36 +383,6 @@ class _CourtDetailsState extends State<CourtDetails> {
           }).toList(),
         ),
       ],
-    );
-  }
-
-  Widget _location(double screenWidth, double screenHeight) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: screenHeight * 0.01,
-        horizontal: screenWidth * 0.03,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Icon(
-            Icons.location_on_sharp,
-            color: Colors.red,
-            size: screenWidth * 0.07,
-          ),
-          SizedBox(width: screenWidth * 0.03),
-          Expanded(
-            child: Text(
-              "No.(111), Hlaing Township, Yangon.",
-              style: TextStyle(
-                fontFamily: "Custom",
-                fontSize: screenWidth * 0.04,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -924,9 +893,10 @@ class _CourtDetailsState extends State<CourtDetails> {
               GestureDetector(
                 onTap: () {
                   setState(() {
-                    if (equipmentQuantities[text]! > 0)
+                    if (equipmentQuantities[text]! > 0) {
                       equipmentQuantities[text] =
                           equipmentQuantities[text]! - 1;
+                    }
                   });
                 },
                 child: const Icon(Icons.remove, color: Colors.white, size: 18),
@@ -944,9 +914,10 @@ class _CourtDetailsState extends State<CourtDetails> {
               GestureDetector(
                 onTap: () {
                   setState(() {
-                    if (equipmentQuantities[text]! < maxQty)
+                    if (equipmentQuantities[text]! < maxQty) {
                       equipmentQuantities[text] =
                           equipmentQuantities[text]! + 1;
+                    }
                   });
                 },
                 child: const Icon(Icons.add, color: Colors.white, size: 18),
@@ -983,16 +954,17 @@ class _CourtDetailsState extends State<CourtDetails> {
           Checkbox(
             value: _isChecked2,
             onChanged: (bool? value) {
-              if (mounted)
+              if (mounted) {
                 setState(() {
                   _isChecked2 = value!;
                 });
+              }
             },
             activeColor: Colors.red,
           ),
           // Expanded(
           //   child: Text(
-          //     "I have read and agree to follow the court rules & safety guidelines.",
+          //     "I have read and agree to follow the Court rules & safety guidelines.",
           //     style: TextStyle(
           //       color: Colors.grey.shade600,
           //       fontFamily: "Custom",
@@ -1053,13 +1025,9 @@ class _CourtDetailsState extends State<CourtDetails> {
       int venueId = 1; // default
       if (widget.venueId != null) {
         venueId = widget.venueId!;
-      } else if (widget.selectedCourt != null &&
-          widget.selectedCourt!.venueId != null) {
+      } else if (widget.selectedCourt != null) {
         venueId = widget.selectedCourt!.venueId;
       }
-
-      print("DEBUG CourtDetails: venueId = $venueId");
-      print("DEBUG CourtDetails: courtId = ${widget.selectedCourt?.id ?? 1}");
 
       final bookingData = {
         'courtName': courtName,
@@ -1080,7 +1048,7 @@ class _CourtDetailsState extends State<CourtDetails> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => bookingForm(bookingData: bookingData),
+          builder: (context) => BookingForm(bookingData: bookingData),
         ),
       );
     } else {

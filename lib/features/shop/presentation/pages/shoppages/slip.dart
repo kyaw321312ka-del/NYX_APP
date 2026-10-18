@@ -10,7 +10,7 @@ import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:provider/provider.dart';
 
-class slipPage extends StatefulWidget {
+class SlipPage extends StatefulWidget {
   final String? paymentMethod;
   final String? transactionNumber;
   final double? totalAmount;
@@ -21,7 +21,7 @@ class slipPage extends StatefulWidget {
   final double? taxAmount;
   final double? subTotal;
 
-  const slipPage({
+  const SlipPage({
     super.key,
     this.paymentMethod,
     this.transactionNumber,
@@ -35,24 +35,18 @@ class slipPage extends StatefulWidget {
   });
 
   @override
-  State<slipPage> createState() => _slipPageState();
+  State<SlipPage> createState() => _SlipPageState();
 }
 
-class _slipPageState extends State<slipPage> {
+class _SlipPageState extends State<SlipPage> {
   final GlobalKey _repaintKey = GlobalKey();
   bool _isSharing = false;
 
   String _orderNo = "";
   String date =
-      DateTime.now().day.toString().padLeft(2, '0') +
-      "/" +
-      DateTime.now().month.toString().padLeft(2, '0') +
-      "/" +
-      DateTime.now().year.toString();
+      "${DateTime.now().day.toString().padLeft(2, '0')}/${DateTime.now().month.toString().padLeft(2, '0')}/${DateTime.now().year}";
   String time =
-      DateTime.now().hour.toString().padLeft(2, '0') +
-      ":" +
-      DateTime.now().minute.toString().padLeft(2, '0');
+      "${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}";
 
   double subTotal = 0;
   double tax = 0;
@@ -195,10 +189,13 @@ class _slipPageState extends State<slipPage> {
       ).create();
       await imagePath.writeAsBytes(pngBytes);
 
-      await Share.shareXFiles(
-        [XFile(imagePath.path)],
-        text: "Order Receipt #$_orderNo\nTotal: ${total.toStringAsFixed(0)} Ks",
-        subject: "Order Receipt",
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(imagePath.path)],
+          text:
+              "Order Receipt #$_orderNo\nTotal: ${total.toStringAsFixed(0)} Ks",
+          subject: "Order Receipt",
+        ),
       );
 
       if (mounted) {

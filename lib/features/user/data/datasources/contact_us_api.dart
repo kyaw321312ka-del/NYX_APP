@@ -7,7 +7,7 @@ class ContactUsApi {
   static Future<Map<String, dynamic>> getGeneralInfo() async {
     try {
       final response = await http.get(
-        Uri.parse('${Constant.API_URL}/contactus/showgeneral'),
+        Uri.parse('${Constant.apiUrl}/contactus/showgeneral'),
         headers: {'Content-Type': 'application/json'},
       );
 

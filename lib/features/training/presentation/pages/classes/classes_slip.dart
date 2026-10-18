@@ -4,13 +4,13 @@ import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:provider/provider.dart';
 
-class classesSlip extends StatefulWidget {
+class ClassesSlip extends StatefulWidget {
   final Map<String, dynamic>? enrollmentData;
   final String? paymentMethod;
   final String? transactionNumber;
   final Map<String, dynamic>? responseData;
 
-  const classesSlip({
+  const ClassesSlip({
     super.key,
     this.enrollmentData,
     this.paymentMethod,
@@ -19,22 +19,16 @@ class classesSlip extends StatefulWidget {
   });
 
   @override
-  State<classesSlip> createState() => _classesSlipState();
+  State<ClassesSlip> createState() => _ClassesSlipState();
 }
 
-class _classesSlipState extends State<classesSlip> {
+class _ClassesSlipState extends State<ClassesSlip> {
   String orderNo =
-      "#" + DateTime.now().millisecondsSinceEpoch.toString().substring(8, 13);
+      "#${DateTime.now().millisecondsSinceEpoch.toString().substring(8, 13)}";
   String date =
-      DateTime.now().day.toString().padLeft(2, '0') +
-      "/" +
-      DateTime.now().month.toString().padLeft(2, '0') +
-      "/" +
-      DateTime.now().year.toString();
+      "${DateTime.now().day.toString().padLeft(2, '0')}/${DateTime.now().month.toString().padLeft(2, '0')}/${DateTime.now().year}";
   String time =
-      DateTime.now().hour.toString().padLeft(2, '0') +
-      ":" +
-      DateTime.now().minute.toString().padLeft(2, '0');
+      "${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}";
 
   @override
   Widget build(BuildContext context) {

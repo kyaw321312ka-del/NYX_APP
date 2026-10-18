@@ -1,8 +1,8 @@
 // lib/pages/dashboardWidgets/categories_widget.dart
 import 'package:flutter/material.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
-import 'package:nyxproject/features/shop/domain/entities/Category.dart';
-import 'package:nyxproject/features/shop/presentation/pages/shoppages/categoryPage.dart';
+import 'package:nyxproject/features/shop/domain/entities/category.dart';
+import 'package:nyxproject/features/shop/presentation/pages/shoppages/category_page.dart';
 
 class CategoriesWidget extends StatelessWidget {
   final List<Category> categories;

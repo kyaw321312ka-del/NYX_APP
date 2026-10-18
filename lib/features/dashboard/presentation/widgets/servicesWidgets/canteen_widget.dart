@@ -1,6 +1,6 @@
 // lib/pages/detailsPages/classesWidgets/canteen_widget.dart
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/dashboard/domain/entities/Canteen.dart';
+import 'package:nyxproject/features/dashboard/domain/entities/canteen.dart';
 import 'package:nyxproject/features/dashboard/presentation/widgets/servicesWidgets/canteen_grid.dart';
 
 class CanteenWidget extends StatelessWidget {
@@ -23,23 +23,21 @@ class CanteenWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _canteenHeader(),
-          CanteenGrid(
-            items: items,
-            screenWidth: screenWidth,
-            screenHeight: screenHeight,
-            isLoading: isLoading,
-            error: error,
-            onRetry: onRetry,
-          ),
-          const SizedBox(height: 10),
-        ],
-        key: const ValueKey("canteen"),
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      key: const ValueKey("canteen"),
+      children: [
+        _canteenHeader(),
+        CanteenGrid(
+          items: items,
+          screenWidth: screenWidth,
+          screenHeight: screenHeight,
+          isLoading: isLoading,
+          error: error,
+          onRetry: onRetry,
+        ),
+        const SizedBox(height: 10),
+      ],
     );
   }
 

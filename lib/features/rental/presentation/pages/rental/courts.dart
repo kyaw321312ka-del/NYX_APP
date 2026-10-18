@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nyxproject/core/error/app_error_message.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
-import 'package:nyxproject/features/rental/data/datasources/RentelApi/CourtApi.dart';
+import 'package:nyxproject/features/rental/data/datasources/RentelApi/court_api.dart';
 import 'package:nyxproject/features/rental/domain/entities/Court.dart';
 import 'package:nyxproject/features/rental/presentation/pages/rental/court_details.dart';
 
@@ -23,8 +23,6 @@ class _CourtsState extends State<Courts> {
   @override
   void initState() {
     super.initState();
-    print("DEBUG Courts: venueId = ${widget.venueId}");
-    print("DEBUG Courts: venueName = ${widget.venueName}");
     _loadCourts();
   }
 
@@ -45,7 +43,6 @@ class _CourtsState extends State<Courts> {
           _courts = result['data'] ?? [];
           _isLoading = false;
         });
-        print('Loaded ${_courts.length} courts for venue ${widget.venueId}');
       } else {
         setState(() {
           _error = AppErrorMessage.from(
@@ -187,7 +184,7 @@ class _CourtsState extends State<Courts> {
           ),
           SizedBox(height: screenHeight * 0.005),
           Text(
-            "Choose your court to play comfortably.",
+            "Choose your Court to play comfortably.",
             style: TextStyle(
               fontFamily: "Custom",
               fontSize: screenWidth * 0.04,
@@ -213,10 +210,6 @@ class _CourtsState extends State<Courts> {
     // Format open and close times
     String openTime = _formatTime(court.openAt);
     String closeTime = _formatTime(court.closeAt);
-
-    print("DEBUG CourtCard: court.id = ${court.id}");
-    print("DEBUG CourtCard: court.venueId = ${court.venueId}");
-    print("DEBUG CourtCard: widget.venueId = ${widget.venueId}");
 
     return Container(
       margin: EdgeInsets.symmetric(
@@ -273,7 +266,7 @@ class _CourtsState extends State<Courts> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Court Name
+                // Court name
                 Text(
                   court.courtName,
                   style: TextStyle(
@@ -337,9 +330,6 @@ class _CourtsState extends State<Courts> {
                         onTap: () {
                           // Ensure venueId is not null
                           int venueIdToPass = widget.venueId;
-                          print(
-                            "DEBUG: Passing venueId = $venueIdToPass to CourtDetails",
-                          );
 
                           Navigator.push(
                             context,

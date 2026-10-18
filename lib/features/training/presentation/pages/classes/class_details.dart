@@ -3,9 +3,9 @@ import 'package:nyxproject/core/error/app_error_message.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/user/data/datasources/contact_us_api.dart';
 import 'package:nyxproject/features/user/data/models/contact_us.dart';
-import 'package:nyxproject/features/training/domain/entities/TrainingDetail.dart';
-import 'package:nyxproject/features/training/presentation/pages/classes/enrollForm.dart';
-import 'package:nyxproject/features/training/data/datasources/ClassApi/TrainingDetailApi.dart';
+import 'package:nyxproject/features/training/domain/entities/training_detail.dart';
+import 'package:nyxproject/features/training/presentation/pages/classes/enroll_form.dart';
+import 'package:nyxproject/features/training/data/datasources/ClassApi/training_detail_api.dart';
 
 class ClassDetails extends StatefulWidget {
   final int trainingId;
@@ -805,7 +805,7 @@ class _ClassDetailsState extends State<ClassDetails> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => enrollForm(
+                builder: (context) => EnrollForm(
                   trainingId: widget.trainingId,
                   trainingTitle: _trainingDetail?.courseName,
                   levelId: selectedLevel.id, // Pass the selected level's ID
@@ -819,7 +819,7 @@ class _ClassDetailsState extends State<ClassDetails> {
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('No level selected'),
+                content: Text('number level selected'),
                 backgroundColor: Colors.red,
               ),
             );
@@ -856,7 +856,7 @@ class _ClassDetailsState extends State<ClassDetails> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                "Ready to Master the Court?",
+                "Ready to Master the court?",
                 style: TextStyle(
                   fontFamily: "Custom",
                   fontSize: 14,

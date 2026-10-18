@@ -1,7 +1,7 @@
 // lib/pages/dashboardWidgets/product_card.dart
 import 'package:flutter/material.dart';
 import 'package:nyxproject/features/shop/domain/entities/product.dart';
-import 'package:nyxproject/features/shop/presentation/pages/shoppages/product-details.dart';
+import 'package:nyxproject/features/shop/presentation/pages/shoppages/product_details.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -35,7 +35,7 @@ class ProductCard extends StatelessWidget {
         child: Card(
           color: colorScheme.surface,
           elevation: 3,
-          shadowColor: colorScheme.shadow.withOpacity(0.8),
+          shadowColor: colorScheme.shadow.withValues(alpha: 0.8),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
@@ -79,7 +79,7 @@ class ProductCard extends StatelessWidget {
 
                 const SizedBox(height: 10),
 
-                // Product Name
+                // Product name
                 Text(
                   product.productName,
                   style: theme.textTheme.titleSmall?.copyWith(

@@ -1,4 +1,4 @@
-import 'package:nyxproject/features/orders/domain/entities/Order.dart';
+import 'package:nyxproject/features/orders/domain/entities/order.dart';
 import 'package:nyxproject/features/orders/domain/repositories/orders_repository.dart';
 
 class GetOrderHistory {

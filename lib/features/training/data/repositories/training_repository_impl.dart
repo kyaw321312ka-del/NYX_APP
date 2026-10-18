@@ -1,6 +1,6 @@
 import 'package:nyxproject/core/error/api_exception.dart';
-import 'package:nyxproject/features/training/data/datasources/ClassApi/TrainingApi.dart';
-import 'package:nyxproject/features/training/domain/entities/Training.dart';
+import 'package:nyxproject/features/training/data/datasources/ClassApi/training_api.dart';
+import 'package:nyxproject/features/training/domain/entities/training.dart';
 import 'package:nyxproject/features/training/domain/repositories/training_repository.dart';
 
 class TrainingRepositoryImpl implements TrainingRepository {
