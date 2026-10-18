@@ -30,10 +30,7 @@ class TrainingsWidget extends StatelessWidget {
     }
 
     if (error != null) {
-      return AppErrorView(
-        message: error!,
-        onRetry: onRetry,
-      );
+      return AppErrorView(message: error!, onRetry: onRetry);
     }
 
     if (trainings.isEmpty) {
@@ -45,9 +42,10 @@ class TrainingsWidget extends StatelessWidget {
       );
     }
 
-    final cacheWidth = (MediaQuery.sizeOf(context).width *
-            MediaQuery.devicePixelRatioOf(context))
-        .round();
+    final cacheWidth =
+        (MediaQuery.sizeOf(context).width *
+                MediaQuery.devicePixelRatioOf(context))
+            .round();
 
     return Center(
       key: const ValueKey("training"),
@@ -62,9 +60,7 @@ class TrainingsWidget extends StatelessWidget {
             () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ClassDetails(
-                  trainingId: training.id,
-                ),
+                builder: (context) => ClassDetails(trainingId: training.id),
               ),
             ),
           );

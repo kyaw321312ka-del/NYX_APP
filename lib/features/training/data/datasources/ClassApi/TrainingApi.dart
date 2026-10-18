@@ -40,7 +40,7 @@ class TrainingApi {
       }
     } catch (e) {
       print("Get Trainings Error: $e");
-      return {'success': false, 'message': 'Network error: $e'};
+      return {'success': false, 'message': 'Unable to connect. Check your internet connection and try again.'};
     }
   }
 }

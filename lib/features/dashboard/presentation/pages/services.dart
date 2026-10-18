@@ -1,5 +1,6 @@
 // lib/pages/detailsPages/classes.dart
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/error/app_error_message.dart';
 import 'package:nyxproject/features/dashboard/domain/entities/Canteen.dart';
 import 'package:nyxproject/features/training/domain/entities/Training.dart';
 import 'package:nyxproject/features/rental/domain/entities/Venue.dart';
@@ -41,16 +42,12 @@ class _ServicesState extends State<Services> {
   }
 
   Future<void> _loadAllData() async {
-    await Future.wait([
-      _loadTrainings(),
-      _loadCanteenItems(),
-      _loadVenues(),
-    ]);
+    await Future.wait([_loadTrainings(), _loadCanteenItems(), _loadVenues()]);
   }
 
   Future<void> _refreshData() async {
     if (_isRefreshing) return;
-    
+
     setState(() {
       _isRefreshing = true;
     });
@@ -89,7 +86,7 @@ class _ServicesState extends State<Services> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _trainingsError = 'Error loading trainings: $e';
+        _trainingsError = AppErrorMessage.from(e);
         _isLoadingTrainings = false;
       });
     }
@@ -122,7 +119,7 @@ class _ServicesState extends State<Services> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _canteenError = 'Error loading canteen items: $e';
+        _canteenError = AppErrorMessage.from(e);
         _isLoadingCanteen = false;
       });
     }
@@ -155,7 +152,7 @@ class _ServicesState extends State<Services> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _venuesError = 'Error loading venues: $e';
+        _venuesError = AppErrorMessage.from(e);
         _isLoadingVenues = false;
       });
     }

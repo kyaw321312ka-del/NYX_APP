@@ -39,9 +39,12 @@ class AppErrorMessage {
       final message = error.trim();
       final normalized = message.toLowerCase();
       if (normalized.contains('socketexception') ||
+          normalized.contains('clientexception') ||
           normalized.contains('failed host lookup') ||
           normalized.contains('connection refused') ||
-          normalized.contains('connection timed out')) {
+          normalized.contains('connection timed out') ||
+          normalized.contains('connection failed') ||
+          normalized.contains('network is unreachable')) {
         return 'Unable to connect. Check your internet connection and try again.';
       }
       if (normalized.contains('timeoutexception') ||

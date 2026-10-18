@@ -41,7 +41,7 @@ class CanteenApi {
       }
     } catch (e) {
       print("❌ Get Canteen Items Error: $e");
-      return {'success': false, 'message': 'Network error: $e'};
+      return {'success': false, 'message': 'Unable to connect. Check your internet connection and try again.'};
     }
   }
 }
