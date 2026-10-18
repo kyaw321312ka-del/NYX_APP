@@ -36,6 +36,7 @@ class TokenExpiredDialog {
               onPressed: () async {
                 // Clear session
                 await sessionService.logout();
+                if (!context.mounted) return;
 
                 // Navigate to login page
                 Navigator.pushAndRemoveUntil(

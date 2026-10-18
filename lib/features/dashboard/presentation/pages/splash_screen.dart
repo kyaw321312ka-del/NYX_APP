@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
@@ -18,19 +20,17 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  Timer? _navigationTimer;
+
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _navigationTimer = Timer(const Duration(seconds: 2), _openDashboard);
   }
 
-  Future<void> _loadData() async {
-    // Minimum splash screen duration (2 seconds)
-    await Future.delayed(const Duration(seconds: 2));
-
+  void _openDashboard() {
     if (!mounted) return;
 
-    // Navigate to MainDashboard
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -40,6 +40,12 @@ class _SplashScreenState extends State<SplashScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _navigationTimer?.cancel();
+    super.dispose();
   }
 
   @override
