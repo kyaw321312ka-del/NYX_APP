@@ -30,7 +30,6 @@ class _PaymentState extends State<Payment> {
   File? _transactionImage;
   bool _isProcessing = false;
   bool _isLoadingPayments = true;
-  bool _isLoadingTax = true; // Add this
   final ImagePicker _picker = ImagePicker();
 
   List<PaymentMethod> _paymentMethods = [];
@@ -46,31 +45,26 @@ class _PaymentState extends State<Payment> {
 
   // Add this method to fetch tax
   Future<void> _fetchTax() async {
-    setState(() {
-      _isLoadingTax = true;
-    });
-
     try {
       final result = await TaxApi.getTax();
 
+      if (!mounted) return;
       if (result['success']) {
         setState(() {
           _tax = result['tax'];
           _taxRate = _tax?.tax.toDouble() ?? 0;
-          _isLoadingTax = false;
         });
         print(' Tax loaded: ${_tax?.tax}%');
       } else {
         setState(() {
-          _isLoadingTax = false;
           // Default to 5% if API fails
           _taxRate = 5;
         });
         print("Error fetching tax: ${result['message']}");
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
-        _isLoadingTax = false;
         _taxRate = 5; // Default fallback
       });
       print("Error: $e");
@@ -273,61 +267,6 @@ class _PaymentState extends State<Payment> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  // Add tax section widget
-  Widget _taxSection() {
-    if (_isLoadingTax) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
-            Text(
-              "Tax",
-              style: TextStyle(
-                color: Color.fromARGB(255, 13, 27, 42),
-                fontWeight: FontWeight.w500,
-                fontFamily: 'Custom',
-                fontSize: 15,
-              ),
-            ),
-            SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            "Tax (${_taxRate.toStringAsFixed(0)}%)",
-            style: const TextStyle(
-              color: Color.fromARGB(255, 13, 27, 42),
-              fontWeight: FontWeight.w500,
-              fontFamily: 'Custom',
-              fontSize: 15,
-            ),
-          ),
-          Text(
-            "${_taxAmount.toStringAsFixed(0)} Ks",
-            style: const TextStyle(
-              color: Color.fromARGB(255, 13, 27, 42),
-              fontWeight: FontWeight.w500,
-              fontFamily: 'Custom',
-              fontSize: 15,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -556,28 +495,29 @@ class _PaymentState extends State<Payment> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.black12),
       ),
-      child: Column(
-        children: displayOptions.map((option) {
-          return ListTile(
-            title: Text(
-              option,
-              style: const TextStyle(
-                fontFamily: 'Custom',
-                color: Color.fromARGB(255, 13, 27, 42),
+      child: RadioGroup<String>(
+        groupValue: currentOption,
+        onChanged: (value) {
+          if (value == null) return;
+          setState(() {
+            currentOption = value;
+            input.clear();
+          });
+        },
+        child: Column(
+          children: displayOptions.map((option) {
+            return ListTile(
+              title: Text(
+                option,
+                style: const TextStyle(
+                  fontFamily: 'Custom',
+                  color: Color.fromARGB(255, 13, 27, 42),
+                ),
               ),
-            ),
-            leading: Radio(
-              value: option,
-              groupValue: currentOption,
-              onChanged: (value) {
-                setState(() {
-                  currentOption = value.toString();
-                  input.clear();
-                });
-              },
-            ),
-          );
-        }).toList(),
+              leading: Radio<String>(value: option),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -790,6 +730,7 @@ class _PaymentState extends State<Payment> {
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
+      if (!mounted) return;
       setState(() {
         _isProcessing = false;
       });
@@ -819,15 +760,22 @@ class _PaymentState extends State<Payment> {
         String errorMessage = 'Failed to place order';
         try {
           final errorData = jsonDecode(response.body);
-          errorMessage =
-              errorData['message'] ?? errorData['error'] ?? errorMessage;
-        } catch (e) {}
+          if (errorData is Map<String, dynamic>) {
+            errorMessage =
+                errorData['message']?.toString() ??
+                errorData['error']?.toString() ??
+                errorMessage;
+          }
+        } on FormatException {
+          errorMessage = 'Failed to place order. Please try again.';
+        }
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
         );
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isProcessing = false;
       });
