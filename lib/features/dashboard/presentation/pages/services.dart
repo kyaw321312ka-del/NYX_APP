@@ -1,16 +1,10 @@
-// lib/pages/detailsPages/classes.dart
 import 'package:flutter/material.dart';
-import 'package:nyxproject/core/error/app_error_message.dart';
-import 'package:nyxproject/features/dashboard/domain/entities/Canteen.dart';
-import 'package:nyxproject/features/training/domain/entities/Training.dart';
-import 'package:nyxproject/features/rental/domain/entities/Venue.dart';
+import 'package:nyxproject/features/dashboard/presentation/bloc/services_controller.dart';
 import 'package:nyxproject/features/dashboard/presentation/widgets/servicesWidgets/canteen_widget.dart';
 import 'package:nyxproject/features/dashboard/presentation/widgets/servicesWidgets/rentals_widget.dart';
 import 'package:nyxproject/features/dashboard/presentation/widgets/servicesWidgets/tab_widget.dart';
 import 'package:nyxproject/features/dashboard/presentation/widgets/servicesWidgets/trainings_widget.dart';
-import 'package:nyxproject/features/dashboard/data/datasources/CanteenApi.dart';
-import 'package:nyxproject/features/training/data/datasources/ClassApi/TrainingApi.dart';
-import 'package:nyxproject/features/rental/data/datasources/RentelApi/VenueApi.dart';
+import 'package:provider/provider.dart';
 
 class Services extends StatefulWidget {
   const Services({super.key});
@@ -20,254 +14,108 @@ class Services extends StatefulWidget {
 }
 
 class _ServicesState extends State<Services> {
-  int selectedIndex = 0;
-  bool _isRefreshing = false;
-
-  List<Training> _trainings = [];
-  bool _isLoadingTrainings = true;
-  String? _trainingsError;
-
-  List<Canteen> _canteenItems = [];
-  bool _isLoadingCanteen = true;
-  String? _canteenError;
-
-  List<Venue> _venues = [];
-  bool _isLoadingVenues = true;
-  String? _venuesError;
+  int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _loadAllData();
-  }
-
-  Future<void> _loadAllData() async {
-    await Future.wait([_loadTrainings(), _loadCanteenItems(), _loadVenues()]);
-  }
-
-  Future<void> _refreshData() async {
-    if (_isRefreshing) return;
-
-    setState(() {
-      _isRefreshing = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) context.read<ServicesController>().loadAll();
     });
-
-    await _loadAllData();
-
-    setState(() {
-      _isRefreshing = false;
-    });
-  }
-
-  Future<void> _loadTrainings() async {
-    if (!mounted) return;
-
-    setState(() {
-      _isLoadingTrainings = true;
-      _trainingsError = null;
-    });
-
-    try {
-      final result = await TrainingApi.getAllTrainings();
-
-      if (!mounted) return;
-
-      if (result['success'] == true) {
-        setState(() {
-          _trainings = result['data'] ?? [];
-          _isLoadingTrainings = false;
-        });
-      } else {
-        setState(() {
-          _trainingsError = result['message'] ?? 'Failed to load trainings';
-          _isLoadingTrainings = false;
-        });
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _trainingsError = AppErrorMessage.from(e);
-        _isLoadingTrainings = false;
-      });
-    }
-  }
-
-  Future<void> _loadCanteenItems() async {
-    if (!mounted) return;
-
-    setState(() {
-      _isLoadingCanteen = true;
-      _canteenError = null;
-    });
-
-    try {
-      final result = await CanteenApi.getAllCanteenItems();
-
-      if (!mounted) return;
-
-      if (result['success'] == true) {
-        setState(() {
-          _canteenItems = result['data'] ?? [];
-          _isLoadingCanteen = false;
-        });
-      } else {
-        setState(() {
-          _canteenError = result['message'] ?? 'Failed to load canteen items';
-          _isLoadingCanteen = false;
-        });
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _canteenError = AppErrorMessage.from(e);
-        _isLoadingCanteen = false;
-      });
-    }
-  }
-
-  Future<void> _loadVenues() async {
-    if (!mounted) return;
-
-    setState(() {
-      _isLoadingVenues = true;
-      _venuesError = null;
-    });
-
-    try {
-      final result = await VenueApi.getAllVenues();
-
-      if (!mounted) return;
-
-      if (result['success'] == true) {
-        setState(() {
-          _venues = result['data'] ?? [];
-          _isLoadingVenues = false;
-        });
-      } else {
-        setState(() {
-          _venuesError = result['message'] ?? 'Failed to load venues';
-          _isLoadingVenues = false;
-        });
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _venuesError = AppErrorMessage.from(e);
-        _isLoadingVenues = false;
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+    return Consumer<ServicesController>(
+      builder: (context, controller, _) {
+        final size = MediaQuery.sizeOf(context);
 
-    return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: _refreshData,
-        color: const Color(0xFF0D1B2A),
-        backgroundColor: Colors.white,
-        child: SafeArea(
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 12),
-
-                // Category tabs
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  padding: const EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF0F1F5),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TabWidget(
-                          title: "TRAININGS",
-                          index: 0,
-                          selectedIndex: selectedIndex,
-                          onTap: () {
-                            if (mounted) {
-                              setState(() => selectedIndex = 0);
-                            }
-                          },
-                        ),
+        return Scaffold(
+          body: RefreshIndicator(
+            onRefresh: controller.refresh,
+            color: const Color(0xFF0D1B2A),
+            backgroundColor: Colors.white,
+            child: SafeArea(
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 12),
+                    _buildTabs(),
+                    const SizedBox(height: 20),
+                    Offstage(
+                      offstage: _selectedIndex != 0,
+                      child: TrainingsWidget(
+                        trainings: controller.trainings.items,
+                        isLoading:
+                            controller.trainings.isLoading &&
+                            !controller.isRefreshing,
+                        error: controller.trainings.error,
+                        onRetry: controller.loadTrainings,
                       ),
-                      Expanded(
-                        child: TabWidget(
-                          title: "RENTALS",
-                          index: 1,
-                          selectedIndex: selectedIndex,
-                          onTap: () {
-                            if (mounted) {
-                              setState(() => selectedIndex = 1);
-                            }
-                          },
-                        ),
+                    ),
+                    Offstage(
+                      offstage: _selectedIndex != 1,
+                      child: RentalsWidget(
+                        screenWidth: size.width,
+                        screenHeight: size.height,
+                        venues: controller.venues.items,
+                        isLoadingVenues:
+                            controller.venues.isLoading &&
+                            !controller.isRefreshing,
+                        venuesError: controller.venues.error,
+                        onRetryVenues: controller.loadVenues,
                       ),
-                      Expanded(
-                        child: TabWidget(
-                          title: "CANTEEN",
-                          index: 2,
-                          selectedIndex: selectedIndex,
-                          onTap: () {
-                            if (mounted) {
-                              setState(() => selectedIndex = 2);
-                            }
-                          },
-                        ),
+                    ),
+                    Offstage(
+                      offstage: _selectedIndex != 2,
+                      child: CanteenWidget(
+                        items: controller.canteen.items,
+                        screenWidth: size.width,
+                        screenHeight: size.height,
+                        isLoading:
+                            controller.canteen.isLoading &&
+                            !controller.isRefreshing,
+                        error: controller.canteen.error,
+                        onRetry: controller.loadCanteenItems,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-
-                const SizedBox(height: 20),
-
-                // Trainings
-                Offstage(
-                  offstage: selectedIndex != 0,
-                  child: TrainingsWidget(
-                    trainings: _trainings,
-                    isLoading: _isLoadingTrainings && !_isRefreshing,
-                    error: _trainingsError,
-                    onRetry: _loadTrainings,
-                  ),
-                ),
-
-                // Rentals
-                Offstage(
-                  offstage: selectedIndex != 1,
-                  child: RentalsWidget(
-                    screenWidth: screenWidth,
-                    screenHeight: screenHeight,
-                    venues: _venues,
-                    isLoadingVenues: _isLoadingVenues && !_isRefreshing,
-                    venuesError: _venuesError,
-                    onRetryVenues: _loadVenues,
-                  ),
-                ),
-
-                // Canteen
-                Offstage(
-                  offstage: selectedIndex != 2,
-                  child: CanteenWidget(
-                    items: _canteenItems,
-                    screenWidth: screenWidth,
-                    screenHeight: screenHeight,
-                    isLoading: _isLoadingCanteen && !_isRefreshing,
-                    error: _canteenError,
-                    onRetry: _loadCanteenItems,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
-        ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTabs() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0F1F5),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          _buildTab('TRAININGS', 0),
+          _buildTab('RENTALS', 1),
+          _buildTab('CANTEEN', 2),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTab(String title, int index) {
+    return Expanded(
+      child: TabWidget(
+        title: title,
+        index: index,
+        selectedIndex: _selectedIndex,
+        onTap: () => setState(() => _selectedIndex = index),
       ),
     );
   }

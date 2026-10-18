@@ -4,6 +4,9 @@ import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:nyxproject/core/utils/app_theme.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 import 'package:nyxproject/features/dashboard/presentation/pages/splash_screen.dart';
+import 'package:nyxproject/features/dashboard/data/repositories/services_repository_impl.dart';
+import 'package:nyxproject/features/dashboard/domain/usecases/get_services_data.dart';
+import 'package:nyxproject/features/dashboard/presentation/bloc/services_controller.dart';
 import 'package:nyxproject/features/tournament/data/datasources/tournament_banner_remote_data_source.dart';
 import 'package:nyxproject/features/tournament/data/repositories/tournament_banner_repository_impl.dart';
 import 'package:nyxproject/features/tournament/domain/usecases/get_tournament_banners.dart';
@@ -36,6 +39,11 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<SessionService>.value(value: sessionService),
         ChangeNotifierProvider<CartService>.value(value: cartService),
+        ChangeNotifierProvider<ServicesController>(
+          create: (_) => ServicesController(
+            GetServicesData(ServicesRepositoryImpl()),
+          ),
+        ),
         Provider<GetTournamentBanners>(
           create: (_) => GetTournamentBanners(
             TournamentBannerRepositoryImpl(
