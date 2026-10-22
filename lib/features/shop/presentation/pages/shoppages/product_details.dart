@@ -1,20 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nyxproject/features/shop/data/repositories/shop_repository_impl.dart';
+import 'package:nyxproject/features/shop/domain/usecases/get_products.dart';
+import 'package:nyxproject/features/shop/presentation/bloc/shop_related_products_cubit.dart';
+import 'package:nyxproject/features/shop/presentation/bloc/shop_related_products_state.dart';
 import 'package:nyxproject/features/cart/presentation/pages/cart.dart';
 import 'package:provider/provider.dart';
 import 'package:nyxproject/features/shop/domain/entities/product.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
-import 'package:nyxproject/features/shop/data/datasources/getallproduct_api.dart';
 
-class ProductDetails extends StatefulWidget {
+class ProductDetails extends StatelessWidget {
   final Product product;
 
   const ProductDetails({super.key, required this.product});
 
   @override
-  State<ProductDetails> createState() => _ProductDetailsState();
+  Widget build(BuildContext context) {
+    final repository = ShopRepositoryImpl();
+    return BlocProvider(
+      create: (_) => ShopRelatedProductsCubit(
+        getProducts: GetProducts(repository),
+        product: product,
+      )..load(),
+      child: _ProductDetailsContent(product: product),
+    );
+  }
 }
 
-class _ProductDetailsState extends State<ProductDetails> {
+class _ProductDetailsContent extends StatefulWidget {
+  final Product product;
+
+  const _ProductDetailsContent({required this.product});
+
+  @override
+  State<_ProductDetailsContent> createState() => _ProductDetailsState();
+}
+
+class _ProductDetailsState extends State<_ProductDetailsContent> {
   static const Color _navy = Color.fromARGB(255, 13, 27, 42);
   static const Color _accent = Color(0xFFE53935);
   static const Color _pageBg = Color(0xFFF5F6F8);
@@ -24,9 +46,6 @@ class _ProductDetailsState extends State<ProductDetails> {
   bool _isAddingToCart = false;
   int _selectedColorIndex = 0;
   int _selectedSizeIndex = 0;
-  List<Product> _relatedProducts = [];
-  bool _isLoadingRelated = true;
-
   int? get _availableStock => int.tryParse(widget.product.totalStock.trim());
 
   bool get _isInStock {
@@ -65,96 +84,59 @@ class _ProductDetailsState extends State<ProductDetails> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _loadRelatedProducts();
-  }
-
-  Future<void> _loadRelatedProducts() async {
-    setState(() {
-      _isLoadingRelated = true;
-    });
-
-    try {
-      final result = await GetallproductApi.getAllProducts();
-
-      if (result['success'] == true) {
-        List<Product> allProducts = result['data'] ?? [];
-
-        List<Product> related = allProducts.where((product) {
-          return product.category == widget.product.category &&
-              product.id != widget.product.id;
-        }).toList();
-
-        if (related.length > 4) {
-          related = related.sublist(0, 4);
-        }
-
-        setState(() {
-          _relatedProducts = related;
-          _isLoadingRelated = false;
-        });
-      } else {
-        setState(() {
-          _isLoadingRelated = false;
-        });
-      }
-    } catch (e) {
-      debugPrint("Error loading related products: $e");
-      setState(() {
-        _isLoadingRelated = false;
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     final cartService = Provider.of<CartService>(context);
 
-    return Scaffold(
-      backgroundColor: _pageBg,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _header(cartService),
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: _loadRelatedProducts,
-                color: _navy,
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 12),
-                      _imageSpace(),
-                      const SizedBox(height: 12),
-                      _priceTag(),
-                      _name(),
-                      const SizedBox(height: 10),
-                      _color(),
-                      const SizedBox(height: 10),
-                      _size(),
-                      const SizedBox(height: 6),
-                      _quantitySelector(),
-                      const SizedBox(height: 12),
-                      _buildTabs(),
-                      const SizedBox(height: 12),
-                      selectedIndex == 0 ? _description() : _specification(),
-                      const SizedBox(height: 8),
-                      _section("Related Products"),
-                      const SizedBox(height: 8),
-                      _relatedProductsGrid(),
-                      const SizedBox(height: 20),
-                    ],
+    return BlocBuilder<ShopRelatedProductsCubit, ShopRelatedProductsState>(
+      builder: (context, relatedState) {
+        return Scaffold(
+          backgroundColor: _pageBg,
+          body: SafeArea(
+            child: Column(
+              children: [
+                _header(cartService),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: context.read<ShopRelatedProductsCubit>().load,
+                    color: _navy,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 12),
+                          _imageSpace(),
+                          const SizedBox(height: 12),
+                          _priceTag(),
+                          _name(),
+                          const SizedBox(height: 10),
+                          _color(),
+                          const SizedBox(height: 10),
+                          _size(),
+                          const SizedBox(height: 6),
+                          _quantitySelector(),
+                          const SizedBox(height: 12),
+                          _buildTabs(),
+                          const SizedBox(height: 12),
+                          selectedIndex == 0
+                              ? _description()
+                              : _specification(),
+                          const SizedBox(height: 8),
+                          _section("Related Products"),
+                          const SizedBox(height: 8),
+                          _relatedProductsGrid(relatedState),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                _bottomBar(cartService),
+              ],
             ),
-            _bottomBar(cartService),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -817,8 +799,9 @@ class _ProductDetailsState extends State<ProductDetails> {
     );
   }
 
-  Widget _relatedProductsGrid() {
-    if (_isLoadingRelated) {
+  Widget _relatedProductsGrid(ShopRelatedProductsState state) {
+    if (state.status == ShopRelatedProductsStatus.initial ||
+        state.status == ShopRelatedProductsStatus.loading) {
       return const Center(
         child: Padding(
           padding: EdgeInsets.all(20),
@@ -827,7 +810,17 @@ class _ProductDetailsState extends State<ProductDetails> {
       );
     }
 
-    if (_relatedProducts.isEmpty) {
+    if (state.status == ShopRelatedProductsStatus.failure) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Text(
+          state.errorMessage ?? 'Unable to load related products.',
+          style: const TextStyle(color: Colors.red),
+        ),
+      );
+    }
+
+    if (state.products.isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -853,9 +846,9 @@ class _ProductDetailsState extends State<ProductDetails> {
         crossAxisSpacing: 12,
         childAspectRatio: 0.78,
       ),
-      itemCount: _relatedProducts.length,
+      itemCount: state.products.length,
       itemBuilder: (context, index) {
-        final product = _relatedProducts[index];
+        final product = state.products[index];
         return _relatedProductCard(product);
       },
     );

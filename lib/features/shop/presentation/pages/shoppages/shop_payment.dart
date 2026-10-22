@@ -1,107 +1,65 @@
 import 'dart:io';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:nyxproject/core/utils/app_constants.dart';
-import 'package:nyxproject/features/orders/data/datasources/order_api.dart';
-import 'package:nyxproject/features/orders/data/datasources/payment_api.dart';
-import 'package:nyxproject/features/shop/data/datasources/tax_api.dart'; // Add this import
+import 'package:nyxproject/features/shop/data/repositories/shop_repository_impl.dart';
 import 'package:nyxproject/features/orders/domain/entities/payment.dart';
-import 'package:nyxproject/features/shop/domain/entities/tax.dart'; // Add this import
-import 'package:provider/provider.dart';
+import 'package:nyxproject/features/shop/domain/entities/shop_order_request.dart';
+import 'package:nyxproject/features/shop/domain/usecases/get_shop_payment_methods.dart';
+import 'package:nyxproject/features/shop/domain/usecases/get_shop_tax.dart';
+import 'package:nyxproject/features/shop/domain/usecases/place_shop_order.dart';
+import 'package:nyxproject/features/shop/presentation/bloc/shop_checkout_cubit.dart';
+import 'package:nyxproject/features/shop/presentation/bloc/shop_checkout_state.dart';
 import 'package:nyxproject/features/shop/presentation/pages/shoppages/slip.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 
-class Payment extends StatefulWidget {
+class Payment extends StatelessWidget {
   final double? totalAmount;
   final Map<String, String>? contactInfo;
 
   const Payment({super.key, this.totalAmount, this.contactInfo});
 
   @override
-  State<Payment> createState() => _PaymentState();
+  Widget build(BuildContext context) {
+    final repository = ShopRepositoryImpl();
+    final token = context.read<SessionService>().getToken();
+    return BlocProvider(
+      create: (_) => ShopCheckoutCubit(
+        getPaymentMethods: GetShopPaymentMethods(repository),
+        getTax: GetShopTax(repository),
+        placeOrder: PlaceShopOrder(repository),
+      )..load(token: token),
+      child: _PaymentContent(
+        totalAmount: totalAmount,
+        contactInfo: contactInfo,
+      ),
+    );
+  }
 }
 
-class _PaymentState extends State<Payment> {
+class _PaymentContent extends StatefulWidget {
+  final double? totalAmount;
+  final Map<String, String>? contactInfo;
+
+  const _PaymentContent({this.totalAmount, this.contactInfo});
+
+  @override
+  State<_PaymentContent> createState() => _PaymentState();
+}
+
+class _PaymentState extends State<_PaymentContent> {
   String currentOption = "Cash on Delivery";
   final TextEditingController input = TextEditingController();
   File? _transactionImage;
-  bool _isProcessing = false;
-  bool _isLoadingPayments = true;
   final ImagePicker _picker = ImagePicker();
 
-  List<PaymentMethod> _paymentMethods = [];
-  Tax? _tax; // Add this variable
-  double _taxRate = 0; // Add this variable
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchPaymentMethods();
-    _fetchTax(); // Add this
-  }
-
-  // Add this method to fetch tax
-  Future<void> _fetchTax() async {
-    try {
-      final result = await TaxApi.getTax();
-
-      if (!mounted) return;
-      if (result['success']) {
-        setState(() {
-          _tax = result['tax'];
-          _taxRate = _tax?.tax.toDouble() ?? 0;
-        });
-      } else {
-        setState(() {
-          // Default to 5% if API fails
-          _taxRate = 5;
-        });
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _taxRate = 5; // Default fallback
-      });
-    }
-  }
-
-  Future<void> _fetchPaymentMethods() async {
-    setState(() {
-      _isLoadingPayments = true;
-    });
-
-    try {
-      final sessionService = Provider.of<SessionService>(
-        context,
-        listen: false,
-      );
-      final token = sessionService.getToken();
-
-      final result = await PaymentApi.getPaymentMethods(token: token);
-
-      if (result['success']) {
-        setState(() {
-          _paymentMethods = result['data'];
-          _isLoadingPayments = false;
-        });
-      } else {
-        setState(() {
-          _isLoadingPayments = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _isLoadingPayments = false;
-      });
-    }
-  }
-
   Future<void> _refreshPaymentData() async {
-    await Future.wait([_fetchPaymentMethods(), _fetchTax()]);
+    final token = context.read<SessionService>().getToken();
+    await context.read<ShopCheckoutCubit>().load(token: token);
   }
+
+  double get _taxRate => context.read<ShopCheckoutCubit>().state.taxRate;
 
   // Calculate tax amount
   double get _taxAmount {
@@ -166,6 +124,7 @@ class _PaymentState extends State<Payment> {
       );
 
       if (image != null) {
+        if (!mounted) return;
         setState(() {
           _transactionImage = File(image.path);
         });
@@ -185,6 +144,7 @@ class _PaymentState extends State<Payment> {
       );
 
       if (image != null) {
+        if (!mounted) return;
         setState(() {
           _transactionImage = File(image.path);
         });
@@ -196,72 +156,119 @@ class _PaymentState extends State<Payment> {
 
   @override
   Widget build(BuildContext context) {
-    final subtotal = widget.totalAmount ?? 0;
-
-    final contactInfo =
-        widget.contactInfo ??
-        {
-          'name': 'N/A',
-          'phone': 'N/A',
-          'email': 'N/A',
-          'address': 'N/A',
-          'remark': 'N/A',
-        };
-
-    return Scaffold(
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: _refreshPaymentData,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _header(),
-                const SizedBox(height: 5),
-                _section("Contact Information"),
-                const SizedBox(height: 5),
-                _information("name", contactInfo['name'] ?? 'N/A'),
-                const SizedBox(height: 5),
-                _information("Phone Number", contactInfo['phone'] ?? 'N/A'),
-                const SizedBox(height: 5),
-                _information("Email Address", contactInfo['email'] ?? 'N/A'),
-                const SizedBox(height: 5),
-                _information(
-                  "Delivery Address",
-                  contactInfo['address'] ?? 'N/A',
-                ),
-                const SizedBox(height: 10),
-                _information("Remark", contactInfo['remark'] ?? 'N/A'),
-                const SizedBox(height: 10),
-
-                const Divider(),
-                _information1("Subtotal", "${subtotal.toStringAsFixed(0)} Ks"),
-                const SizedBox(height: 5),
-                _information(
-                  "Tax (${_taxRate.toStringAsFixed(0)}%)",
-                  "${_taxAmount.toStringAsFixed(0)} Ks",
-                ),
-                const SizedBox(height: 5),
-                _information1(
-                  "Grand Total",
-                  "${_grandTotal.toStringAsFixed(0)} Ks",
-                ),
-                const Divider(),
-                _section("Select Payment Method"),
-                const SizedBox(height: 5),
-                _paymentMethod(),
-                const SizedBox(height: 5),
-                _paymentInfo(),
-                const SizedBox(height: 10),
-                if (_showTransactionInput()) ...[_imageUploadSection()],
-                const SizedBox(height: 20),
-                _confirm(),
-                const SizedBox(height: 30),
-              ],
+    return BlocListener<ShopCheckoutCubit, ShopCheckoutState>(
+      listenWhen: (previous, current) =>
+          previous.orderResponse != current.orderResponse ||
+          previous.submitError != current.submitError,
+      listener: (context, state) {
+        if (state.submitError != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.submitError!),
+              backgroundColor: Colors.red,
             ),
-          ),
-        ),
+          );
+        }
+
+        final orderResponse = state.orderResponse?['data'];
+        if (orderResponse is Map<String, dynamic>) {
+          context.read<CartService>().clearCart();
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SlipPage(
+                paymentMethod: currentOption,
+                transactionNumber: input.text.trim(),
+                totalAmount: _grandTotal,
+                subTotal: widget.totalAmount ?? 0,
+                taxRate: _taxRate,
+                taxAmount: _taxAmount,
+                contactInfo: widget.contactInfo,
+                orderResponse: orderResponse,
+              ),
+            ),
+          );
+        }
+      },
+      child: BlocBuilder<ShopCheckoutCubit, ShopCheckoutState>(
+        builder: (context, checkoutState) {
+          final subtotal = widget.totalAmount ?? 0;
+          final contactInfo =
+              widget.contactInfo ??
+              {
+                'name': 'N/A',
+                'phone': 'N/A',
+                'email': 'N/A',
+                'address': 'N/A',
+                'remark': 'N/A',
+              };
+
+          return Scaffold(
+            body: SafeArea(
+              child: RefreshIndicator(
+                onRefresh: _refreshPaymentData,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _header(),
+                      const SizedBox(height: 5),
+                      _section("Contact Information"),
+                      const SizedBox(height: 5),
+                      _information("name", contactInfo['name'] ?? 'N/A'),
+                      const SizedBox(height: 5),
+                      _information(
+                        "Phone Number",
+                        contactInfo['phone'] ?? 'N/A',
+                      ),
+                      const SizedBox(height: 5),
+                      _information(
+                        "Email Address",
+                        contactInfo['email'] ?? 'N/A',
+                      ),
+                      const SizedBox(height: 5),
+                      _information(
+                        "Delivery Address",
+                        contactInfo['address'] ?? 'N/A',
+                      ),
+                      const SizedBox(height: 10),
+                      _information("Remark", contactInfo['remark'] ?? 'N/A'),
+                      const SizedBox(height: 10),
+
+                      const Divider(),
+                      _information1(
+                        "Subtotal",
+                        "${subtotal.toStringAsFixed(0)} Ks",
+                      ),
+                      const SizedBox(height: 5),
+                      _information(
+                        "Tax (${_taxRate.toStringAsFixed(0)}%)",
+                        "${_taxAmount.toStringAsFixed(0)} Ks",
+                      ),
+                      const SizedBox(height: 5),
+                      _information1(
+                        "Grand Total",
+                        "${_grandTotal.toStringAsFixed(0)} Ks",
+                      ),
+                      const Divider(),
+                      _section("Select Payment Method"),
+                      const SizedBox(height: 5),
+                      _paymentMethod(checkoutState),
+                      const SizedBox(height: 5),
+                      _paymentInfo(checkoutState),
+                      const SizedBox(height: 10),
+                      if (_showTransactionInput()) ...[_imageUploadSection()],
+                      const SizedBox(height: 20),
+                      _confirm(checkoutState),
+                      const SizedBox(height: 30),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -465,8 +472,8 @@ class _PaymentState extends State<Payment> {
     );
   }
 
-  Widget _paymentMethod() {
-    if (_isLoadingPayments) {
+  Widget _paymentMethod(ShopCheckoutState state) {
+    if (state.isLoadingPaymentMethods) {
       return const Center(
         child: Padding(
           padding: EdgeInsets.all(20),
@@ -475,9 +482,26 @@ class _PaymentState extends State<Payment> {
       );
     }
 
+    if (state.paymentMethodsError != null) {
+      return Center(
+        child: Column(
+          children: [
+            Text(
+              state.paymentMethodsError!,
+              style: const TextStyle(color: Colors.red),
+            ),
+            TextButton(
+              onPressed: _refreshPaymentData,
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      );
+    }
+
     List<String> displayOptions = [];
 
-    for (var method in _paymentMethods) {
+    for (var method in state.paymentMethods) {
       if (!displayOptions.contains(method.paymentMethod)) {
         displayOptions.add(method.paymentMethod);
       }
@@ -517,13 +541,13 @@ class _PaymentState extends State<Payment> {
     );
   }
 
-  Widget _paymentInfo() {
+  Widget _paymentInfo(ShopCheckoutState state) {
     if (currentOption == "Cash on Delivery") {
       return const SizedBox.shrink();
     }
 
     PaymentMethod? selectedMethod;
-    for (var method in _paymentMethods) {
+    for (var method in state.paymentMethods) {
       if (method.paymentMethod.toLowerCase() == currentOption.toLowerCase()) {
         selectedMethod = method;
         break;
@@ -606,7 +630,7 @@ class _PaymentState extends State<Payment> {
     );
   }
 
-  Widget _confirm() {
+  Widget _confirm(ShopCheckoutState state) {
     return Center(
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
@@ -616,8 +640,8 @@ class _PaymentState extends State<Payment> {
             borderRadius: BorderRadius.circular(30),
           ),
         ),
-        onPressed: _isProcessing ? null : _processOrder,
-        child: _isProcessing
+        onPressed: state.isSubmitting ? null : _processOrder,
+        child: state.isSubmitting
             ? const SizedBox(
                 width: 20,
                 height: 20,
@@ -639,147 +663,53 @@ class _PaymentState extends State<Payment> {
   }
 
   Future<void> _processOrder() async {
-    if (_showTransactionInput()) {
-      if (_transactionImage == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please upload transaction slip'),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 3),
-          ),
-        );
-        return;
-      }
+    if (_showTransactionInput() && _transactionImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please upload transaction slip'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
+      return;
     }
 
-    setState(() {
-      _isProcessing = true;
-    });
-
-    try {
-      final cartService = Provider.of<CartService>(context, listen: false);
-      final sessionService = Provider.of<SessionService>(
-        context,
-        listen: false,
-      );
-
-      final user = sessionService.getStoredUser();
-      final userId = user?.id ?? 0;
-      final token = sessionService.getToken();
-
-      if (userId == 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('User not found. Please login again.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        setState(() {
-          _isProcessing = false;
-        });
-        return;
-      }
-
-      final itemsList = cartService.items.map((item) {
-        return {'product_id': item.product.id, 'quantity': item.quantity};
-      }).toList();
-
-      final itemsJsonString = jsonEncode(itemsList);
-      final deliveryFee = 0;
-      final contactInfo = widget.contactInfo ?? {};
-
-      final Uri uri = Uri.parse("${Constant.apiUrl}/cart/order");
-      final request = http.MultipartRequest('POST', uri);
-      final idempotencyKey = OrderApi.generateIdempotencyKey(userId: userId);
-
-      if (token != null && token.isNotEmpty) {
-        request.headers['Authorization'] = 'Bearer $token';
-      }
-      request.headers['Accept'] = 'application/json';
-      request.headers['Idempotency-Key'] = idempotencyKey;
-
-      request.fields['user_id'] = userId.toString();
-      request.fields['customer_name'] = contactInfo['Name'] ?? '';
-      request.fields['phone'] = contactInfo['phone'] ?? '';
-      request.fields['email'] = contactInfo['email'] ?? '';
-      request.fields['delivery_address'] = contactInfo['address'] ?? '';
-      request.fields['remark'] = contactInfo['remark'] ?? '';
-      request.fields['payment_method'] = currentOption.toLowerCase();
-      request.fields['items'] = itemsJsonString;
-      request.fields['tax'] = _taxAmount.toString(); // Use calculated tax
-      request.fields['delivery_fee'] = deliveryFee.toString();
-      request.fields['total_amount'] = _grandTotal
-          .toString(); // Add grand total
-
-      if (input.text.trim().isNotEmpty) {
-        request.fields['transaction_number'] = input.text.trim();
-      }
-
-      if (_transactionImage != null) {
-        request.fields['has_slip'] = 'true';
-        request.files.add(
-          await http.MultipartFile.fromPath('image', _transactionImage!.path),
-        );
-      }
-
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
-
-      if (!mounted) return;
-      setState(() {
-        _isProcessing = false;
-      });
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final responseData = jsonDecode(response.body);
-        cartService.clearCart();
-
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SlipPage(
-                paymentMethod: currentOption,
-                transactionNumber: input.text.trim(),
-                totalAmount: _grandTotal, // Use grand total
-                subTotal: widget.totalAmount ?? 0,
-                taxRate: _taxRate,
-                taxAmount: _taxAmount,
-                contactInfo: widget.contactInfo,
-                orderResponse: responseData,
-              ),
-            ),
-          );
-        }
-      } else {
-        String errorMessage = 'Failed to place order';
-        try {
-          final errorData = jsonDecode(response.body);
-          if (errorData is Map<String, dynamic>) {
-            errorMessage =
-                errorData['message']?.toString() ??
-                errorData['error']?.toString() ??
-                errorMessage;
-          }
-        } on FormatException {
-          errorMessage = 'Failed to place order. Please try again.';
-        }
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
-        );
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _isProcessing = false;
-      });
+    final cartService = context.read<CartService>();
+    final sessionService = context.read<SessionService>();
+    final userId = sessionService.getStoredUser()?.id ?? 0;
+    if (userId == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Network Error: Please check your connection'),
+        const SnackBar(
+          content: Text('User not found. Please login again.'),
           backgroundColor: Colors.red,
         ),
       );
+      return;
     }
+
+    final contactInfo = widget.contactInfo ?? {};
+    final items = cartService.items
+        .map(
+          (item) => {'product_id': item.product.id, 'quantity': item.quantity},
+        )
+        .toList();
+
+    await context.read<ShopCheckoutCubit>().placeOrder(
+      ShopOrderRequest(
+        userId: userId,
+        customerName: contactInfo['name'] ?? '',
+        phone: contactInfo['phone'] ?? '',
+        email: contactInfo['email'] ?? '',
+        deliveryAddress: contactInfo['address'] ?? '',
+        remark: contactInfo['remark'] ?? '',
+        paymentMethod: currentOption.toLowerCase(),
+        items: items,
+        tax: _taxAmount,
+        totalAmount: _grandTotal,
+        token: sessionService.getToken(),
+        transactionNumber: input.text.trim(),
+        transactionImage: _transactionImage,
+      ),
+    );
   }
 }

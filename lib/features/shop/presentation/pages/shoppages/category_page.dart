@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/shop/data/datasources/getallproduct_api.dart';
-import 'package:nyxproject/features/shop/domain/entities/category.dart';
-import 'package:nyxproject/features/shop/domain/entities/product.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nyxproject/features/shop/data/repositories/shop_repository_impl.dart';
+import 'package:nyxproject/features/shop/domain/usecases/get_categories.dart';
+import 'package:nyxproject/features/shop/domain/usecases/get_products.dart';
+import 'package:nyxproject/features/shop/presentation/bloc/shop_catalog_cubit.dart';
+import 'package:nyxproject/features/shop/presentation/bloc/shop_catalog_state.dart';
 import 'package:nyxproject/features/shop/presentation/pages/shoppages/product_details.dart';
-import 'package:nyxproject/core/network/api_client.dart';
 
-class CategoryPage extends StatefulWidget {
+class CategoryPage extends StatelessWidget {
   final String? categoryName;
   final int? categoryId;
-  final int? index; // Make this optional
+  final int? index;
 
   const CategoryPage({
     super.key,
@@ -18,36 +20,30 @@ class CategoryPage extends StatefulWidget {
   });
 
   @override
-  State<CategoryPage> createState() => _CategoryPageState();
+  Widget build(BuildContext context) {
+    final repository = ShopRepositoryImpl();
+    return BlocProvider(
+      create: (_) => ShopCatalogCubit(
+        getProducts: GetProducts(repository),
+        getCategories: GetCategories(repository),
+        initialCategory: categoryName,
+      )..load(includeCategories: true),
+      child: _CategoryPageContent(categoryName: categoryName),
+    );
+  }
 }
 
-class _CategoryPageState extends State<CategoryPage> {
-  List<Category> _categoriesList = [];
-  List<Product> _allProducts = [];
-  List<Product> _filteredProducts = [];
+class _CategoryPageContent extends StatefulWidget {
+  final String? categoryName;
 
-  bool _isLoadingCategories = true;
-  bool _isLoadingProducts = true;
-
-  String? _categoriesError;
-  String? _productsError;
-
-  String _selectedCategory = "All";
-  String _searchQuery = "";
-  String _selectedSort = "None";
-
-  final TextEditingController _controller = TextEditingController();
+  const _CategoryPageContent({this.categoryName});
 
   @override
-  void initState() {
-    super.initState();
-    _loadData();
+  State<_CategoryPageContent> createState() => _CategoryPageState();
+}
 
-    // If categoryName is passed, set it as selected
-    if (widget.categoryName != null) {
-      _selectedCategory = widget.categoryName!;
-    }
-  }
+class _CategoryPageState extends State<_CategoryPageContent> {
+  final TextEditingController _controller = TextEditingController();
 
   @override
   void dispose() {
@@ -55,71 +51,12 @@ class _CategoryPageState extends State<CategoryPage> {
     super.dispose();
   }
 
-  Future<void> _loadData() async {
-    await Future.wait([_loadCategories(), _loadProducts()]);
-  }
-
-  Future<void> _loadCategories() async {
-    setState(() {
-      _isLoadingCategories = true;
-      _categoriesError = null;
-    });
-
-    try {
-      final result = await Api.getAllCategories();
-
-      if (result['success'] == true) {
-        setState(() {
-          _categoriesList = result['data'] ?? [];
-          _isLoadingCategories = false;
-        });
-      } else {
-        setState(() {
-          _categoriesError = result['message'] ?? 'Failed to load categories';
-          _isLoadingCategories = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _categoriesError = 'Error loading categories: $e';
-        _isLoadingCategories = false;
-      });
-    }
-  }
-
-  Future<void> _loadProducts() async {
-    setState(() {
-      _isLoadingProducts = true;
-      _productsError = null;
-    });
-
-    try {
-      final result = await GetallproductApi.getAllProducts();
-
-      if (result['success'] == true) {
-        setState(() {
-          _allProducts = result['data'] ?? [];
-          _isLoadingProducts = false;
-        });
-        _applyFilters();
-      } else {
-        setState(() {
-          _productsError = result['message'] ?? 'Failed to load products';
-          _isLoadingProducts = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _productsError = 'Error loading products: $e';
-        _isLoadingProducts = false;
-      });
-    }
-  }
+  Future<void> _loadData() =>
+      context.read<ShopCatalogCubit>().load(includeCategories: true);
 
   void _clearSearch() {
     _controller.clear();
-    _searchQuery = "";
-    _applyFilters();
+    context.read<ShopCatalogCubit>().setSearchQuery('');
   }
 
   void _showSortBottomSheet() {
@@ -132,30 +69,27 @@ class _CategoryPageState extends State<CategoryPage> {
             ListTile(
               title: const Text("Price: Low to High"),
               onTap: () {
-                setState(() {
-                  _selectedSort = "low";
-                });
-                _applyFilters();
+                context.read<ShopCatalogCubit>().selectSortOrder(
+                  ShopSortOrder.priceAscending,
+                );
                 Navigator.pop(context);
               },
             ),
             ListTile(
               title: const Text("Price: High to Low"),
               onTap: () {
-                setState(() {
-                  _selectedSort = "high";
-                });
-                _applyFilters();
+                context.read<ShopCatalogCubit>().selectSortOrder(
+                  ShopSortOrder.priceDescending,
+                );
                 Navigator.pop(context);
               },
             ),
             ListTile(
               title: const Text("Name: A-Z"),
               onTap: () {
-                setState(() {
-                  _selectedSort = "az";
-                });
-                _applyFilters();
+                context.read<ShopCatalogCubit>().selectSortOrder(
+                  ShopSortOrder.nameAscending,
+                );
                 Navigator.pop(context);
               },
             ),
@@ -165,67 +99,31 @@ class _CategoryPageState extends State<CategoryPage> {
     );
   }
 
-  void _applyFilters() {
-    List<Product> results = List.from(_allProducts);
-
-    // Filter by search query
-    if (_searchQuery.trim().isNotEmpty) {
-      results = results.where((product) {
-        return product.productName.toLowerCase().contains(
-          _searchQuery.toLowerCase(),
-        );
-      }).toList();
-    }
-
-    // Filter by selected category
-    if (_selectedCategory != "All") {
-      results = results.where((product) {
-        return product.category == _selectedCategory;
-      }).toList();
-    }
-
-    // Apply sorting
-    if (_selectedSort == "low") {
-      results.sort((a, b) => a.price.compareTo(b.price));
-    } else if (_selectedSort == "high") {
-      results.sort((a, b) => b.price.compareTo(a.price));
-    } else if (_selectedSort == "az") {
-      results.sort((a, b) => a.productName.compareTo(b.productName));
-    }
-
-    setState(() {
-      _filteredProducts = results;
-    });
-  }
-
-  // Get category names for filter bar
-  List<String> get _categoryNames {
-    List<String> names = ["All"];
-    names.addAll(_categoriesList.map((c) => c.name).toList());
-    return names;
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 5),
-            _header(),
-            const SizedBox(height: 5),
-            _searchBar(),
-            _filterBar(),
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: _loadData,
-                color: const Color(0xFF0D1B2A),
-                child: _gridCards(),
-              ),
+    return BlocBuilder<ShopCatalogCubit, ShopCatalogState>(
+      builder: (context, state) {
+        return Scaffold(
+          body: SafeArea(
+            child: Column(
+              children: [
+                const SizedBox(height: 5),
+                _header(),
+                const SizedBox(height: 5),
+                _searchBar(),
+                _filterBar(state),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _loadData,
+                    color: const Color(0xFF0D1B2A),
+                    child: _gridCards(state),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -279,10 +177,7 @@ class _CategoryPageState extends State<CategoryPage> {
       padding: const EdgeInsets.symmetric(horizontal: 5),
       child: TextField(
         controller: _controller,
-        onChanged: (value) {
-          _searchQuery = value;
-          _applyFilters();
-        },
+        onChanged: context.read<ShopCatalogCubit>().setSearchQuery,
         style: const TextStyle(color: Colors.white),
         cursorColor: Colors.white,
         decoration: InputDecoration(
@@ -312,8 +207,8 @@ class _CategoryPageState extends State<CategoryPage> {
     );
   }
 
-  Widget _filterBar() {
-    if (_isLoadingCategories) {
+  Widget _filterBar(ShopCatalogState state) {
+    if (state.isLoadingCategories) {
       return Container(
         height: 45,
         margin: const EdgeInsets.all(10),
@@ -321,18 +216,23 @@ class _CategoryPageState extends State<CategoryPage> {
       );
     }
 
-    if (_categoriesError != null) {
+    if (state.categoriesError != null) {
       return Container(
         height: 45,
         margin: const EdgeInsets.all(10),
         child: Center(
           child: Text(
-            _categoriesError!,
+            state.categoriesError!,
             style: const TextStyle(color: Colors.red, fontSize: 12),
           ),
         ),
       );
     }
+
+    final categoryNames = [
+      'All',
+      ...state.categories.map((category) => category.name),
+    ];
 
     return Container(
       height: 45,
@@ -340,18 +240,14 @@ class _CategoryPageState extends State<CategoryPage> {
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 10),
-        itemCount: _categoryNames.length,
+        itemCount: categoryNames.length,
         itemBuilder: (context, index) {
-          final category = _categoryNames[index];
-          final isSelected = category == _selectedCategory;
+          final category = categoryNames[index];
+          final isSelected = category == state.selectedCategory;
 
           return GestureDetector(
-            onTap: () {
-              setState(() {
-                _selectedCategory = category;
-              });
-              _applyFilters();
-            },
+            onTap: () =>
+                context.read<ShopCatalogCubit>().selectCategory(category),
             child: Container(
               margin: const EdgeInsets.only(right: 8),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -377,18 +273,19 @@ class _CategoryPageState extends State<CategoryPage> {
     );
   }
 
-  Widget _gridCards() {
-    if (_isLoadingProducts) {
+  Widget _gridCards(ShopCatalogState state) {
+    if (state.status == ShopCatalogStatus.initial ||
+        state.status == ShopCatalogStatus.loading) {
       return _scrollableState(const CircularProgressIndicator());
     }
 
-    if (_productsError != null) {
+    if (state.status == ShopCatalogStatus.failure) {
       return _scrollableState(
-        Text(_productsError!, style: const TextStyle(color: Colors.red)),
+        Text(state.errorMessage!, style: const TextStyle(color: Colors.red)),
       );
     }
 
-    if (_filteredProducts.isEmpty) {
+    if (state.filteredProducts.isEmpty) {
       return _scrollableState(const Text('No products found'));
     }
 
@@ -402,9 +299,9 @@ class _CategoryPageState extends State<CategoryPage> {
         crossAxisSpacing: 10,
         childAspectRatio: 0.75,
       ),
-      itemCount: _filteredProducts.length,
+      itemCount: state.filteredProducts.length,
       itemBuilder: (context, index) {
-        final product = _filteredProducts[index];
+        final product = state.filteredProducts[index];
 
         return GestureDetector(
           onTap: () {

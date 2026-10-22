@@ -1,19 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:nyxproject/features/shop/data/repositories/shop_repository_impl.dart';
+import 'package:nyxproject/features/shop/domain/usecases/validate_shop_session.dart';
+import 'package:nyxproject/features/shop/presentation/bloc/shop_session_cubit.dart';
 import 'package:nyxproject/features/shop/presentation/pages/shoppages/shop_payment.dart';
 import 'package:nyxproject/features/user/presentation/pages/login.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
-import 'package:nyxproject/core/network/api_client.dart';
 
-class ContactInfo extends StatefulWidget {
+class ContactInfo extends StatelessWidget {
   const ContactInfo({super.key});
 
   @override
-  State<ContactInfo> createState() => _ContactInfoState();
+  Widget build(BuildContext context) {
+    final repository = ShopRepositoryImpl();
+    final token = context.read<SessionService>().getToken();
+    return BlocProvider(
+      create: (_) =>
+          ShopSessionCubit(validateSession: ValidateShopSession(repository))
+            ..validate(token),
+      child: const _ContactInfoForm(),
+    );
+  }
 }
 
-class _ContactInfoState extends State<ContactInfo> {
+class _ContactInfoForm extends StatefulWidget {
+  const _ContactInfoForm();
+
+  @override
+  State<_ContactInfoForm> createState() => _ContactInfoState();
+}
+
+class _ContactInfoState extends State<_ContactInfoForm> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -21,15 +40,6 @@ class _ContactInfoState extends State<ContactInfo> {
   final TextEditingController remarkController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-
-  bool _isLoading = true;
-  bool _isSessionValid = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkTokenValidity();
-  }
 
   @override
   void dispose() {
@@ -39,56 +49,6 @@ class _ContactInfoState extends State<ContactInfo> {
     addressController.dispose();
     remarkController.dispose();
     super.dispose();
-  }
-
-  // ✅ Fetch profile to check token validity (without showing data)
-  Future<void> _checkTokenValidity() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final sessionService = Provider.of<SessionService>(
-        context,
-        listen: false,
-      );
-      final String? token = sessionService.getToken();
-
-      if (token == null || token.isEmpty) {
-        setState(() {
-          _isSessionValid = false;
-          _isLoading = false;
-        });
-        _showSessionExpiredDialog();
-        return;
-      }
-
-      // ✅ Make API call to check token validity
-      final result = await Api.getMyProfile(token: token);
-
-      // Check if token is expired (unauthorized)
-      if (result['unauthorized'] == true || result['success'] == false) {
-        await sessionService.logout();
-        setState(() {
-          _isSessionValid = false;
-          _isLoading = false;
-        });
-        _showSessionExpiredDialog();
-        return;
-      }
-
-      // Token is valid
-      setState(() {
-        _isSessionValid = true;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isSessionValid = false;
-        _isLoading = false;
-      });
-      _showSessionExpiredDialog();
-    }
   }
 
   void _showSessionExpiredDialog() {
@@ -120,19 +80,18 @@ class _ContactInfoState extends State<ContactInfo> {
                 context,
                 listen: false,
               );
+              final navigator = Navigator.of(context);
               await sessionService.logout();
-              if (context.mounted) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LoginPage(
-                      sessionService: sessionService,
-                      cartService: cartService,
-                    ),
+              if (!mounted || !navigator.mounted) return;
+              navigator.pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: (context) => LoginPage(
+                    sessionService: sessionService,
+                    cartService: cartService,
                   ),
-                  (route) => false,
-                );
-              }
+                ),
+                (route) => false,
+              );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Login Now'),
@@ -144,8 +103,27 @@ class _ContactInfoState extends State<ContactInfo> {
 
   @override
   Widget build(BuildContext context) {
+    return BlocListener<ShopSessionCubit, ShopSessionState>(
+      listener: (context, state) async {
+        if (state.status != ShopSessionStatus.invalid) return;
+        if (state.shouldLogout) {
+          await context.read<SessionService>().logout();
+        }
+        if (!mounted) return;
+        _showSessionExpiredDialog();
+      },
+      child: BlocBuilder<ShopSessionCubit, ShopSessionState>(
+        builder: (context, state) => _buildContent(state),
+      ),
+    );
+  }
+
+  Widget _buildContent(ShopSessionState state) {
+    final isLoading = state.status == ShopSessionStatus.loading;
+    final isSessionValid = state.status == ShopSessionStatus.valid;
+
     // Show loading while checking token
-    if (_isLoading) {
+    if (isLoading) {
       return const Scaffold(
         body: Center(
           child: Column(
@@ -161,7 +139,7 @@ class _ContactInfoState extends State<ContactInfo> {
     }
 
     // If session expired, show error screen
-    if (!_isSessionValid) {
+    if (!isSessionValid) {
       return Scaffold(
         body: Center(
           child: Column(
@@ -174,8 +152,9 @@ class _ContactInfoState extends State<ContactInfo> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
-              const Text(
-                "Your session has expired. Please login again.",
+              Text(
+                state.errorMessage ??
+                    "Your session has expired. Please login again.",
                 style: TextStyle(fontSize: 14),
               ),
               const SizedBox(height: 30),
@@ -189,19 +168,18 @@ class _ContactInfoState extends State<ContactInfo> {
                     context,
                     listen: false,
                   );
+                  final navigator = Navigator.of(context);
                   await sessionService.logout();
-                  if (context.mounted) {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LoginPage(
-                          sessionService: sessionService,
-                          cartService: cartService,
-                        ),
+                  if (!mounted || !navigator.mounted) return;
+                  navigator.pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (context) => LoginPage(
+                        sessionService: sessionService,
+                        cartService: cartService,
                       ),
-                      (route) => false,
-                    );
-                  }
+                    ),
+                    (route) => false,
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,

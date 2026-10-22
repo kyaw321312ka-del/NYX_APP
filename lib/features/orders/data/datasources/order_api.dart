@@ -30,6 +30,7 @@ class OrderApi {
     String? transactionNumber,
     String? token,
     String? idempotencyKey,
+    double? totalAmount,
   }) async {
     final Uri uri = Uri.parse("${Constant.apiUrl}/cart/order");
 
@@ -54,12 +55,16 @@ class OrderApi {
     request.fields['items'] = jsonEncode(items);
     request.fields['tax'] = tax.toString();
     request.fields['delivery_fee'] = deliveryFee.toString();
+    if (totalAmount != null) {
+      request.fields['total_amount'] = totalAmount.toString();
+    }
 
     if (transactionNumber != null && transactionNumber.isNotEmpty) {
       request.fields['transaction_number'] = transactionNumber;
     }
 
     if (transactionImage != null) {
+      request.fields['has_slip'] = 'true';
       request.files.add(
         await http.MultipartFile.fromPath('image', transactionImage.path),
       );

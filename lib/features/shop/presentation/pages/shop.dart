@@ -1,38 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:nyxproject/core/error/app_error_message.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
-import 'package:nyxproject/features/shop/data/datasources/getallproduct_api.dart';
-import 'package:nyxproject/features/shop/domain/entities/product.dart';
+import 'package:nyxproject/features/shop/data/repositories/shop_repository_impl.dart';
+import 'package:nyxproject/features/shop/domain/usecases/get_categories.dart';
+import 'package:nyxproject/features/shop/domain/usecases/get_products.dart';
+import 'package:nyxproject/features/shop/presentation/bloc/shop_catalog_cubit.dart';
+import 'package:nyxproject/features/shop/presentation/bloc/shop_catalog_state.dart';
 import 'package:nyxproject/features/shop/presentation/pages/shoppages/product_details.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 
-class ShopPage extends StatefulWidget {
+class ShopPage extends StatelessWidget {
   final CartService? cartService;
+
   const ShopPage({super.key, this.cartService});
 
   @override
-  State<ShopPage> createState() => _ShopPageState();
+  Widget build(BuildContext context) {
+    final repository = ShopRepositoryImpl();
+    return BlocProvider(
+      create: (_) => ShopCatalogCubit(
+        getProducts: GetProducts(repository),
+        getCategories: GetCategories(repository),
+      )..load(),
+      child: const _ShopPageContent(),
+    );
+  }
 }
 
-class _ShopPageState extends State<ShopPage> {
-  List<Product> _allProducts = [];
-  List<Product> _filteredProducts = [];
-
-  bool _isLoading = true;
-  String? _errorMessage;
-
-  List<String> _brands = ["All"];
-  String _selectedBrand = "All";
-  String _searchQuery = "";
-  String _selectedSort = "None";
-
-  final TextEditingController _controller = TextEditingController();
+class _ShopPageContent extends StatefulWidget {
+  const _ShopPageContent();
 
   @override
-  void initState() {
-    super.initState();
-    _loadProducts();
-  }
+  State<_ShopPageContent> createState() => _ShopPageState();
+}
+
+class _ShopPageState extends State<_ShopPageContent> {
+  final TextEditingController _controller = TextEditingController();
 
   @override
   void dispose() {
@@ -40,69 +43,12 @@ class _ShopPageState extends State<ShopPage> {
     super.dispose();
   }
 
-  Future<void> _loadProducts() async {
-    if (!mounted) return;
-
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      final result = await GetallproductApi.getAllProducts();
-
-      if (!mounted) return; // ✅ Check before using setState
-
-      if (result['success'] == true) {
-        final products = result['data'] as List<Product>;
-
-        setState(() {
-          _allProducts = products;
-          _filteredProducts = products;
-          _isLoading = false;
-        });
-
-        _extractBrands();
-        _applyFilters();
-      } else {
-        setState(() {
-          _errorMessage = AppErrorMessage.from(
-            result['message'] ?? 'Failed to load products',
-          );
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (!mounted) return; // ✅ Check before using setState
-      setState(() {
-        _errorMessage = AppErrorMessage.from(e);
-        _isLoading = false;
-      });
-    }
-  }
-
-  void _extractBrands() {
-    if (!mounted) return;
-
-    Set<String> brandSet = {"All"};
-    for (var product in _allProducts) {
-      if (product.brand.isNotEmpty) {
-        brandSet.add(product.brand);
-      }
-    }
-    setState(() {
-      _brands = brandSet.toList();
-    });
-  }
+  Future<void> _loadProducts() =>
+      context.read<ShopCatalogCubit>().loadProducts();
 
   void _clearSearch() {
-    if (!mounted) return;
-
     _controller.clear();
-    setState(() {
-      _searchQuery = "";
-    });
-    _applyFilters();
+    context.read<ShopCatalogCubit>().setSearchQuery('');
   }
 
   void _showSortBottomSheet() {
@@ -115,30 +61,27 @@ class _ShopPageState extends State<ShopPage> {
             ListTile(
               title: const Text("Price: Low to High"),
               onTap: () {
-                setState(() {
-                  _selectedSort = "low";
-                });
-                _applyFilters();
+                context.read<ShopCatalogCubit>().selectSortOrder(
+                  ShopSortOrder.priceAscending,
+                );
                 Navigator.pop(context);
               },
             ),
             ListTile(
               title: const Text("Price: High to Low"),
               onTap: () {
-                setState(() {
-                  _selectedSort = "high";
-                });
-                _applyFilters();
+                context.read<ShopCatalogCubit>().selectSortOrder(
+                  ShopSortOrder.priceDescending,
+                );
                 Navigator.pop(context);
               },
             ),
             ListTile(
               title: const Text("Name: A-Z"),
               onTap: () {
-                setState(() {
-                  _selectedSort = "az";
-                });
-                _applyFilters();
+                context.read<ShopCatalogCubit>().selectSortOrder(
+                  ShopSortOrder.nameAscending,
+                );
                 Navigator.pop(context);
               },
             ),
@@ -148,70 +91,39 @@ class _ShopPageState extends State<ShopPage> {
     );
   }
 
-  void _applyFilters() {
-    if (!mounted) return;
-    if (_allProducts.isEmpty) return;
-
-    List<Product> results = List.from(_allProducts);
-
-    // Filter by search query
-    if (_searchQuery.trim().isNotEmpty) {
-      results = results.where((product) {
-        return product.productName.toLowerCase().contains(
-          _searchQuery.toLowerCase(),
-        );
-      }).toList();
-    }
-
-    // Filter by selected brand
-    if (_selectedBrand != "All") {
-      results = results.where((product) {
-        return product.brand == _selectedBrand;
-      }).toList();
-    }
-
-    // Apply sorting
-    if (_selectedSort == "low") {
-      results.sort((a, b) => a.price.compareTo(b.price));
-    } else if (_selectedSort == "high") {
-      results.sort((a, b) => b.price.compareTo(a.price));
-    } else if (_selectedSort == "az") {
-      results.sort((a, b) => a.productName.compareTo(b.productName));
-    }
-
-    setState(() {
-      _filteredProducts = results;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 5),
-            _searchBar(),
-            _filterBar(),
-            Expanded(
-              child: RefreshIndicator(
-                color: Theme.of(context).colorScheme.primary,
-                onRefresh: _loadProducts,
-                child: _buildContent(),
-              ),
+    return BlocBuilder<ShopCatalogCubit, ShopCatalogState>(
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: Colors.white,
+          body: SafeArea(
+            child: Column(
+              children: [
+                const SizedBox(height: 5),
+                _searchBar(),
+                _filterBar(state),
+                Expanded(
+                  child: RefreshIndicator(
+                    color: Theme.of(context).colorScheme.primary,
+                    onRefresh: _loadProducts,
+                    child: _buildContent(state),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(ShopCatalogState state) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    if (_isLoading) {
+    if (state.status == ShopCatalogStatus.initial ||
+        state.status == ShopCatalogStatus.loading) {
       return _scrollableState(
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -224,13 +136,13 @@ class _ShopPageState extends State<ShopPage> {
       );
     }
 
-    if (_errorMessage != null) {
+    if (state.status == ShopCatalogStatus.failure) {
       return _scrollableState(
-        AppErrorView(message: _errorMessage!, onRetry: _loadProducts),
+        AppErrorView(message: state.errorMessage!, onRetry: _loadProducts),
       );
     }
 
-    if (_filteredProducts.isEmpty) {
+    if (state.filteredProducts.isEmpty) {
       return _scrollableState(
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -263,9 +175,9 @@ class _ShopPageState extends State<ShopPage> {
         crossAxisSpacing: 12,
         childAspectRatio: 0.70,
       ),
-      itemCount: _filteredProducts.length,
+      itemCount: state.filteredProducts.length,
       itemBuilder: (context, index) {
-        final product = _filteredProducts[index];
+        final product = state.filteredProducts[index];
         final hasDiscount = product.cost > product.price && product.cost > 0;
 
         return GestureDetector(
@@ -418,12 +330,7 @@ class _ShopPageState extends State<ShopPage> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: TextField(
         controller: _controller,
-        onChanged: (value) {
-          setState(() {
-            _searchQuery = value;
-          });
-          _applyFilters();
-        },
+        onChanged: context.read<ShopCatalogCubit>().setSearchQuery,
         style: const TextStyle(color: navy, fontSize: 14),
         cursorColor: navy,
         decoration: InputDecoration(
@@ -474,16 +381,17 @@ class _ShopPageState extends State<ShopPage> {
     );
   }
 
-  Widget _filterBar() {
+  Widget _filterBar(ShopCatalogState state) {
     // Don't show filter bar while loading
-    if (_isLoading) {
+    if (state.status == ShopCatalogStatus.loading ||
+        state.status == ShopCatalogStatus.initial) {
       return const SizedBox(
         height: 45,
         child: Center(child: CircularProgressIndicator()),
       );
     }
 
-    if (_brands.length <= 1) {
+    if (state.brands.length <= 1) {
       return const SizedBox.shrink();
     }
 
@@ -493,18 +401,13 @@ class _ShopPageState extends State<ShopPage> {
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 10),
-        itemCount: _brands.length,
+        itemCount: state.brands.length,
         itemBuilder: (context, index) {
-          final brand = _brands[index];
-          final isSelected = brand == _selectedBrand;
+          final brand = state.brands[index];
+          final isSelected = brand == state.selectedBrand;
 
           return GestureDetector(
-            onTap: () {
-              setState(() {
-                _selectedBrand = brand;
-              });
-              _applyFilters();
-            },
+            onTap: () => context.read<ShopCatalogCubit>().selectBrand(brand),
             child: Container(
               margin: const EdgeInsets.only(right: 8),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/shop/data/datasources/getallproduct_api.dart';
-import 'package:nyxproject/features/shop/domain/entities/product.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nyxproject/features/shop/data/repositories/shop_repository_impl.dart';
+import 'package:nyxproject/features/shop/domain/usecases/get_categories.dart';
+import 'package:nyxproject/features/shop/domain/usecases/get_products.dart';
+import 'package:nyxproject/features/shop/presentation/bloc/shop_catalog_cubit.dart';
+import 'package:nyxproject/features/shop/presentation/bloc/shop_catalog_state.dart';
 import 'package:nyxproject/features/shop/presentation/pages/shoppages/product_details.dart';
 
-class TagPage extends StatefulWidget {
+class TagPage extends StatelessWidget {
   final String? tagName;
   final String? categoryName;
   final int? categoryId;
@@ -18,26 +22,32 @@ class TagPage extends StatefulWidget {
   });
 
   @override
-  State<TagPage> createState() => _TagPageState();
+  Widget build(BuildContext context) {
+    final repository = ShopRepositoryImpl();
+    return BlocProvider(
+      create: (_) => ShopCatalogCubit(
+        getProducts: GetProducts(repository),
+        getCategories: GetCategories(repository),
+        tagFilter: tagName,
+        initialCategory: tagName == null ? categoryName : null,
+      )..load(),
+      child: _TagPageContent(tagName: tagName, categoryName: categoryName),
+    );
+  }
 }
 
-class _TagPageState extends State<TagPage> {
-  List<Product> _allProducts = [];
-  List<Product> _filteredProducts = [];
+class _TagPageContent extends StatefulWidget {
+  final String? tagName;
+  final String? categoryName;
 
-  bool _isLoadingProducts = true;
-  String? _productsError;
-
-  final String _searchQuery = "";
-  final String _selectedSort = "None";
-
-  final TextEditingController _controller = TextEditingController();
+  const _TagPageContent({this.tagName, this.categoryName});
 
   @override
-  void initState() {
-    super.initState();
-    _loadProducts();
-  }
+  State<_TagPageContent> createState() => _TagPageState();
+}
+
+class _TagPageState extends State<_TagPageContent> {
+  final TextEditingController _controller = TextEditingController();
 
   @override
   void dispose() {
@@ -45,84 +55,8 @@ class _TagPageState extends State<TagPage> {
     super.dispose();
   }
 
-  Future<void> _loadProducts() async {
-    if (!mounted) return;
-
-    setState(() {
-      _isLoadingProducts = true;
-      _productsError = null;
-    });
-
-    try {
-      final result = await GetallproductApi.getAllProducts();
-
-      if (!mounted) return;
-
-      if (result['success'] == true) {
-        setState(() {
-          _allProducts = result['data'] ?? [];
-          _isLoadingProducts = false;
-        });
-        _applyFilters();
-      } else {
-        setState(() {
-          _productsError = result['message'] ?? 'Failed to load products';
-          _isLoadingProducts = false;
-        });
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _productsError = 'Error loading products: $e';
-        _isLoadingProducts = false;
-      });
-    }
-  }
-
-  void _applyFilters() {
-    if (_allProducts.isEmpty) return;
-
-    List<Product> results = List.from(_allProducts);
-
-    // Filter by tag (if a specific tag is passed)
-    if (widget.tagName != null &&
-        widget.tagName!.isNotEmpty &&
-        widget.tagName != "All") {
-      results = results.where((product) {
-        return product.tags != null && product.tags == widget.tagName;
-      }).toList();
-    }
-    // Filter by category (if a specific category is passed)
-    else if (widget.categoryName != null &&
-        widget.categoryName!.isNotEmpty &&
-        widget.categoryName != "All") {
-      results = results.where((product) {
-        return product.category == widget.categoryName;
-      }).toList();
-    }
-
-    // Filter by search query
-    if (_searchQuery.trim().isNotEmpty) {
-      results = results.where((product) {
-        return product.productName.toLowerCase().contains(
-          _searchQuery.toLowerCase(),
-        );
-      }).toList();
-    }
-
-    // Apply sorting
-    if (_selectedSort == "low") {
-      results.sort((a, b) => a.price.compareTo(b.price));
-    } else if (_selectedSort == "high") {
-      results.sort((a, b) => b.price.compareTo(a.price));
-    } else if (_selectedSort == "az") {
-      results.sort((a, b) => a.productName.compareTo(b.productName));
-    }
-
-    setState(() {
-      _filteredProducts = results;
-    });
-  }
+  Future<void> _loadProducts() =>
+      context.read<ShopCatalogCubit>().loadProducts();
 
   @override
   Widget build(BuildContext context) {
@@ -140,25 +74,27 @@ class _TagPageState extends State<TagPage> {
       title = "Products";
     }
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFE0E0E0),
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 5),
-            _header(title),
-            // _searchBar(),
-            // _filterInfo(),
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: _loadProducts,
-                color: const Color(0xFF0D1B2A),
-                child: _gridCards(),
-              ),
+    return BlocBuilder<ShopCatalogCubit, ShopCatalogState>(
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: const Color(0xFFE0E0E0),
+          body: SafeArea(
+            child: Column(
+              children: [
+                const SizedBox(height: 5),
+                _header(title),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _loadProducts,
+                    color: const Color(0xFF0D1B2A),
+                    child: _gridCards(state),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -201,18 +137,19 @@ class _TagPageState extends State<TagPage> {
     );
   }
 
-  Widget _gridCards() {
-    if (_isLoadingProducts) {
+  Widget _gridCards(ShopCatalogState state) {
+    if (state.status == ShopCatalogStatus.initial ||
+        state.status == ShopCatalogStatus.loading) {
       return _scrollableState(const CircularProgressIndicator());
     }
 
-    if (_productsError != null) {
+    if (state.status == ShopCatalogStatus.failure) {
       return _scrollableState(
-        Text(_productsError!, style: const TextStyle(color: Colors.red)),
+        Text(state.errorMessage!, style: const TextStyle(color: Colors.red)),
       );
     }
 
-    if (_filteredProducts.isEmpty) {
+    if (state.filteredProducts.isEmpty) {
       return _scrollableState(
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -242,9 +179,9 @@ class _TagPageState extends State<TagPage> {
         crossAxisSpacing: 10,
         childAspectRatio: 0.75,
       ),
-      itemCount: _filteredProducts.length,
+      itemCount: state.filteredProducts.length,
       itemBuilder: (context, index) {
-        final product = _filteredProducts[index];
+        final product = state.filteredProducts[index];
 
         return GestureDetector(
           onTap: () {

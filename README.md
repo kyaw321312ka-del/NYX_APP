@@ -76,6 +76,24 @@ The principal modules are:
 
 The feature tree is a convention, not a strict rule: some presentation pages contain local API/state logic, while selected flows use separate use cases and repositories.
 
+The Shop catalog and checkout flows use the layered pattern:
+
+```text
+presentation page -> Cubit -> use case -> ShopRepository
+                                      -> ShopRepositoryImpl
+                                      -> ShopRemoteDataSource
+                                      -> existing API/data-source clients
+```
+
+`ShopCatalogCubit` owns product/category loading, search, brand/category/tag
+filters, sorting, and catalog errors. Product details use
+`ShopRelatedProductsCubit` for recommendations. `ShopCheckoutCubit` loads
+payment methods and tax and submits typed `ShopOrderRequest` values. The
+repository boundary keeps these screens from calling catalog, tax, payment,
+or order APIs directly. The checkout contact-info screen also validates the
+server session through `ShopSessionCubit`. Cart contents and form controls
+remain app/UI state.
+
 ### 4. Presentation layer
 
 The presentation layer contains user-facing pages and widgets. `MainDashboard` in `lib/features/dashboard/presentation/pages/layout.dart` is the app shell. Its bottom navigation contains:
@@ -99,6 +117,12 @@ The shell keeps these five pages in an `IndexedStack`, preserving their widget s
 
 Many individual pages use Flutter `StatefulWidget`/`setState` for local form, selection, and loading state. This is a mixed state-management approach.
 
+Shop catalog, product recommendations, and checkout use `flutter_bloc` Cubits
+with immutable states for asynchronous data and errors. `Provider` remains in
+use for app-wide services such as the session and cart, while other features
+continue to use their existing `ChangeNotifier`, controller, or local widget
+state patterns.
+
 ### 6. Data flow
 
 A request in a repository-backed feature typically follows this path:
@@ -107,8 +131,8 @@ A request in a repository-backed feature typically follows this path:
 2. A controller or use case invokes a repository contract
 3. The repository implementation calls a feature data source
 4. The data source performs the HTTP request and parses the response into domain entities
-5. The controller publishes data or a mapped user-facing error
-6. Provider notifies the UI to rebuild
+5. The controller/Cubit publishes data or a mapped user-facing error
+6. Provider notifies listeners, or a Bloc/Cubit builder rebuilds the UI
 
 The Services tab is one example: `ServicesController` calls `GetServicesData`, which calls `ServicesRepository`; `ServicesRepositoryImpl` uses the training, venue, and canteen APIs. The tournament banner flow similarly separates its controller, use case, repository, and remote data source. Other screens may call a data source or `Api` directly, as the project is not uniformly layered.
 
@@ -142,7 +166,10 @@ assets/
 ├── fonts/             # Belanosima regular and bold
 └── images/            # app imagery and branding
 test/
-└── widget_test.dart   # startup splash-screen smoke test
+├── features/
+│   └── shop/presentation/bloc/
+│       └── shop_bloc_test.dart  # catalog and checkout Cubit tests
+└── widget_test.dart             # startup splash-screen smoke test
 ```
 
 ## Key Technical Components
