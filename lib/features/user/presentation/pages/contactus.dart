@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/user/data/datasources/contact_us_api.dart';
-import 'package:nyxproject/features/user/data/models/contact_us.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nyxproject/features/user/domain/entities/user_operations.dart';
+import 'package:nyxproject/features/user/presentation/bloc/user_flow_cubit.dart';
 
 class ContactUs extends StatefulWidget {
   const ContactUs({super.key});
@@ -12,42 +13,26 @@ class ContactUs extends StatefulWidget {
 class _ContactUsState extends State<ContactUs> {
   double get screenWidth => MediaQuery.of(context).size.width;
 
-  bool _isLoading = true;
-  String? _errorMessage;
-  ContactUsData? _contactData;
+  late final UserFlowCubit _userFlowCubit;
 
   @override
   void initState() {
     super.initState();
+    _userFlowCubit = UserFlowCubit.withoutSession();
     _fetchContactInfo();
   }
 
+  @override
+  void dispose() {
+    _userFlowCubit.close();
+    super.dispose();
+  }
+
   Future<void> _fetchContactInfo() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
     try {
-      final result = await ContactUsApi.getGeneralInfo();
-
-      if (result['success'] == true && result['data'] != null) {
-        setState(() {
-          _contactData = result['data'];
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _errorMessage =
-              result['message'] ?? 'Failed to load contact information';
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Error: $e';
-        _isLoading = false;
-      });
+      await _userFlowCubit.loadContactInformation();
+    } on Object {
+      // The failure is represented by UserFlowState and rendered below.
     }
   }
 
@@ -65,68 +50,62 @@ class _ContactUsState extends State<ContactUs> {
                 _header(),
                 const SizedBox(height: 10),
 
-                if (_isLoading)
-                  const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(50),
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
-                else if (_errorMessage != null)
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(50),
-                      child: Column(
-                        children: [
-                          Text(
-                            _errorMessage!,
-                            style: const TextStyle(color: Colors.red),
-                            textAlign: TextAlign.center,
+                BlocBuilder<UserFlowCubit, UserFlowState>(
+                  bloc: _userFlowCubit,
+                  builder: (context, state) {
+                    if (state.isLoading) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(50),
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    }
+                    if (state.status == UserOperationStatus.failure) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(50),
+                          child: Column(
+                            children: [
+                              Text(
+                                state.message ??
+                                    'Failed to load contact information',
+                                style: const TextStyle(color: Colors.red),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 20),
+                              ElevatedButton(
+                                onPressed: _fetchContactInfo,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                ),
+                                child: const Text('Retry'),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 20),
-                          ElevatedButton(
-                            onPressed: _fetchContactInfo,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                            ),
-                            child: const Text('Retry'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                else if (_contactData != null)
-                  Column(
-                    children: [
-                      // Shop Logo
-                      if (_contactData!.logoImageUrl != null &&
-                          _contactData!.logoImageUrl!.isNotEmpty)
-                        _buildShopLogo(),
-
-                      // Shop name
-                      if (_contactData!.shopName != null &&
-                          _contactData!.shopName!.isNotEmpty)
-                        _buildShopName(),
-
-                      const SizedBox(height: 10),
-
-                      // Contact Items (NOT TAPPABLE)
-                      if (_contactData!.contactInfo != null &&
-                          _contactData!.contactInfo!.isNotEmpty)
-                        _menuItem(Icons.call_sharp, _contactData!.contactInfo!),
-
-                      if (_contactData!.address != null &&
-                          _contactData!.address!.isNotEmpty)
-                        _menuItem(Icons.location_on, _contactData!.address!),
-
-                      if (_contactData!.socialLink != null &&
-                          _contactData!.socialLink!.isNotEmpty)
-                        _menuItem(Icons.language, _contactData!.socialLink!),
-
-                      // Email (static)
-                      _menuItem(Icons.mail, "Shopping@nyx.com"),
-                    ],
-                  ),
+                        ),
+                      );
+                    }
+                    final contact = state.contactInformation;
+                    if (contact == null) return const SizedBox.shrink();
+                    return Column(
+                      children: [
+                        if (contact.logoImageUrl?.isNotEmpty == true)
+                          _buildShopLogo(contact),
+                        if (contact.shopName?.isNotEmpty == true)
+                          _buildShopName(contact),
+                        const SizedBox(height: 10),
+                        if (contact.contactInfo?.isNotEmpty == true)
+                          _menuItem(Icons.call_sharp, contact.contactInfo!),
+                        if (contact.address?.isNotEmpty == true)
+                          _menuItem(Icons.location_on, contact.address!),
+                        if (contact.socialLink?.isNotEmpty == true)
+                          _menuItem(Icons.language, contact.socialLink!),
+                        _menuItem(Icons.mail, "Shopping@nyx.com"),
+                      ],
+                    );
+                  },
+                ),
               ],
             ),
           ),
@@ -167,7 +146,7 @@ class _ContactUsState extends State<ContactUs> {
     );
   }
 
-  Widget _buildShopLogo() {
+  Widget _buildShopLogo(ContactInformation contact) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Center(
@@ -178,7 +157,7 @@ class _ContactUsState extends State<ContactUs> {
             color: Colors.grey.shade100,
             borderRadius: BorderRadius.circular(60),
             image: DecorationImage(
-              image: NetworkImage(_contactData!.logoImageUrl!),
+              image: NetworkImage(contact.logoImageUrl!),
               fit: BoxFit.cover,
             ),
           ),
@@ -187,12 +166,12 @@ class _ContactUsState extends State<ContactUs> {
     );
   }
 
-  Widget _buildShopName() {
+  Widget _buildShopName(ContactInformation contact) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Center(
         child: Text(
-          _contactData!.shopName!,
+          contact.shopName!,
           style: const TextStyle(
             fontFamily: "Custom",
             fontSize: 24,

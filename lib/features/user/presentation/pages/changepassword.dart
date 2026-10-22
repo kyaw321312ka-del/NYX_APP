@@ -1,10 +1,9 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:nyxproject/core/utils/app_constants.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:nyxproject/features/user/presentation/pages/login.dart';
+import 'package:nyxproject/features/user/presentation/bloc/user_flow_cubit.dart';
 import 'package:provider/provider.dart';
 
 class Changepassword extends StatefulWidget {
@@ -21,41 +20,46 @@ class _ChangepasswordState extends State<Changepassword> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
-  bool _isLoading = false;
   bool _isCurrentPasswordVisible = false;
   bool _isNewPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
+  late final UserFlowCubit _userFlowCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _userFlowCubit = UserFlowCubit.forSession(
+      Provider.of<SessionService>(context, listen: false),
+    );
+  }
 
   @override
   void dispose() {
     currentPasswordController.dispose();
     newPasswordController.dispose();
     confirmPasswordController.dispose();
+    _userFlowCubit.close();
     super.dispose();
   }
 
   Future<void> _changePassword() async {
-    // Validation
+    if (_userFlowCubit.state.isLoading) return;
     if (currentPasswordController.text.trim().isEmpty) {
       _showSnackBar('Please enter current password', Colors.red);
       return;
     }
-
     if (newPasswordController.text.trim().isEmpty) {
       _showSnackBar('Please enter new password', Colors.red);
       return;
     }
-
     if (newPasswordController.text.length < 6) {
       _showSnackBar('New password must be at least 6 characters', Colors.red);
       return;
     }
-
     if (newPasswordController.text != confirmPasswordController.text) {
       _showSnackBar('New passwords do not match', Colors.red);
       return;
     }
-
     if (currentPasswordController.text == newPasswordController.text) {
       _showSnackBar(
         'New password must be different from current password',
@@ -63,93 +67,35 @@ class _ChangepasswordState extends State<Changepassword> {
       );
       return;
     }
-
-    setState(() {
-      _isLoading = true;
-    });
-
+    final sessionService = Provider.of<SessionService>(context, listen: false);
+    final cartService = Provider.of<CartService>(context, listen: false);
     try {
-      final sessionService = Provider.of<SessionService>(
-        context,
-        listen: false,
+      await _userFlowCubit.changePassword(
+        currentPassword: currentPasswordController.text.trim(),
+        newPassword: newPasswordController.text.trim(),
       );
-      final token = sessionService.getToken();
-      if (token == null || token.isEmpty) {
-        _showSnackBar('Session expired. Please login again.', Colors.red);
-        return;
+      _showSnackBar(
+        'Password changed successfully! Please login again.',
+        Colors.green,
+      );
+      currentPasswordController.clear();
+      newPasswordController.clear();
+      confirmPasswordController.clear();
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LoginPage(
+              sessionService: sessionService,
+              cartService: cartService,
+            ),
+          ),
+          (route) => false,
+        );
       }
-
-      final Uri uri = Uri.parse("${Constant.apiUrl}/changepassword/password");
-
-      final requestBody = jsonEncode({
-        'password': currentPasswordController.text.trim(),
-        'changePassword': newPasswordController.text.trim(),
-      });
-
-      final response = await http.post(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        }..['Authorization'] = 'Bearer $token',
-        body: requestBody,
-      );
-
-      if (!mounted) return;
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final responseData = response.statusCode == 200 || response.body.isEmpty
-            ? <String, dynamic>{}
-            : jsonDecode(response.body) as Map<String, dynamic>;
-        final success =
-            response.statusCode == 200 ||
-            (responseData['success'] != false &&
-                responseData['status'] != 'error' &&
-                responseData['result'] != false &&
-                (responseData['success'] == true ||
-                    responseData['status'] == 'success' ||
-                    responseData['result'] == true ||
-                    responseData.isEmpty));
-
-        if (success) {
-          _showSnackBar(
-            'Password changed successfully! Please login again.',
-            Colors.green,
-          );
-
-          // Clear fields
-          currentPasswordController.clear();
-          newPasswordController.clear();
-          confirmPasswordController.clear();
-
-          // Logout and redirect to login page
-          await sessionService.logout();
-
-          if (mounted) {
-            final cartService = Provider.of<CartService>(
-              context,
-              listen: false,
-            );
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (context) => LoginPage(
-                  sessionService: sessionService,
-                  cartService: cartService,
-                ),
-              ),
-              (route) => false,
-            );
-          }
-        } else {
-          _showSnackBar(
-            responseData['message'] ?? 'Failed to change password',
-            Colors.red,
-          );
-        }
-      } else if (response.statusCode == 401) {
-        _showSnackBar('Session expired. Please login again.', Colors.red);
-        final cartService = Provider.of<CartService>(context, listen: false);
+    } catch (error) {
+      final message = error.toString().replaceFirst('Exception: ', '');
+      if (message.contains('expired') || message.contains('401')) {
         await sessionService.logout();
         if (mounted) {
           Navigator.pushAndRemoveUntil(
@@ -164,19 +110,7 @@ class _ChangepasswordState extends State<Changepassword> {
           );
         }
       } else {
-        final responseData = jsonDecode(response.body);
-        _showSnackBar(
-          responseData['status'] ?? 'Failed to change password',
-          Colors.red,
-        );
-      }
-    } catch (e) {
-      _showSnackBar('Network error: ${e.toString()}', Colors.red);
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        _showSnackBar(message, Colors.red);
       }
     }
   }
@@ -357,36 +291,39 @@ class _ChangepasswordState extends State<Changepassword> {
                 const SizedBox(height: 32),
 
                 // Update Password Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _changePassword,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                BlocBuilder<UserFlowCubit, UserFlowState>(
+                  bloc: _userFlowCubit,
+                  builder: (context, state) => SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: state.isLoading ? null : _changePassword,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        elevation: 2,
                       ),
-                      elevation: 2,
+                      child: state.isLoading
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text(
+                              "Update Password",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontFamily: "Custom",
+                              ),
+                            ),
                     ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text(
-                            "Update Password",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontFamily: "Custom",
-                            ),
-                          ),
                   ),
                 ),
 

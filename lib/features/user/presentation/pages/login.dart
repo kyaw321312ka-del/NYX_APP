@@ -7,6 +7,7 @@ import 'package:nyxproject/features/dashboard/presentation/pages/layout.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 import 'package:nyxproject/features/user/presentation/bloc/login_controller.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginPage extends StatefulWidget {
   final SessionService sessionService;
@@ -25,7 +26,6 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool _isPasswordVisible = false;
-  bool _isLoading = false;
   late final LoginController _loginController;
 
   @override
@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
-    _loginController.dispose();
+    _loginController.close();
     super.dispose();
   }
 
@@ -232,34 +232,34 @@ class _LoginPageState extends State<LoginPage> {
           minimumSize: const Size(350, 50),
           backgroundColor: Colors.red,
         ),
-        onPressed: _isLoading ? null : _handleLogin,
-        child: _isLoading
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
+        onPressed: _handleLogin,
+        child: BlocBuilder<LoginController, LoginState>(
+          bloc: _loginController,
+          builder: (context, state) => state.isLoading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : const Text(
+                  "LOGIN",
+                  style: TextStyle(
+                    fontFamily: "Custom",
+                    fontSize: 15,
+                    color: Colors.white,
+                  ),
                 ),
-              )
-            : const Text(
-                "LOGIN",
-                style: TextStyle(
-                  fontFamily: "Custom",
-                  fontSize: 15,
-                  color: Colors.white,
-                ),
-              ),
+        ),
       ),
     );
   }
 
   Future<void> _handleLogin() async {
+    if (_loginController.state.isLoading) return;
     if (!_formKey.currentState!.validate()) return;
-
-    setState(() {
-      _isLoading = true;
-    });
 
     final email = emailController.text.trim();
 
@@ -275,14 +275,12 @@ class _LoginPageState extends State<LoginPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              _loginController.errorMessage ?? "Invalid email or password",
+              _loginController.state.errorMessage ??
+                  "Invalid email or password",
             ),
             backgroundColor: Colors.red,
           ),
         );
-        setState(() {
-          _isLoading = false;
-        });
         return;
       }
 
@@ -309,9 +307,6 @@ class _LoginPageState extends State<LoginPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
       );
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 

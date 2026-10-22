@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/error/api_exception.dart';
 import 'package:nyxproject/features/user/presentation/pages/otp_page.dart';
 import 'package:nyxproject/features/user/presentation/pages/login.dart';
 import 'package:nyxproject/features/user/presentation/pages/terms.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
-import 'package:nyxproject/core/network/api_client.dart';
+import 'package:nyxproject/features/user/presentation/bloc/user_flow_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SignupPage extends StatefulWidget {
   final SessionService sessionService;
@@ -19,7 +21,7 @@ class SignupPage extends StatefulWidget {
 class _SignupPageState extends State<SignupPage> {
   final formKey = GlobalKey<FormState>();
   bool _isChecked = false;
-  bool _isLoading = false;
+  late final UserFlowCubit _userFlowCubit;
 
   // Password visibility toggles
   bool _isPasswordVisible = false;
@@ -32,6 +34,12 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
   final TextEditingController dobController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _userFlowCubit = UserFlowCubit.forSession(widget.sessionService);
+  }
 
   // Myanmar phone number validation function
   String? _validateMyanmarPhoneNumber(String? value) {
@@ -89,6 +97,7 @@ class _SignupPageState extends State<SignupPage> {
     passwordController.dispose();
     confirmPasswordController.dispose();
     dobController.dispose();
+    _userFlowCubit.close();
     super.dispose();
   }
 
@@ -346,26 +355,29 @@ class _SignupPageState extends State<SignupPage> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                onPressed: _isLoading ? null : _handleSignUp,
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
+                onPressed: _handleSignUp,
+                child: BlocBuilder<UserFlowCubit, UserFlowState>(
+                  bloc: _userFlowCubit,
+                  builder: (context, state) => state.isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                      : const Text(
+                          "SIGN UP",
+                          style: TextStyle(
+                            fontFamily: "Custom",
+                            fontSize: 15,
+                            color: Colors.white,
                           ),
                         ),
-                      )
-                    : const Text(
-                        "SIGN UP",
-                        style: TextStyle(
-                          fontFamily: "Custom",
-                          fontSize: 15,
-                          color: Colors.white,
-                        ),
-                      ),
+                ),
               ),
             ),
             const SizedBox(height: 10),
@@ -410,7 +422,7 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   Future<void> _handleSignUp() async {
-    if (_isLoading) return;
+    if (_userFlowCubit.state.isLoading) return;
 
     if (!formKey.currentState!.validate()) return;
 
@@ -430,12 +442,8 @@ class _SignupPageState extends State<SignupPage> {
 
     String formattedDate = dobController.text.trim();
 
-    setState(() {
-      _isLoading = true;
-    });
-
     try {
-      final Map<String, dynamic> signupResult = await Api.signupUser(
+      final challenge = await _userFlowCubit.signup(
         name: nameController.text.trim(),
         email: emailController.text.trim(),
         phone: phoneController.text.trim(),
@@ -445,64 +453,32 @@ class _SignupPageState extends State<SignupPage> {
 
       if (!mounted) return;
 
-      if (signupResult['success'] == true) {
-        final String email = emailController.text.trim();
-        final String tempToken = signupResult['tempToken']?.toString() ?? '';
-        final String password = passwordController.text
-            .trim(); // Store password
-
-        if (tempToken.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Missing verification token from server"),
-            ),
-          );
-          return;
-        }
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("OTP sent successfully!"),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
-
-        // Navigate to OTP page with password for auto-login
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => OTP(
-              email: email,
-              tempToken: tempToken,
-              password: password, // Pass password for auto-login
-              sessionService: widget.sessionService,
-              cartService: widget.cartService,
-            ),
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("OTP sent successfully!"),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => OTP(
+            email: challenge.email,
+            tempToken: challenge.tempToken,
+            password: passwordController.text.trim(),
+            sessionService: widget.sessionService,
+            cartService: widget.cartService,
           ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              signupResult['message']?.toString() ?? "Signup failed",
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+        ),
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(e is ApiException ? e.message : 'Error: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
       }
     }
   }

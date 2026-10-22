@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/user/data/datasources/forget_password_api.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nyxproject/core/error/api_exception.dart';
+import 'package:nyxproject/features/user/presentation/bloc/user_flow_cubit.dart';
 
 class ForgetPassword extends StatefulWidget {
   final String email;
@@ -24,6 +26,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
   int _currentStep = 0; // 0: Email, 1: OTP, 2: New Password
   int _resendCooldown = 0;
   Timer? _cooldownTimer;
+  late final UserFlowCubit _userFlowCubit;
   String? _tempToken; // Token from forgetpassword API
   String? _resetToken; // Token from verifyforgetpassword API
   bool _isPasswordVisible = false;
@@ -32,6 +35,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
   @override
   void initState() {
     super.initState();
+    _userFlowCubit = UserFlowCubit.withoutSession();
     // Pre-fill email if provided
     if (widget.email.isNotEmpty) {
       emailController.text = widget.email;
@@ -45,6 +49,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
     newPasswordController.dispose();
     confirmPasswordController.dispose();
     _cooldownTimer?.cancel();
+    _userFlowCubit.close();
     super.dispose();
   }
 
@@ -356,35 +361,38 @@ class _ForgetPasswordState extends State<ForgetPassword> {
       buttonText = 'Reset Password';
     }
 
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red.shade400,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+    return BlocBuilder<UserFlowCubit, UserFlowState>(
+      bloc: _userFlowCubit,
+      builder: (context, state) => SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red.shade400,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            elevation: 0,
           ),
-          elevation: 0,
+          onPressed: state.isLoading ? null : _handleAction,
+          child: state.isLoading
+              ? const SizedBox(
+                  height: 24,
+                  width: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : Text(
+                  buttonText,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
         ),
-        onPressed: _isLoading ? null : _handleAction,
-        child: _isLoading
-            ? const SizedBox(
-                height: 24,
-                width: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : Text(
-                buttonText,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
       ),
     );
   }
@@ -392,9 +400,9 @@ class _ForgetPasswordState extends State<ForgetPassword> {
   Widget _buildResendButton() {
     return Center(
       child: TextButton(
-        onPressed: _resendCooldown > 0 ? null : _resendOTP,
+        onPressed: _resendCooldown > 0 || _isLoading ? null : _resendOTP,
         style: TextButton.styleFrom(
-          foregroundColor: _resendCooldown > 0
+          foregroundColor: _resendCooldown > 0 || _isLoading
               ? Colors.grey.shade400
               : Colors.red.shade400,
         ),
@@ -436,29 +444,26 @@ class _ForgetPasswordState extends State<ForgetPassword> {
     });
 
     try {
-      final result = await ForgetPasswordApi.forgetPassword(email: email);
+      final result = await _userFlowCubit.requestPasswordReset(email: email);
 
       if (!mounted) return;
 
-      if (result['success'] == true) {
-        _tempToken = result['tempToken'];
+      if (result.tempToken.isNotEmpty) {
+        _tempToken = result.tempToken;
         setState(() {
           _currentStep = 1;
           _isLoading = false;
         });
-        _showSnackBar(
-          result['message'] ?? 'Verification code sent to your email',
-          Colors.green,
-        );
+        _showSnackBar(result.message, Colors.green);
         _startResendCooldown();
       } else {
-        _showSnackBar(result['message'] ?? 'Failed to send code', Colors.red);
+        _showSnackBar('Failed to send code', Colors.red);
         setState(() {
           _isLoading = false;
         });
       }
     } catch (e) {
-      _showSnackBar('Error: $e', Colors.red);
+      _showSnackBar(_errorMessage(e), Colors.red);
       setState(() {
         _isLoading = false;
       });
@@ -478,15 +483,15 @@ class _ForgetPasswordState extends State<ForgetPassword> {
     });
 
     try {
-      final result = await ForgetPasswordApi.verifyForgetPassword(
+      final result = await _userFlowCubit.verifyPasswordReset(
         tempToken: _tempToken!,
         otp: otp,
       );
 
       if (!mounted) return;
 
-      if (result['success'] == true) {
-        _resetToken = result['resetToken'];
+      if (result.resetToken.isNotEmpty) {
+        _resetToken = result.resetToken;
         setState(() {
           _currentStep = 2;
           _isLoading = false;
@@ -496,13 +501,13 @@ class _ForgetPasswordState extends State<ForgetPassword> {
           Colors.green,
         );
       } else {
-        _showSnackBar(result['message'] ?? 'Invalid OTP', Colors.red);
+        _showSnackBar('Invalid OTP', Colors.red);
         setState(() {
           _isLoading = false;
         });
       }
     } catch (e) {
-      _showSnackBar('Error: $e', Colors.red);
+      _showSnackBar(_errorMessage(e), Colors.red);
       setState(() {
         _isLoading = false;
       });
@@ -528,31 +533,21 @@ class _ForgetPasswordState extends State<ForgetPassword> {
     });
 
     try {
-      final result = await ForgetPasswordApi.verifyUpdatePassword(
-        tempToken: _resetToken!,
-        changePassword: newPassword,
+      await _userFlowCubit.resetPassword(
+        resetToken: _resetToken!,
+        password: newPassword,
         email: emailController.text.trim(),
       );
 
       if (!mounted) return;
 
-      if (result['success'] == true) {
-        _showSnackBar('Password reset successfully!', Colors.green);
-        await Future.delayed(const Duration(seconds: 2));
-        if (mounted) {
-          Navigator.pop(context, true);
-        }
-      } else {
-        _showSnackBar(
-          result['message'] ?? 'Failed to reset password',
-          Colors.red,
-        );
-        setState(() {
-          _isLoading = false;
-        });
+      _showSnackBar('Password reset successfully!', Colors.green);
+      await Future.delayed(const Duration(seconds: 2));
+      if (mounted) {
+        Navigator.pop(context, true);
       }
     } catch (e) {
-      _showSnackBar('Error: $e', Colors.red);
+      _showSnackBar(_errorMessage(e), Colors.red);
       setState(() {
         _isLoading = false;
       });
@@ -565,21 +560,21 @@ class _ForgetPasswordState extends State<ForgetPassword> {
     });
 
     try {
-      final result = await ForgetPasswordApi.forgetPassword(
+      final result = await _userFlowCubit.requestPasswordReset(
         email: emailController.text.trim(),
       );
 
       if (!mounted) return;
 
-      if (result['success'] == true) {
-        _tempToken = result['tempToken'];
+      if (result.tempToken.isNotEmpty) {
+        _tempToken = result.tempToken;
         _showSnackBar('Verification code resent!', Colors.green);
         _startResendCooldown();
       } else {
-        _showSnackBar(result['message'] ?? 'Failed to resend code', Colors.red);
+        _showSnackBar('Failed to resend code', Colors.red);
       }
     } catch (e) {
-      _showSnackBar('Error: $e', Colors.red);
+      _showSnackBar(_errorMessage(e), Colors.red);
     } finally {
       if (mounted) {
         setState(() {
@@ -613,5 +608,10 @@ class _ForgetPasswordState extends State<ForgetPassword> {
         behavior: SnackBarBehavior.floating,
       ),
     );
+  }
+
+  String _errorMessage(Object error) {
+    if (error is ApiException) return error.message;
+    return 'Error: $error';
   }
 }

@@ -94,6 +94,22 @@ or order APIs directly. The checkout contact-info screen also validates the
 server session through `ShopSessionCubit`. Cart contents and form controls
 remain app/UI state.
 
+The user account feature now uses a repository boundary for authentication,
+signup/OTP, password recovery and changes, profile updates, account deletion,
+and contact information:
+
+```text
+presentation page -> typed Cubit state -> domain use case
+                  -> UserRepository -> UserRepositoryImpl
+                  -> user data sources -> existing API/session services
+```
+
+`LoginController` is a Cubit for login, and `UserFlowCubit` handles the other
+asynchronous account operations. `SessionService` retains its existing
+app-wide public API and remains the local session storage boundary. Static
+informational pages and simple account widgets continue to use their existing
+presentation patterns.
+
 ### 4. Presentation layer
 
 The presentation layer contains user-facing pages and widgets. `MainDashboard` in `lib/features/dashboard/presentation/pages/layout.dart` is the app shell. Its bottom navigation contains:

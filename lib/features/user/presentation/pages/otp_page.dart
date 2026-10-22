@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:nyxproject/features/user/data/datasources/login_after_signup_api.dart';
-import 'package:nyxproject/features/user/domain/entities/user.dart';
+import 'package:nyxproject/core/error/api_exception.dart';
 import 'package:nyxproject/features/dashboard/presentation/pages/layout.dart';
 import 'package:nyxproject/features/user/presentation/pages/login.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
-import 'package:nyxproject/core/network/api_client.dart';
+import 'package:nyxproject/features/user/presentation/bloc/user_flow_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class OTP extends StatefulWidget {
   final String email;
@@ -29,11 +29,18 @@ class OTP extends StatefulWidget {
 
 class _OTPState extends State<OTP> {
   final TextEditingController otpController = TextEditingController();
-  bool _isLoading = false;
+  late final UserFlowCubit _userFlowCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _userFlowCubit = UserFlowCubit.forSession(widget.sessionService);
+  }
 
   @override
   void dispose() {
     otpController.dispose();
+    _userFlowCubit.close();
     super.dispose();
   }
 
@@ -161,29 +168,33 @@ class _OTPState extends State<OTP> {
           minimumSize: const Size(200, 50),
           backgroundColor: Colors.red,
         ),
-        onPressed: _isLoading ? null : _verifyOtp,
-        child: _isLoading
-            ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        onPressed: _verifyOtp,
+        child: BlocBuilder<UserFlowCubit, UserFlowState>(
+          bloc: _userFlowCubit,
+          builder: (context, state) => state.isLoading
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : const Text(
+                  "Verify",
+                  style: TextStyle(
+                    fontFamily: "Custom",
+                    fontSize: 15,
+                    color: Colors.white,
+                  ),
                 ),
-              )
-            : const Text(
-                "Verify",
-                style: TextStyle(
-                  fontFamily: "Custom",
-                  fontSize: 15,
-                  color: Colors.white,
-                ),
-              ),
+        ),
       ),
     );
   }
 
   Future<void> _verifyOtp() async {
+    if (_userFlowCubit.state.isLoading) return;
     final String otp = otpController.text.trim();
 
     if (otp.isEmpty || otp.length != 6) {
@@ -193,115 +204,59 @@ class _OTPState extends State<OTP> {
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
-
     try {
-      final Map<String, dynamic> verifyResult = await Api.verifyOtp(
+      final result = await _userFlowCubit.verifySignup(
+        email: widget.email,
+        password: widget.password,
         otp: otp,
         tempToken: widget.tempToken,
       );
-
       if (!mounted) return;
 
-      if (verifyResult['success'] == true) {
-        final loginResult = await LoginAfterSignupApi.loginAfterSignup(
-          widget.email,
-          widget.password,
+      final authenticated = result.authenticatedUser;
+      if (authenticated != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Account created and logged in successfully!"),
+            backgroundColor: Colors.green,
+          ),
         );
-        if (!mounted) return;
 
-        if (loginResult['success'] == true) {
-          final token = loginResult['token'];
-
-          // Extract user data from the token or create from email
-          // Since the response doesn't have a separate user object,
-          // we need to either decode the JWT token or use the email
-
-          // Option 1: Create user from email (temporary)
-          final user = User(
-            id: null, // Will be updated when fetching profile
-            name: widget.email.split('@').first, // Use part before @ as name
-            email: widget.email,
-            phone: '',
-          );
-
-          await widget.sessionService.saveSession(user, token);
-
-          // Optional: Fetch full user profile after login
-          // This will get the complete user data including ID and phone
-          try {
-            final profileResult = await Api.getMyProfile(token: token);
-            if (profileResult['success'] == true) {
-              final fullUserData = profileResult['data'];
-              final updatedUser = User(
-                id: fullUserData['id'] as int?,
-                name: fullUserData['name']?.toString() ?? user.name,
-                email: widget.email,
-                phone: fullUserData['phone']?.toString() ?? '',
-              );
-              await widget.sessionService.saveSession(updatedUser, token);
-            }
-          } on Exception catch (error) {
-            debugPrint('Optional profile enrichment failed: $error');
-          }
-
-          if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Account created and logged in successfully!"),
-              backgroundColor: Colors.green,
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MainDashboard(
+              sessionService: widget.sessionService,
+              cartService: widget.cartService,
             ),
-          );
-
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MainDashboard(
-                sessionService: widget.sessionService,
-                cartService: widget.cartService,
-              ),
-            ),
-            (route) => false,
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Account verified! Please login manually."),
-              backgroundColor: Colors.orange,
-            ),
-          );
-
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => LoginPage(
-                sessionService: widget.sessionService,
-                cartService: widget.cartService,
-              ),
-            ),
-          );
-        }
+          ),
+          (route) => false,
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(verifyResult['message']?.toString() ?? "Invalid OTP"),
-            backgroundColor: Colors.red,
+          const SnackBar(
+            content: Text("Account verified! Please login manually."),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LoginPage(
+              sessionService: widget.sessionService,
+              cartService: widget.cartService,
+            ),
           ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(e is ApiException ? e.message : 'Error: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
       }
     }
   }

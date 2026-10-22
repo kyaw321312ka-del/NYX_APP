@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import 'dart:io';
-import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:nyxproject/core/error/api_exception.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
-import 'package:nyxproject/core/network/api_client.dart';
-import 'package:nyxproject/core/utils/app_constants.dart';
 import 'package:nyxproject/features/user/presentation/pages/login.dart';
+import 'package:nyxproject/features/user/domain/entities/user.dart';
+import 'package:nyxproject/features/user/presentation/bloc/user_flow_cubit.dart';
 
 class EditProfile extends StatefulWidget {
   final SessionService sessionService;
@@ -34,15 +33,16 @@ class _EditProfileState extends State<EditProfile> {
   bool _isUpdating = false;
   String? _imageUrl;
   String? _errorMessage;
-  Map<String, dynamic>? _originalUserData;
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
   String? _warning; // Add warning variable
   bool _showWarning = false; // Add this
+  late final UserFlowCubit _userFlowCubit;
 
   @override
   void initState() {
     super.initState();
+    _userFlowCubit = UserFlowCubit.forSession(widget.sessionService);
     _loadUserProfile();
   }
 
@@ -53,6 +53,7 @@ class _EditProfileState extends State<EditProfile> {
     _emailController.dispose();
     _phoneController.dispose();
     _addressController.dispose();
+    _userFlowCubit.close();
     super.dispose();
   }
 
@@ -118,65 +119,39 @@ class _EditProfileState extends State<EditProfile> {
     });
 
     try {
-      final String? token = widget.sessionService.getToken();
-
-      if (token == null || token.isEmpty) {
-        if (mounted) {
-          setState(() {
-            _errorMessage =
-                'No authentication token found.\nPlease login again.';
-            _isLoading = false;
-          });
-          _showSessionExpiredDialog();
-        }
-        return;
-      }
-
-      final result = await Api.getMyProfile(token: token);
-
-      // Check for unauthorized/token expired
-      if (result['unauthorized'] == true ||
-          result['success'] == false &&
-              result['message']?.contains('expired') == true) {
-        await widget.sessionService.logout();
-        _showSessionExpiredDialog();
-        return;
-      }
-
+      final result = await _userFlowCubit.loadProfile();
       if (mounted) {
         setState(() {
-          if (result['success']) {
-            _originalUserData = result['data'];
-            _populateForm(_originalUserData!);
-            _warning = result['warning'];
-            _showWarning = _warning == 'true';
-            _errorMessage = null;
-          } else {
-            _errorMessage = result['message'];
-          }
+          _populateForm(result.user);
+          _warning = result.warning;
+          _showWarning = _warning == 'true';
+          _errorMessage = null;
           _isLoading = false;
         });
       }
     } catch (e) {
+      if (e.toString().contains('expired') || e.toString().contains('401')) {
+        await widget.sessionService.logout();
+        _showSessionExpiredDialog();
+      }
       if (mounted) {
         setState(() {
-          _errorMessage = 'Error loading profile: $e';
+          _errorMessage = e is ApiException
+              ? e.message
+              : 'Error loading profile: $e';
           _isLoading = false;
         });
       }
     }
   }
 
-  void _populateForm(Map<String, dynamic> userData) {
-    _nameController.text = userData['name']?.toString() ?? '';
-    final dob = userData['dateOfBirth'];
-    _dobController.text = dob != null && dob.toString().isNotEmpty
-        ? dob.toString()
-        : '';
-    _emailController.text = userData['email']?.toString() ?? '';
-    _phoneController.text = userData['phone']?.toString() ?? '';
-    _addressController.text = userData['address']?.toString() ?? '';
-    _imageUrl = userData['image_url']?.toString();
+  void _populateForm(User user) {
+    _nameController.text = user.name ?? '';
+    _dobController.text = user.dateOfBirth ?? '';
+    _emailController.text = user.email ?? '';
+    _phoneController.text = user.phone ?? '';
+    _addressController.text = user.address ?? '';
+    _imageUrl = user.imageUrl;
   }
 
   Future<void> _selectDate() async {
@@ -313,139 +288,37 @@ class _EditProfileState extends State<EditProfile> {
     });
 
     try {
-      final String? token = widget.sessionService.getToken();
-
-      if (token == null) {
-        if (mounted) {
-          setState(() {
-            _errorMessage = 'Session expired. Please login again.';
-            _isUpdating = false;
-          });
-          _showSessionExpiredDialog();
-        }
-        return;
-      }
-
-      final response = await _updateProfileWithImage(token);
-
-      //  Check for unauthorized
-      if (response['unauthorized'] == true) {
+      await _userFlowCubit.updateProfile(
+        user: User(
+          name: _nameController.text.trim(),
+          email: _emailController.text.trim(),
+          phone: _phoneController.text.trim(),
+          dateOfBirth: _dobController.text.trim(),
+          address: _addressController.text.trim(),
+        ),
+        image: _selectedImage,
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Profile updated successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      setState(() => _selectedImage = null);
+      await _loadUserProfile();
+      if (mounted) setState(() => _isUpdating = false);
+    } catch (e) {
+      if (e.toString().contains('expired') || e.toString().contains('401')) {
         await widget.sessionService.logout();
         _showSessionExpiredDialog();
-        return;
       }
-
-      final bool isSuccess =
-          response['status'] == 'success' ||
-          response['status'] == 'Edit Profile';
-
-      if (isSuccess) {
-        final String? newToken = response['new_token'];
-
-        if (newToken != null && newToken.isNotEmpty) {
-          await widget.sessionService.saveToken(newToken);
-          debugPrint(' New token saved');
-        }
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Profile updated successfully'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
-
-        setState(() {
-          _selectedImage = null;
-        });
-
-        await _loadUserProfile();
-
-        if (mounted) {
-          setState(() {
-            _isUpdating = false;
-          });
-        }
-      } else {
-        if (mounted) {
-          setState(() {
-            _errorMessage = response['message'] ?? 'Update failed';
-            _isUpdating = false;
-          });
-        }
-      }
-    } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Update failed: $e';
+          _errorMessage = e is ApiException ? e.message : 'Update failed: $e';
           _isUpdating = false;
         });
       }
-    }
-  }
-
-  Future<Map<String, dynamic>> _updateProfileWithImage(String token) async {
-    final Uri uri = Uri.parse("${Constant.apiUrl}/editProfiled/update");
-
-    final request = http.MultipartRequest('PUT', uri);
-
-    request.headers.addAll({
-      'Authorization': 'Bearer $token',
-      'Accept': 'application/json',
-    });
-
-    request.fields['name'] = _nameController.text.trim();
-    request.fields['email'] = _emailController.text.trim();
-    request.fields['phone'] = _phoneController.text.trim();
-    request.fields['dateOfbirth'] = _dobController.text.trim();
-    request.fields['address'] = _addressController.text.trim();
-
-    if (_selectedImage != null) {
-      request.files.add(
-        await http.MultipartFile.fromPath('image', _selectedImage!.path),
-      );
-    }
-
-    debugPrint(" Update URL: $uri");
-
-    try {
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
-
-      debugPrint("Update Response Status: ${response.statusCode}");
-
-      if (response.statusCode == 401) {
-        return {
-          'status': 'error',
-          'unauthorized': true,
-          'message': 'Session expired',
-        };
-      }
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        if (response.body.isEmpty) {
-          return {
-            'status': 'success',
-            'message': 'Profile updated successfully',
-          };
-        }
-
-        final responseData = jsonDecode(response.body);
-        final String? tokenFromResponse = responseData['result'];
-
-        return {
-          'status': responseData['status'],
-          'message': responseData['status'] ?? 'Profile updated',
-          'new_token': tokenFromResponse,
-          'data': responseData,
-        };
-      } else {
-        return {'status': 'error', 'message': 'Update failed'};
-      }
-    } catch (e) {
-      debugPrint("Update Profile Error: $e");
-      return {'status': 'error', 'message': 'Network error: $e'};
     }
   }
 
