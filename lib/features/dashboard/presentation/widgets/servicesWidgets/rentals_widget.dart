@@ -1,4 +1,5 @@
 // lib/pages/detailsPages/widgets/servicesWidgets/rentals_widget.dart
+
 import 'package:flutter/material.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/rental/domain/entities/venue.dart';
@@ -22,41 +23,20 @@ class RentalsWidget extends StatelessWidget {
     required this.onRetryVenues,
   });
 
+  static const Color _navy = Color(0xFF0D1B2A);
+  static const Color _red = Color(0xFFEF3340);
+  static const Color _background = Color(0xFFF7F8FA);
+  static const Color _muted = Color(0xFF7B8491);
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      key: const ValueKey("rentals"),
-      children: [
-        const SizedBox(height: 10),
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 10),
-          child: const Text(
-            "Court Rentals",
-            style: TextStyle(
-              fontSize: 19,
-              fontFamily: "Custom",
-              fontWeight: FontWeight.w700,
-              color: Colors.black,
-            ),
-          ),
-        ),
-        const SizedBox(height: 3),
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 10),
-          child: const Text(
-            "Book your own private court.",
-            style: TextStyle(
-              fontSize: 15,
-              fontFamily: "Custom",
-              color: Colors.black,
-            ),
-          ),
-        ),
-        const SizedBox(height: 10),
-        _buildVenueList(context),
-        const SizedBox(height: 10),
-      ],
+    return Container(
+      key: const ValueKey('rentals'),
+      color: _background,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [_buildVenueList(context), const SizedBox(height: 20)],
+      ),
     );
   }
 
@@ -64,8 +44,8 @@ class RentalsWidget extends StatelessWidget {
     if (isLoadingVenues) {
       return const Center(
         child: Padding(
-          padding: EdgeInsets.all(20),
-          child: CircularProgressIndicator(),
+          padding: EdgeInsets.all(36),
+          child: CircularProgressIndicator(color: _red, strokeWidth: 2.5),
         ),
       );
     }
@@ -75,132 +55,276 @@ class RentalsWidget extends StatelessWidget {
     }
 
     if (venues.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(20),
-          child: Text('No venues available'),
-        ),
-      );
+      return _buildEmptyState();
     }
 
-    return Column(
-      children: venues.map((venue) {
-        return _buildVenueCard(context, venue);
-      }).toList(),
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: venues.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 18),
+      itemBuilder: (context, index) {
+        return _buildVenueCard(context, venues[index]);
+      },
     );
   }
 
   Widget _buildVenueCard(BuildContext context, Venue venue) {
-    return GestureDetector(
-      onTap: () {
-        // Navigate to Courts page with venueId and venueName
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                Courts(venueId: venue.id, venueName: venue.venueName),
+    final imageHeight = (screenWidth * 0.48).clamp(170.0, 230.0);
+
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(22),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => _openVenue(context, venue),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: const Color(0xFFE9EDF2)),
+            boxShadow: [
+              BoxShadow(
+                color: _navy.withValues(alpha: 0.06),
+                blurRadius: 18,
+                offset: const Offset(0, 7),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Venue image and overlay
+              SizedBox(
+                height: imageHeight,
+                width: double.infinity,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    _buildVenueImage(venue.venueImageUrl),
+
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withValues(alpha: 0.12),
+                            Colors.transparent,
+                            _navy.withValues(alpha: 0.78),
+                          ],
+                          stops: const [0.0, 0.42, 1.0],
+                        ),
+                      ),
+                    ),
+
+                    // Rental badge
+
+                    // Venue name
+                    Positioned(
+                      left: 17,
+                      right: 17,
+                      bottom: 17,
+                      child: Text(
+                        venue.venueName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 21,
+                          fontWeight: FontWeight.w800,
+                          height: 1.2,
+                          letterSpacing: -0.3,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black26,
+                              blurRadius: 8,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Price and action
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Container(
+                      height: 45,
+                      width: 45,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFDEBED),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Icon(
+                        Icons.payments_outlined,
+                        color: _red,
+                        size: 23,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Starting price',
+                            style: TextStyle(
+                              color: _muted,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${venue.price} Ks',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: _navy,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(width: 8),
+
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _red,
+                        borderRadius: BorderRadius.circular(13),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'View Courts',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          SizedBox(width: 6),
+                          Icon(
+                            Icons.arrow_forward_rounded,
+                            color: Colors.white,
+                            size: 15,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVenueImage(String imageUrl) {
+    if (imageUrl.trim().isEmpty) {
+      return _buildFallbackImage();
+    }
+
+    return Image.network(
+      imageUrl,
+      width: double.infinity,
+      fit: BoxFit.cover,
+      gaplessPlayback: true,
+      filterQuality: FilterQuality.medium,
+      errorBuilder: (_, __, ___) => _buildFallbackImage(),
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) {
+          return child;
+        }
+
+        return Container(
+          color: const Color(0xFFE9EDF2),
+          child: const Center(
+            child: CircularProgressIndicator(color: _red, strokeWidth: 2),
           ),
         );
       },
-      child: Container(
-        height: screenHeight * 0.45,
-        margin: EdgeInsets.symmetric(
-          horizontal: screenWidth * 0.0125,
-          vertical: screenHeight * 0.01,
+    );
+  }
+
+  Widget _buildFallbackImage() {
+    return Container(
+      color: _navy,
+      child: const Center(
+        child: Icon(
+          Icons.sports_tennis_rounded,
+          color: Colors.white54,
+          size: 60,
         ),
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 13, 27, 42),
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Stack(
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 40),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: venue.venueImageUrl.isNotEmpty
-                    ? Image.network(
-                        venue.venueImageUrl,
-                        fit: BoxFit.cover,
-                        height: screenHeight * 0.3,
-                        width: screenWidth,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            height: screenHeight * 0.3,
-                            width: screenWidth,
-                            color: Colors.grey,
-                            child: const Icon(
-                              Icons.sports,
-                              size: 50,
-                              color: Colors.white54,
-                            ),
-                          );
-                        },
-                      )
-                    : Container(
-                        height: screenHeight * 0.3,
-                        width: screenWidth,
-                        color: Colors.grey,
-                        child: const Icon(
-                          Icons.sports,
-                          size: 50,
-                          color: Colors.white54,
-                        ),
-                      ),
+            Container(
+              height: 82,
+              width: 82,
+              decoration: BoxDecoration(
+                color: const Color(0xFFFDEBED),
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: const Icon(
+                Icons.sports_tennis_rounded,
+                color: _red,
+                size: 40,
               ),
             ),
-            Positioned(
-              left: screenWidth * 0.025,
-              bottom: screenHeight * 0.07,
-              child: Text(
-                venue.venueName,
-                style: TextStyle(
-                  fontSize: screenWidth * 0.045,
-                  fontFamily: "Custom",
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+            const SizedBox(height: 18),
+            const Text(
+              'No Venues Available',
+              style: TextStyle(
+                color: _navy,
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
               ),
             ),
-            Positioned(
-              right: screenWidth * 0.025,
-              bottom: screenHeight * 0.07,
-              child: Text(
-                "${venue.price.toString()} Ks",
-                style: TextStyle(
-                  fontSize: screenWidth * 0.04,
-                  fontFamily: "Custom",
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: screenHeight * 0.01,
-              left: 0,
-              right: 0,
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: screenHeight * 0.01),
-                width: screenWidth * 0.95,
-                height: screenHeight * 0.06,
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: const Text(
-                  "Show Details",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontFamily: "Custom",
-                    color: Colors.white,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
+            const SizedBox(height: 8),
+            const Text(
+              'There are no court rental venues available right now. '
+              'Please check again later.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: _muted, fontSize: 13, height: 1.6),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _openVenue(BuildContext context, Venue venue) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => Courts(venueId: venue.id, venueName: venue.venueName),
       ),
     );
   }

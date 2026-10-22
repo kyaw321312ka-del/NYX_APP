@@ -1,4 +1,5 @@
 // lib/pages/detailsPages/classesWidgets/canteen_widget.dart
+
 import 'package:flutter/material.dart';
 import 'package:nyxproject/features/dashboard/domain/entities/canteen.dart';
 import 'package:nyxproject/features/dashboard/presentation/widgets/servicesWidgets/canteen_grid.dart';
@@ -21,50 +22,28 @@ class CanteenWidget extends StatelessWidget {
     required this.onRetry,
   });
 
+  static const Color _navy = Color(0xFF0D1B2A);
+  static const Color _red = Color(0xFFEF3340);
+  static const Color _muted = Color(0xFF7B8491);
+  static const Color _background = Color(0xFFF7F8FA);
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      key: const ValueKey("canteen"),
-      children: [
-        _canteenHeader(),
-        CanteenGrid(
-          items: items,
-          screenWidth: screenWidth,
-          screenHeight: screenHeight,
-          isLoading: isLoading,
-          error: error,
-          onRetry: onRetry,
-        ),
-        const SizedBox(height: 10),
-      ],
-    );
-  }
-
-  Widget _canteenHeader() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Container(
+      key: const ValueKey('canteen'),
+      width: double.infinity,
+      color: _background,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Canteen Menu",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-              fontFamily: 'Custom',
-            ),
+          CanteenGrid(
+            items: items,
+            screenWidth: screenWidth,
+            screenHeight: screenHeight,
+            isLoading: isLoading,
+            error: error,
+            onRetry: onRetry,
           ),
-          if (items.isNotEmpty)
-            Text(
-              '${items.length} items',
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-                fontFamily: 'Custom',
-              ),
-            ),
         ],
       ),
     );
