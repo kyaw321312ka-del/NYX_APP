@@ -15,8 +15,6 @@ class LoginPromptCard extends StatelessWidget {
   });
 
   static const Color _navy = Color(0xFF0D1B2A);
-  static const Color _red = Color(0xFFEF3340);
-  static const Color _muted = Color(0xFF788292);
   static const Color _border = Color(0xFFEAECF0);
 
   void _openLogin(BuildContext context) {

@@ -11,7 +11,6 @@ import 'package:nyxproject/features/rental/presentation/pages/walkin_booking.dar
 import 'package:nyxproject/features/user/presentation/pages/terms.dart';
 
 import 'package:nyxproject/features/user/presentation/widgets/account_menu_item.dart';
-import 'package:nyxproject/features/user/presentation/widgets/account_section.dart';
 import 'package:nyxproject/features/user/presentation/widgets/login_prompt_card.dart';
 import 'package:nyxproject/features/user/presentation/widgets/logout_button.dart';
 
@@ -34,7 +33,6 @@ class AccountPage extends StatefulWidget {
 
 class _AccountPageState extends State<AccountPage> {
   static const Color _navy = Color(0xFF0D1B2A);
-  static const Color _red = Color(0xFFEF3340);
   static const Color _background = Color(0xFFF7F8FA);
   static const Color _muted = Color(0xFF788292);
 
