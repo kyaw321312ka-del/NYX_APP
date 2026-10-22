@@ -50,7 +50,7 @@ class TrainingsWidget extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: trainings.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 18),
+        separatorBuilder: (_, _) => const SizedBox(height: 18),
         itemBuilder: (context, index) {
           final training = trainings[index];
 
@@ -191,7 +191,7 @@ class TrainingsWidget extends StatelessWidget {
       cacheWidth: cacheWidth,
       gaplessPlayback: true,
       filterQuality: FilterQuality.medium,
-      errorBuilder: (_, __, ___) => _buildFallbackImage(),
+      errorBuilder: (_, _, _) => _buildFallbackImage(),
       loadingBuilder: (context, child, loadingProgress) {
         if (loadingProgress == null) {
           return child;
@@ -212,7 +212,7 @@ class TrainingsWidget extends StatelessWidget {
       'assets/classes/Badminton.png',
       fit: BoxFit.cover,
       width: double.infinity,
-      errorBuilder: (_, __, ___) {
+      errorBuilder: (_, _, _) {
         return Container(
           color: _navy,
           child: const Center(

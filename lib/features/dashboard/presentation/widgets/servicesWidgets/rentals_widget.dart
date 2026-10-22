@@ -63,7 +63,7 @@ class RentalsWidget extends StatelessWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: venues.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 18),
+      separatorBuilder: (_, _) => const SizedBox(height: 18),
       itemBuilder: (context, index) {
         return _buildVenueCard(context, venues[index]);
       },
@@ -249,7 +249,7 @@ class RentalsWidget extends StatelessWidget {
       fit: BoxFit.cover,
       gaplessPlayback: true,
       filterQuality: FilterQuality.medium,
-      errorBuilder: (_, __, ___) => _buildFallbackImage(),
+      errorBuilder: (_, _, _) => _buildFallbackImage(),
       loadingBuilder: (context, child, loadingProgress) {
         if (loadingProgress == null) {
           return child;

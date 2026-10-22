@@ -22,9 +22,6 @@ class CanteenWidget extends StatelessWidget {
     required this.onRetry,
   });
 
-  static const Color _navy = Color(0xFF0D1B2A);
-  static const Color _red = Color(0xFFEF3340);
-  static const Color _muted = Color(0xFF7B8491);
   static const Color _background = Color(0xFFF7F8FA);
 
   @override
