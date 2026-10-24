@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nyxproject/features/orders/domain/entities/payment.dart';
 import 'package:nyxproject/features/shop/domain/entities/category.dart';
@@ -68,6 +70,26 @@ void main() {
         cubit.state.errorMessage,
         'Something went wrong. Please try again.',
       );
+    });
+
+    test('does not emit when catalog requests finish after close', () async {
+      final productsCompleter = Completer<List<Product>>();
+      final categoriesCompleter = Completer<List<Category>>();
+      final repository = _FakeShopRepository(
+        productsCompleter: productsCompleter,
+        categoriesCompleter: categoriesCompleter,
+      );
+      final cubit = ShopCatalogCubit(
+        getProducts: GetProducts(repository),
+        getCategories: GetCategories(repository),
+      );
+
+      final load = cubit.load(includeCategories: true);
+      await cubit.close();
+      productsCompleter.complete([]);
+      categoriesCompleter.complete([]);
+
+      await expectLater(load, completes);
     });
   });
 
@@ -152,15 +174,20 @@ class _FakeShopRepository implements ShopRepository {
     this.products = const [],
     this.categories = const [],
     this.productError,
+    this.productsCompleter,
+    this.categoriesCompleter,
   });
 
   final List<Product> products;
   final List<Category> categories;
   final Object? productError;
+  final Completer<List<Product>>? productsCompleter;
+  final Completer<List<Category>>? categoriesCompleter;
   ShopOrderRequest? submittedRequest;
 
   @override
   Future<List<Product>> getProducts() async {
+    if (productsCompleter != null) return productsCompleter!.future;
     if (productError != null) throw productError!;
     return products;
   }
@@ -169,7 +196,10 @@ class _FakeShopRepository implements ShopRepository {
   Future<bool> validateSession({required String token}) async => true;
 
   @override
-  Future<List<Category>> getCategories() async => categories;
+  Future<List<Category>> getCategories() async {
+    if (categoriesCompleter != null) return categoriesCompleter!.future;
+    return categories;
+  }
 
   @override
   Future<List<PaymentMethod>> getPaymentMethods({String? token}) async => [];

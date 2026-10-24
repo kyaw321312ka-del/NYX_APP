@@ -20,6 +20,7 @@ class ShopCatalogCubit extends Cubit<ShopCatalogState> {
   final String? tagFilter;
 
   Future<void> load({bool includeCategories = false}) async {
+    if (isClosed) return;
     emit(
       state.copyWith(
         status: ShopCatalogStatus.loading,
@@ -37,6 +38,7 @@ class ShopCatalogCubit extends Cubit<ShopCatalogState> {
   }
 
   Future<void> loadProducts() async {
+    if (isClosed) return;
     emit(
       state.copyWith(
         status: ShopCatalogStatus.loading,
@@ -45,6 +47,7 @@ class ShopCatalogCubit extends Cubit<ShopCatalogState> {
     );
     try {
       final products = await _getProducts();
+      if (isClosed) return;
       final brands = <String>{
         'All',
         ...products
@@ -59,8 +62,9 @@ class ShopCatalogCubit extends Cubit<ShopCatalogState> {
           clearErrorMessage: true,
         ),
       );
-      _applyFilters();
+      if (!isClosed) _applyFilters();
     } catch (error) {
+      if (isClosed) return;
       emit(
         state.copyWith(
           status: ShopCatalogStatus.failure,
@@ -71,9 +75,11 @@ class ShopCatalogCubit extends Cubit<ShopCatalogState> {
   }
 
   Future<void> loadCategories() async {
+    if (isClosed) return;
     emit(state.copyWith(isLoadingCategories: true, clearCategoriesError: true));
     try {
       final categories = await _getCategories();
+      if (isClosed) return;
       emit(
         state.copyWith(
           categories: categories,
@@ -82,6 +88,7 @@ class ShopCatalogCubit extends Cubit<ShopCatalogState> {
         ),
       );
     } catch (error) {
+      if (isClosed) return;
       emit(
         state.copyWith(
           isLoadingCategories: false,
@@ -92,26 +99,31 @@ class ShopCatalogCubit extends Cubit<ShopCatalogState> {
   }
 
   void setSearchQuery(String query) {
+    if (isClosed) return;
     emit(state.copyWith(searchQuery: query));
     _applyFilters();
   }
 
   void selectBrand(String brand) {
+    if (isClosed) return;
     emit(state.copyWith(selectedBrand: brand));
     _applyFilters();
   }
 
   void selectCategory(String category) {
+    if (isClosed) return;
     emit(state.copyWith(selectedCategory: category));
     _applyFilters();
   }
 
   void selectSortOrder(ShopSortOrder sortOrder) {
+    if (isClosed) return;
     emit(state.copyWith(sortOrder: sortOrder));
     _applyFilters();
   }
 
   void _applyFilters() {
+    if (isClosed) return;
     final query = state.searchQuery.trim().toLowerCase();
     var results = state.products.where((product) {
       if (query.isNotEmpty &&

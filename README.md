@@ -139,6 +139,11 @@ use for app-wide services such as the session and cart, while other features
 continue to use their existing `ChangeNotifier`, controller, or local widget
 state patterns.
 
+The Home dashboard uses `DashboardCubit` and `DashboardState` to load banners,
+categories, and products independently. `DashBoard` creates the feature
+dependencies, while `DashboardContent` and its section widgets handle layout
+and navigation.
+
 ### 6. Data flow
 
 A request in a repository-backed feature typically follows this path:
@@ -150,7 +155,13 @@ A request in a repository-backed feature typically follows this path:
 5. The controller/Cubit publishes data or a mapped user-facing error
 6. Provider notifies listeners, or a Bloc/Cubit builder rebuilds the UI
 
-The Services tab is one example: `ServicesController` calls `GetServicesData`, which calls `ServicesRepository`; `ServicesRepositoryImpl` uses the training, venue, and canteen APIs. The tournament banner flow similarly separates its controller, use case, repository, and remote data source. Other screens may call a data source or `Api` directly, as the project is not uniformly layered.
+The Home dashboard follows this path: `DashboardCubit` calls the banner,
+category, and product use cases; `DashboardRepositoryImpl` delegates to its
+remote data source, which calls the existing API clients. The Services tab is
+another example: `ServicesController` calls `GetServicesData`, which calls
+`ServicesRepository`; `ServicesRepositoryImpl` uses the training, venue, and
+canteen APIs. Other screens may call a data source or `Api` directly, as the
+project is not uniformly layered.
 
 ### 7. Bookings and business flows
 
