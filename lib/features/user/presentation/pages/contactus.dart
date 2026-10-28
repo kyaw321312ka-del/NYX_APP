@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nyxproject/features/user/domain/entities/user_operations.dart';
 import 'package:nyxproject/features/user/presentation/bloc/user_flow_cubit.dart';
@@ -157,7 +158,7 @@ class _ContactUsState extends State<ContactUs> {
             color: Colors.grey.shade100,
             borderRadius: BorderRadius.circular(60),
             image: DecorationImage(
-              image: NetworkImage(contact.logoImageUrl!),
+              image: CorsSafeNetworkImage.provider(contact.logoImageUrl!),
               fit: BoxFit.cover,
             ),
           ),

@@ -1,5 +1,6 @@
 // lib/pages/detailsPages/classesWidgets/canteen_card.dart
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 import 'package:nyxproject/features/dashboard/domain/entities/canteen.dart';
 
 class CanteenCard extends StatelessWidget {
@@ -37,7 +38,7 @@ class CanteenCard extends StatelessWidget {
                   top: Radius.circular(14),
                 ),
                 child: item.imageUrl.isNotEmpty
-                    ? Image.network(
+                    ? CorsSafeNetworkImage.network(
                         item.imageUrl,
                         width: double.infinity,
                         fit: BoxFit.cover,

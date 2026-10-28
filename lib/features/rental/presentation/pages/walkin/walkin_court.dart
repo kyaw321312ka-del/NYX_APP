@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 import 'package:nyxproject/features/rental/domain/entities/walk_in_court.dart'
     as model;
 import 'package:nyxproject/features/rental/presentation/pages/walkin/walkinbooking_form.dart';
@@ -170,7 +171,7 @@ class _WalkInCourtState extends State<WalkInCourt> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: widget.court.courtImages.isNotEmpty
-            ? Image.network(
+            ? CorsSafeNetworkImage.network(
                 widget.court.courtImages.first,
                 fit: BoxFit.cover,
                 height: screenHeight * 0.25,

@@ -57,7 +57,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Nyx Project',
+        title: 'NYX MYANMAR',
         theme: AppTheme.light,
         home: SplashScreen(
           //  Show splash screen first

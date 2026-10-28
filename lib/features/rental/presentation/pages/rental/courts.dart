@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 import 'package:nyxproject/core/error/app_error_message.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/rental/data/datasources/RentelApi/court_api.dart';
@@ -230,7 +231,7 @@ class _CourtsState extends State<Courts> {
               topRight: Radius.circular(15),
             ),
             child: imageUrl.isNotEmpty
-                ? Image.network(
+                ? CorsSafeNetworkImage.network(
                     imageUrl,
                     fit: BoxFit.cover,
                     height: screenHeight * 0.2,

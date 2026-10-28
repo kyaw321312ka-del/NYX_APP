@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 import 'package:nyxproject/core/error/app_error_message.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/rental/data/datasources/RentelApi/walk_in_court_api.dart';
@@ -432,7 +433,7 @@ class _WalkInScreenState extends State<WalkInScreen> {
       return _buildImageFallback();
     }
 
-    return Image.network(
+    return CorsSafeNetworkImage.network(
       imageUrl,
       fit: BoxFit.cover,
       errorBuilder: (_, error, stackTrace) => _buildImageFallback(),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 
 class TournamentRank extends StatefulWidget {
   const TournamentRank({super.key});
@@ -26,9 +27,9 @@ class _TournamentRankState extends State<TournamentRank> {
               mainAxisSize: MainAxisSize.min, // Content ရှိသလောက်ပဲ အမြင့်ယူရန်
               children: [
                 // ၁။ Player ၏ ဓာတ်ပုံ သို့မဟုတ် Avatar
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 45,
-                  backgroundImage: NetworkImage(
+                  backgroundImage: CorsSafeNetworkImage.provider(
                     'https://via.placeholder.com/150', // Player ပုံ URL ထည့်ပါ
                   ),
                 ),

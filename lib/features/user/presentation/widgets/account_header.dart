@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 import 'package:nyxproject/features/shop/data/datasources/getallproduct_api.dart';
 import 'package:nyxproject/features/shop/domain/entities/product.dart';
 import 'package:nyxproject/features/shop/presentation/pages/shoppages/product_details.dart';
@@ -247,7 +248,7 @@ class _TagPageState extends State<TagPage> {
                       top: Radius.circular(11),
                     ),
                     child: product.images.isNotEmpty
-                        ? Image.network(
+                        ? CorsSafeNetworkImage.network(
                             product.images,
                             width: double.infinity,
                             fit: BoxFit.cover,

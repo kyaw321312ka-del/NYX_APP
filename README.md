@@ -144,6 +144,12 @@ categories, and products independently. `DashBoard` creates the feature
 dependencies, while `DashboardContent` and its section widgets handle layout
 and navigation.
 
+Remote images use `CorsSafeNetworkImage` with Flutter Web's HTML-element
+strategy so they can display when an image host does not enable CORS. This is
+a client-side compatibility fallback; HTML-rendered images cannot be captured
+by Flutter screenshot widgets. Enabling CORS on the media server remains the
+preferred production configuration.
+
 ### 6. Data flow
 
 A request in a repository-backed feature typically follows this path:

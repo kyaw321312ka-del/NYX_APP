@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 import 'package:nyxproject/core/error/app_error_message.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/user/data/datasources/contact_us_api.dart';
@@ -262,7 +263,7 @@ class _ClassDetailsState extends State<ClassDetails> {
         width: double.infinity,
         decoration: BoxDecoration(color: Colors.white),
         child: imageUrl.isNotEmpty
-            ? Image.network(
+            ? CorsSafeNetworkImage.network(
                 imageUrl,
                 fit: BoxFit.cover,
                 width: double.infinity,
@@ -568,7 +569,7 @@ class _ClassDetailsState extends State<ClassDetails> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(5),
               child: learningImageUrl.isNotEmpty
-                  ? Image.network(
+                  ? CorsSafeNetworkImage.network(
                       learningImageUrl,
                       height: 120,
                       fit: BoxFit.cover,
@@ -635,7 +636,7 @@ class _ClassDetailsState extends State<ClassDetails> {
           ClipRRect(
             borderRadius: BorderRadius.circular(5),
             child: coachImageUrl.isNotEmpty
-                ? Image.network(
+                ? CorsSafeNetworkImage.network(
                     coachImageUrl,
                     height: 100,
                     width: 100,

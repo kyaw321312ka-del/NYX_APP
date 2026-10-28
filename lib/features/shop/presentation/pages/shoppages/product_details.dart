@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nyxproject/features/shop/data/repositories/shop_repository_impl.dart';
 import 'package:nyxproject/features/shop/domain/usecases/get_products.dart';
@@ -246,7 +247,7 @@ class _ProductDetailsState extends State<_ProductDetailsContent> {
         child: widget.product.images.isNotEmpty
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(14),
-                child: Image.network(
+                child: CorsSafeNetworkImage.network(
                   widget.product.images,
                   width: double.infinity,
                   height: double.infinity,
@@ -889,7 +890,7 @@ class _ProductDetailsState extends State<_ProductDetailsContent> {
                 child: SizedBox(
                   width: double.infinity,
                   child: product.images.isNotEmpty
-                      ? Image.network(
+                      ? CorsSafeNetworkImage.network(
                           product.images,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {

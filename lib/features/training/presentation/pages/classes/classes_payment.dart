@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:nyxproject/core/utils/app_constants.dart';
@@ -605,7 +606,7 @@ class _ClassesPaymentState extends State<ClassesPayment> {
             ),
             leading: Radio(value: method.id.toString()),
             trailing: method.paymentImageUrl.isNotEmpty
-                ? Image.network(
+                ? CorsSafeNetworkImage.network(
                     method.paymentImageUrl,
                     height: 30,
                     width: 30,
@@ -639,7 +640,7 @@ class _ClassesPaymentState extends State<ClassesPayment> {
           if (method.paymentImageUrl.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: Image.network(
+              child: CorsSafeNetworkImage.network(
                 method.paymentImageUrl,
                 height: 60,
                 errorBuilder: (context, error, stackTrace) {

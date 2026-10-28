@@ -1,6 +1,7 @@
 // lib/pages/detailsPages/classesWidgets/trainings_widget.dart
 
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/training/domain/entities/training.dart';
 import 'package:nyxproject/features/training/presentation/pages/classes/class_details.dart';
@@ -184,7 +185,7 @@ class TrainingsWidget extends StatelessWidget {
       return _buildFallbackImage();
     }
 
-    return Image.network(
+    return CorsSafeNetworkImage.network(
       imageUrl,
       fit: BoxFit.cover,
       width: double.infinity,

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nyxproject/features/shop/data/repositories/shop_repository_impl.dart';
@@ -570,7 +571,7 @@ class _PaymentState extends State<_PaymentContent> {
           if (selectedMethod.paymentImageUrl.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: Image.network(
+              child: CorsSafeNetworkImage.network(
                 selectedMethod.paymentImageUrl,
                 height: 60,
                 errorBuilder: (context, error, stackTrace) {

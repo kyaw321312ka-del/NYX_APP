@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/shop/domain/entities/category.dart';
 import 'package:nyxproject/features/shop/presentation/pages/shoppages/category_page.dart';
@@ -149,7 +150,7 @@ class _CategoryItem extends StatelessWidget {
                         Container(color: _navy),
 
                         if (imageUrl.isNotEmpty)
-                          Image.network(
+                          CorsSafeNetworkImage.network(
                             imageUrl,
                             fit: BoxFit.cover,
                             loadingBuilder: (context, child, loadingProgress) {

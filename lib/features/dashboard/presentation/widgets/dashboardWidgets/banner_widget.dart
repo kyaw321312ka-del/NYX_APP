@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 
 class BannerWidget extends StatefulWidget {
   final List<String> images;
@@ -67,7 +68,7 @@ class _BannerWidgetState extends State<BannerWidget> {
                     if (image.isNotEmpty)
                       Image(
                         image: image.startsWith('http')
-                            ? NetworkImage(image)
+                            ? CorsSafeNetworkImage.provider(image)
                             : AssetImage(image) as ImageProvider,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 import 'package:nyxproject/features/shop/domain/entities/product.dart';
 import 'package:nyxproject/features/shop/presentation/pages/shoppages/product_details.dart';
 
@@ -58,7 +59,7 @@ class ProductCard extends StatelessWidget {
                     Container(
                       color: _background,
                       child: imageUrl.isNotEmpty
-                          ? Image.network(
+                          ? CorsSafeNetworkImage.network(
                               imageUrl,
                               fit: BoxFit.cover,
                               loadingBuilder:

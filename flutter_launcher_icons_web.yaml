@@ -1,0 +1,7 @@
+flutter_launcher_icons:
+  image_path: "assets/appIcon/nyx3_web.png"
+  web:
+    generate: true
+    image_path: "assets/appIcon/nyx3_web.png"
+    background_color: "#000000"
+    theme_color: "#000000"

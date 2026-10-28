@@ -3,6 +3,7 @@ import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 import 'package:nyxproject/features/user/presentation/pages/login.dart';
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:nyxproject/features/rental/data/datasources/RentelApi/avai_slot_time_api.dart';
 import 'package:nyxproject/features/rental/data/datasources/RentelApi/venue_api.dart';
@@ -344,7 +345,7 @@ class _CourtDetailsState extends State<CourtDetails> {
                 borderRadius: BorderRadius.circular(10),
                 image: DecorationImage(
                   image: imageUrl.startsWith('http')
-                      ? NetworkImage(imageUrl) as ImageProvider
+                      ? CorsSafeNetworkImage.provider(imageUrl) as ImageProvider
                       : AssetImage(imageUrl),
                   fit: BoxFit.cover,
                 ),
@@ -628,7 +629,7 @@ class _CourtDetailsState extends State<CourtDetails> {
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(10),
-                          child: Image.network(
+                          child: CorsSafeNetworkImage.network(
                             venue.venueImageUrl,
                             width: screenWidth * 0.15,
                             height: screenHeight * 0.1,

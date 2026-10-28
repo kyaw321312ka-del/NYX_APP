@@ -1,5 +1,6 @@
 // lib/widgets/cartWidgets/cart_item_card.dart
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 
 class CartItemCard extends StatelessWidget {
@@ -41,7 +42,7 @@ class CartItemCard extends StatelessWidget {
             child: imageUrl.isNotEmpty
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
+                    child: CorsSafeNetworkImage.network(
                       imageUrl,
                       width: 80,
                       height: 80,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/shop/domain/entities/product.dart';
 import 'package:nyxproject/features/shop/presentation/bloc/shop_catalog_state.dart';
@@ -333,7 +334,7 @@ class ShopProductCard extends StatelessWidget {
       return _imageFallback();
     }
 
-    return Image.network(
+    return CorsSafeNetworkImage.network(
       imageUrl,
       width: double.infinity,
       fit: BoxFit.cover,

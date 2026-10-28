@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:nyxproject/core/error/api_exception.dart';
@@ -471,7 +472,7 @@ class _EditProfileState extends State<EditProfile> {
               )
             : _imageUrl != null && _imageUrl!.isNotEmpty
             ? ClipOval(
-                child: Image.network(
+                child: CorsSafeNetworkImage.network(
                   _imageUrl!,
                   width: 120,
                   height: 120,

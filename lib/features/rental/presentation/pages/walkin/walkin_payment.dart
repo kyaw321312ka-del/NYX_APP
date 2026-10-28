@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nyxproject/features/orders/data/datasources/payment_api.dart';
 import 'package:nyxproject/features/rental/data/datasources/RentelApi/walkin_bookin_api.dart';
@@ -576,7 +577,7 @@ class _WalkinPaymentState extends State<WalkinPayment> {
             ),
             leading: Radio(value: method.id.toString()),
             trailing: method.paymentImageUrl.isNotEmpty
-                ? Image.network(
+                ? CorsSafeNetworkImage.network(
                     method.paymentImageUrl,
                     height: 30,
                     width: 30,
@@ -610,7 +611,7 @@ class _WalkinPaymentState extends State<WalkinPayment> {
           if (method.paymentImageUrl.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: Image.network(
+              child: CorsSafeNetworkImage.network(
                 method.paymentImageUrl,
                 height: 60,
                 errorBuilder: (context, error, stackTrace) {

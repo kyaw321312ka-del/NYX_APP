@@ -1,6 +1,7 @@
 // lib/pages/detailsPages/widgets/servicesWidgets/rentals_widget.dart
 
 import 'package:flutter/material.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 import 'package:nyxproject/core/presentation/widgets/app_error_view.dart';
 import 'package:nyxproject/features/rental/domain/entities/venue.dart';
 import 'package:nyxproject/features/rental/presentation/pages/rental/courts.dart';
@@ -243,7 +244,7 @@ class RentalsWidget extends StatelessWidget {
       return _buildFallbackImage();
     }
 
-    return Image.network(
+    return CorsSafeNetworkImage.network(
       imageUrl,
       width: double.infinity,
       fit: BoxFit.cover,
