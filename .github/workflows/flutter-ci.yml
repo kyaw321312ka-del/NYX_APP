@@ -1,5 +1,5 @@
 
-name: NYX Flutter CI
+name: NYX Flutter CI/CD
 
 on:
   push:
@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   flutter-ci:
-    name: Test and Build Android + Web
+    name: Test and Build NYX
     runs-on: ubuntu-latest
 
     steps:
@@ -37,11 +37,8 @@ jobs:
           flutter-version: "3.41.6"
           cache: true
 
-      - name: Configure Flutter to use Java 17
+      - name: Configure Java for Flutter
         run: flutter config --jdk-dir="$JAVA_HOME"
-
-      - name: Show Flutter version
-        run: flutter --version
 
       - name: Enable Flutter Web
         run: flutter config --enable-web
@@ -58,13 +55,13 @@ jobs:
       - name: Run tests
         run: flutter test
 
-      - name: Build release APK
+      - name: Build Android APK
         run: flutter build apk --release
 
       - name: Build Flutter Web
-        run: flutter build web --release
+        run: flutter build web --release --base-href /nyx/
 
-      - name: Upload APK artifact
+      - name: Upload Android APK
         uses: actions/upload-artifact@v4
         with:
           name: nyx-android-apk
@@ -72,10 +69,44 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Upload Web artifact
+      - name: Upload Web build
         uses: actions/upload-artifact@v4
         with:
           name: nyx-web-build
           path: build/web/
           if-no-files-found: error
           retention-days: 7
+
+      - name: Deploy Web to VPS
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USERNAME: ${{ secrets.VPS_USERNAME }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          set -eu
+
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+
+          printf '%s\n' "$VPS_SSH_KEY" > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+          # Verify that SSH authentication works before deploying.
+          ssh \
+            -i "$HOME/.ssh/id_ed25519" \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            "${VPS_USERNAME}@${VPS_HOST}" \
+            "test -d /var/www/nyx && test -w /var/www/nyx"
+
+          # Synchronize the generated Flutter Web files.
+          rsync -az --delete \
+            -e "ssh -i $HOME/.ssh/id_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$HOME/.ssh/known_hosts" \
+            build/web/ \
+            "${VPS_USERNAME}@${VPS_HOST}:/var/www/nyx/"
