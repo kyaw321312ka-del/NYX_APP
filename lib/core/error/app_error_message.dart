@@ -21,9 +21,7 @@ class AppErrorMessage {
       if (error.statusCode != null && error.statusCode! >= 500) {
         return 'The server is having trouble. Please try again shortly.';
       }
-      return error.message.isNotEmpty
-          ? error.message
-          : 'We could not complete your request. Please try again.';
+      return _fromMessage(error.message);
     }
 
     if (error is SocketException || error is HttpException) {
@@ -36,24 +34,32 @@ class AppErrorMessage {
       return 'We received an unexpected response. Please try again later.';
     }
     if (error is String) {
-      final message = error.trim();
-      final normalized = message.toLowerCase();
-      if (normalized.contains('socketexception') ||
-          normalized.contains('clientexception') ||
-          normalized.contains('failed host lookup') ||
-          normalized.contains('connection refused') ||
-          normalized.contains('connection timed out') ||
-          normalized.contains('connection failed') ||
-          normalized.contains('network is unreachable')) {
-        return 'Unable to connect. Check your internet connection and try again.';
-      }
-      if (normalized.contains('timeoutexception') ||
-          normalized.contains('timed out')) {
-        return 'The request took too long. Please try again.';
-      }
-      if (message.isNotEmpty) return message;
+      return _fromMessage(error);
     }
 
     return 'Something went wrong. Please try again.';
+  }
+
+  static String _fromMessage(String message) {
+    final trimmedMessage = message.trim();
+    final normalized = trimmedMessage.toLowerCase();
+    if (normalized.contains('socketexception') ||
+        normalized.contains('clientexception') ||
+        normalized.contains('failed host lookup') ||
+        normalized.contains('connection refused') ||
+        normalized.contains('connection timed out') ||
+        normalized.contains('connection failed') ||
+        normalized.contains('network is unreachable') ||
+        normalized.contains('failed to fetch') ||
+        normalized.contains('uri=http://') ||
+        normalized.contains('uri=https://')) {
+      return 'Unable to connect. Check your internet connection and try again.';
+    }
+    if (normalized.contains('timeoutexception') ||
+        normalized.contains('timed out')) {
+      return 'The request took too long. Please try again.';
+    }
+    if (trimmedMessage.isNotEmpty) return trimmedMessage;
+    return 'We could not complete your request. Please try again.';
   }
 }

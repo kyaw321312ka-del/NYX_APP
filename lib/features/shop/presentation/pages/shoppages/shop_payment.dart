@@ -1,8 +1,10 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nyxproject/core/presentation/widgets/cors_safe_network_image.dart';
 import 'package:image_picker/image_picker.dart';
+
 import 'package:nyxproject/features/shop/data/repositories/shop_repository_impl.dart';
 import 'package:nyxproject/features/orders/domain/entities/payment.dart';
 import 'package:nyxproject/features/shop/domain/entities/shop_order_request.dart';
@@ -15,6 +17,12 @@ import 'package:nyxproject/features/shop/presentation/pages/shoppages/slip.dart'
 import 'package:nyxproject/features/cart/presentation/bloc/cart_service.dart';
 import 'package:nyxproject/features/user/data/datasources/session_manager.dart';
 
+const Color _navy = Color(0xFF0D1B2A);
+const Color _red = Color(0xFFEF3340);
+const Color _background = Color(0xFFF7F8FA);
+const Color _muted = Color(0xFF7B8490);
+const Color _border = Color(0xFFE7EAF0);
+
 class Payment extends StatelessWidget {
   final double? totalAmount;
   final Map<String, String>? contactInfo;
@@ -25,6 +33,7 @@ class Payment extends StatelessWidget {
   Widget build(BuildContext context) {
     final repository = ShopRepositoryImpl();
     final token = context.read<SessionService>().getToken();
+
     return BlocProvider(
       create: (_) => ShopCheckoutCubit(
         getPaymentMethods: GetShopPaymentMethods(repository),
@@ -50,10 +59,18 @@ class _PaymentContent extends StatefulWidget {
 }
 
 class _PaymentState extends State<_PaymentContent> {
-  String currentOption = "Cash on Delivery";
+  String currentOption = 'Cash on Delivery';
+
   final TextEditingController input = TextEditingController();
   File? _transactionImage;
+
   final ImagePicker _picker = ImagePicker();
+
+  @override
+  void dispose() {
+    input.dispose();
+    super.dispose();
+  }
 
   Future<void> _refreshPaymentData() async {
     final token = context.read<SessionService>().getToken();
@@ -62,54 +79,69 @@ class _PaymentState extends State<_PaymentContent> {
 
   double get _taxRate => context.read<ShopCheckoutCubit>().state.taxRate;
 
-  // Calculate tax amount
   double get _taxAmount {
     final subtotal = widget.totalAmount ?? 0;
     return subtotal * (_taxRate / 100);
   }
 
-  // Calculate grand total
   double get _grandTotal {
     final subtotal = widget.totalAmount ?? 0;
     return subtotal + _taxAmount;
   }
 
+  String _formatPrice(double amount) {
+    return '${amount.toStringAsFixed(0)} Ks';
+  }
+
   Future<void> _pickImage() async {
-    showModalBottomSheet(
+    await showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
       ),
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                'Upload Transaction Slip',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 42,
+                height: 4,
+                margin: const EdgeInsets.only(top: 12, bottom: 18),
+                decoration: BoxDecoration(
+                  color: _border,
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.camera_alt, size: 28),
-              title: const Text('Take a Photo'),
-              onTap: () async {
-                Navigator.pop(context);
-                await _pickImageFromCamera();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library, size: 28),
-              title: const Text('Choose from Gallery'),
-              onTap: () async {
-                Navigator.pop(context);
-                await _pickImageFromGallery();
-              },
-            ),
-            const SizedBox(height: 10),
-          ],
+              const Text(
+                'Upload Transaction Slip',
+                style: TextStyle(
+                  color: _navy,
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              ListTile(
+                leading: const Icon(Icons.camera_alt_outlined, color: _navy),
+                title: const Text('Take a Photo'),
+                onTap: () async {
+                  Navigator.pop(sheetContext);
+                  await _pickImageFromCamera();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined, color: _navy),
+                title: const Text('Choose from Gallery'),
+                onTap: () async {
+                  Navigator.pop(sheetContext);
+                  await _pickImageFromGallery();
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -117,42 +149,52 @@ class _PaymentState extends State<_PaymentContent> {
 
   Future<void> _pickImageFromCamera() async {
     try {
-      final XFile? image = await _picker.pickImage(
+      final image = await _picker.pickImage(
         source: ImageSource.camera,
         maxWidth: 1024,
         maxHeight: 1024,
         imageQuality: 80,
       );
 
-      if (image != null) {
-        if (!mounted) return;
+      if (image != null && mounted) {
         setState(() {
           _transactionImage = File(image.path);
         });
       }
     } catch (_) {
-      return;
+      if (!mounted) return;
+      _showMessage('Unable to open camera. Please try again.', isError: true);
     }
   }
 
   Future<void> _pickImageFromGallery() async {
     try {
-      final XFile? image = await _picker.pickImage(
+      final image = await _picker.pickImage(
         source: ImageSource.gallery,
         maxWidth: 1024,
         maxHeight: 1024,
         imageQuality: 80,
       );
 
-      if (image != null) {
-        if (!mounted) return;
+      if (image != null && mounted) {
         setState(() {
           _transactionImage = File(image.path);
         });
       }
     } catch (_) {
-      return;
+      if (!mounted) return;
+      _showMessage('Unable to select image. Please try again.', isError: true);
     }
+  }
+
+  void _showMessage(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? _red : _navy,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
@@ -163,21 +205,18 @@ class _PaymentState extends State<_PaymentContent> {
           previous.submitError != current.submitError,
       listener: (context, state) {
         if (state.submitError != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.submitError!),
-              backgroundColor: Colors.red,
-            ),
-          );
+          _showMessage(state.submitError!, isError: true);
         }
 
         final orderResponse = state.orderResponse?['data'];
+
         if (orderResponse is Map<String, dynamic>) {
           context.read<CartService>().clearCart();
+
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => SlipPage(
+              builder: (_) => SlipPage(
                 paymentMethod: currentOption,
                 transactionNumber: input.text.trim(),
                 totalAmount: _grandTotal,
@@ -193,7 +232,6 @@ class _PaymentState extends State<_PaymentContent> {
       },
       child: BlocBuilder<ShopCheckoutCubit, ShopCheckoutState>(
         builder: (context, checkoutState) {
-          final subtotal = widget.totalAmount ?? 0;
           final contactInfo =
               widget.contactInfo ??
               {
@@ -205,67 +243,68 @@ class _PaymentState extends State<_PaymentContent> {
               };
 
           return Scaffold(
+            backgroundColor: _background,
             body: SafeArea(
-              child: RefreshIndicator(
-                onRefresh: _refreshPaymentData,
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _header(),
-                      const SizedBox(height: 5),
-                      _section("Contact Information"),
-                      const SizedBox(height: 5),
-                      _information("name", contactInfo['name'] ?? 'N/A'),
-                      const SizedBox(height: 5),
-                      _information(
-                        "Phone Number",
-                        contactInfo['phone'] ?? 'N/A',
-                      ),
-                      const SizedBox(height: 5),
-                      _information(
-                        "Email Address",
-                        contactInfo['email'] ?? 'N/A',
-                      ),
-                      const SizedBox(height: 5),
-                      _information(
-                        "Delivery Address",
-                        contactInfo['address'] ?? 'N/A',
-                      ),
-                      const SizedBox(height: 10),
-                      _information("Remark", contactInfo['remark'] ?? 'N/A'),
-                      const SizedBox(height: 10),
+              child: Column(
+                children: [
+                  _header(),
+                  Expanded(
+                    child: RefreshIndicator(
+                      color: _red,
+                      onRefresh: _refreshPaymentData,
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.fromLTRB(18, 20, 18, 28),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _pageIntroduction(),
+                            const SizedBox(height: 24),
 
-                      const Divider(),
-                      _information1(
-                        "Subtotal",
-                        "${subtotal.toStringAsFixed(0)} Ks",
+                            _sectionTitle(
+                              'Order Information',
+                              'Review your delivery details.',
+                              Icons.receipt_long_outlined,
+                            ),
+                            const SizedBox(height: 14),
+                            _contactCard(contactInfo),
+
+                            const SizedBox(height: 24),
+
+                            _sectionTitle(
+                              'Order Summary',
+                              'Your payment breakdown.',
+                              Icons.account_balance_wallet_outlined,
+                            ),
+                            const SizedBox(height: 14),
+                            _summaryCard(),
+
+                            const SizedBox(height: 24),
+
+                            _sectionTitle(
+                              'Payment Method',
+                              'Choose how you want to pay.',
+                              Icons.payments_outlined,
+                            ),
+                            const SizedBox(height: 14),
+                            _paymentMethod(checkoutState),
+
+                            const SizedBox(height: 14),
+                            _paymentInfo(checkoutState),
+
+                            if (_showTransactionInput()) ...[
+                              const SizedBox(height: 20),
+                              _imageUploadSection(),
+                            ],
+
+                            const SizedBox(height: 26),
+                            _confirm(checkoutState),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 5),
-                      _information(
-                        "Tax (${_taxRate.toStringAsFixed(0)}%)",
-                        "${_taxAmount.toStringAsFixed(0)} Ks",
-                      ),
-                      const SizedBox(height: 5),
-                      _information1(
-                        "Grand Total",
-                        "${_grandTotal.toStringAsFixed(0)} Ks",
-                      ),
-                      const Divider(),
-                      _section("Select Payment Method"),
-                      const SizedBox(height: 5),
-                      _paymentMethod(checkoutState),
-                      const SizedBox(height: 5),
-                      _paymentInfo(checkoutState),
-                      const SizedBox(height: 10),
-                      if (_showTransactionInput()) ...[_imageUploadSection()],
-                      const SizedBox(height: 20),
-                      _confirm(checkoutState),
-                      const SizedBox(height: 30),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           );
@@ -274,117 +313,205 @@ class _PaymentState extends State<_PaymentContent> {
     );
   }
 
-  bool _showTransactionInput() {
-    return currentOption != "Cash on Delivery";
-  }
-
-  Widget _imageUploadSection() {
-    return Column(
-      children: [
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Transaction Slip:",
-                style: TextStyle(
-                  fontFamily: 'Custom',
-                  color: Color.fromARGB(255, 13, 27, 42),
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              ElevatedButton.icon(
-                onPressed: _pickImage,
-                icon: const Icon(Icons.upload_file, size: 18),
-                label: const Text("Upload Slip"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 13, 27, 42),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (_transactionImage != null)
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.file(
-                    _transactionImage!,
-                    height: 150,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    TextButton.icon(
-                      onPressed: () => _pickImage(),
-                      icon: const Icon(Icons.refresh, size: 18),
-                      label: const Text("Change"),
-                    ),
-                    TextButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          _transactionImage = null;
-                        });
-                      },
-                      icon: const Icon(Icons.delete, size: 18),
-                      label: const Text("Remove"),
-                      style: TextButton.styleFrom(foregroundColor: Colors.red),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-
   Widget _header() {
     return Container(
-      color: const Color.fromARGB(255, 13, 27, 42),
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: const BoxDecoration(
+        color: _navy,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(18)),
+      ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
+            onPressed: () => Navigator.pop(context),
             icon: const Icon(
               Icons.arrow_back_ios_new_rounded,
               color: Colors.white,
+              size: 20,
             ),
           ),
           const Expanded(
             child: Text(
-              "Payment",
+              'Payment',
+              textAlign: TextAlign.center,
               style: TextStyle(
-                fontFamily: "Custom",
                 color: Colors.white,
-                fontSize: 20,
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          const SizedBox(width: 48),
+        ],
+      ),
+    );
+  }
+
+  Widget _pageIntroduction() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: _navy,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: const Icon(
+              Icons.lock_outline_rounded,
+              color: Colors.white,
+              size: 27,
+            ),
+          ),
+          const SizedBox(width: 14),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Complete Your Order',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  'Review your details and select a payment method.',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _sectionTitle(String title, String subtitle, IconData icon) {
+    return Row(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: _red.withOpacity(0.09),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: _red, size: 21),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: _navy,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                subtitle,
+                style: const TextStyle(color: _muted, fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _contactCard(Map<String, String> contactInfo) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _border),
+      ),
+      child: Column(
+        children: [
+          _contactRow(
+            Icons.person_outline_rounded,
+            'Full Name',
+            contactInfo['name'] ?? 'N/A',
+          ),
+          _contactRow(
+            Icons.phone_outlined,
+            'Phone Number',
+            contactInfo['phone'] ?? 'N/A',
+          ),
+          _contactRow(
+            Icons.email_outlined,
+            'Email Address',
+            contactInfo['email'] ?? 'N/A',
+          ),
+          _contactRow(
+            Icons.location_on_outlined,
+            'Delivery Address',
+            contactInfo['address'] ?? 'N/A',
+          ),
+          _contactRow(
+            Icons.notes_rounded,
+            'Remark',
+            contactInfo['remark'] ?? 'N/A',
+            isLast: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _contactRow(
+    IconData icon,
+    String label,
+    String value, {
+    bool isLast = false,
+  }) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: _muted, size: 19),
+          const SizedBox(width: 12),
+          SizedBox(
+            width: 105,
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: _muted,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              value.isEmpty ? 'N/A' : value,
+              textAlign: TextAlign.end,
+              style: const TextStyle(
+                color: _navy,
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -394,82 +521,74 @@ class _PaymentState extends State<_PaymentContent> {
     );
   }
 
-  Widget _section(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: Text(
-        title,
-        style: const TextStyle(
-          color: Color.fromARGB(255, 13, 27, 42),
-          fontWeight: FontWeight.w600,
-          fontFamily: 'Custom',
-          fontSize: 18,
-        ),
-      ),
-    );
-  }
-
-  Widget _information(String right, String left) {
+  Widget _summaryCard() {
     return Container(
-      height: 30,
-      margin: const EdgeInsets.symmetric(horizontal: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _border),
+      ),
+      child: Column(
         children: [
-          Text(
-            right,
-            style: const TextStyle(
-              color: Color.fromARGB(255, 13, 27, 42),
-              fontWeight: FontWeight.w500,
-              fontFamily: 'Custom',
-              fontSize: 15,
-            ),
+          _priceRow('Subtotal', _formatPrice(widget.totalAmount ?? 0)),
+          const SizedBox(height: 14),
+          _priceRow(
+            'Tax (${_taxRate.toStringAsFixed(0)}%)',
+            _formatPrice(_taxAmount),
           ),
-          Expanded(
-            child: Text(
-              left,
-              textAlign: TextAlign.end,
-              style: const TextStyle(
-                color: Color.fromARGB(255, 13, 27, 42),
-                fontWeight: FontWeight.w500,
-                fontFamily: 'Custom',
-                fontSize: 15,
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Divider(color: _border, height: 1),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Grand Total',
+                style: TextStyle(
+                  color: _navy,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              overflow: TextOverflow.ellipsis,
-            ),
+              Text(
+                _formatPrice(_grandTotal),
+                style: const TextStyle(
+                  color: _red,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _information1(String right, String left) {
-    return Container(
-      height: 40,
-      margin: const EdgeInsets.symmetric(horizontal: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            right,
-            style: const TextStyle(
-              color: Color.fromARGB(255, 13, 27, 42),
-              fontWeight: FontWeight.w700,
-              fontFamily: 'Custom',
-              fontSize: 17,
-            ),
+  Widget _priceRow(String title, String amount) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            color: _muted,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
           ),
-          Text(
-            left,
-            style: const TextStyle(
-              color: Colors.red,
-              fontWeight: FontWeight.w700,
-              fontFamily: 'Custom',
-              fontSize: 17,
-            ),
+        ),
+        Text(
+          amount,
+          style: const TextStyle(
+            color: _navy,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -477,64 +596,119 @@ class _PaymentState extends State<_PaymentContent> {
     if (state.isLoadingPaymentMethods) {
       return const Center(
         child: Padding(
-          padding: EdgeInsets.all(20),
-          child: CircularProgressIndicator(),
+          padding: EdgeInsets.all(25),
+          child: CircularProgressIndicator(color: _red),
         ),
       );
     }
 
     if (state.paymentMethodsError != null) {
-      return Center(
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: _border),
+        ),
         child: Column(
           children: [
+            const Icon(Icons.error_outline_rounded, color: _red, size: 30),
+            const SizedBox(height: 8),
             Text(
               state.paymentMethodsError!,
-              style: const TextStyle(color: Colors.red),
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: _red, fontSize: 13),
             ),
             TextButton(
               onPressed: _refreshPaymentData,
-              child: const Text('Retry'),
+              child: const Text(
+                'Retry',
+                style: TextStyle(color: _navy, fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         ),
       );
     }
 
-    List<String> displayOptions = [];
+    final displayOptions = <String>[];
 
-    for (var method in state.paymentMethods) {
+    for (final method in state.paymentMethods) {
       if (!displayOptions.contains(method.paymentMethod)) {
         displayOptions.add(method.paymentMethod);
       }
     }
 
+    if (displayOptions.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: _border),
+        ),
+        child: const Text(
+          'No payment methods are currently available.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: _muted),
+        ),
+      );
+    }
+
+    // Keep the current choice only if it is still available.
+    if (!displayOptions.contains(currentOption)) {
+      currentOption = displayOptions.first;
+    }
+
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.black12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _border),
       ),
       child: RadioGroup<String>(
         groupValue: currentOption,
         onChanged: (value) {
           if (value == null) return;
+
           setState(() {
             currentOption = value;
             input.clear();
+            _transactionImage = null;
           });
         },
         child: Column(
           children: displayOptions.map((option) {
-            return ListTile(
-              title: Text(
-                option,
-                style: const TextStyle(
-                  fontFamily: 'Custom',
-                  color: Color.fromARGB(255, 13, 27, 42),
-                ),
+            final selected = currentOption == option;
+
+            return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: selected ? _red.withOpacity(0.05) : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: selected ? _red : Colors.transparent),
               ),
-              leading: Radio<String>(value: option),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                leading: Radio<String>(value: option, activeColor: _red),
+                title: Text(
+                  option,
+                  style: TextStyle(
+                    color: _navy,
+                    fontSize: 14,
+                    fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+                  ),
+                ),
+                trailing: selected
+                    ? const Icon(
+                        Icons.check_circle_rounded,
+                        color: _red,
+                        size: 20,
+                      )
+                    : null,
+              ),
             );
           }).toList(),
         ),
@@ -543,12 +717,33 @@ class _PaymentState extends State<_PaymentContent> {
   }
 
   Widget _paymentInfo(ShopCheckoutState state) {
-    if (currentOption == "Cash on Delivery") {
-      return const SizedBox.shrink();
+    if (currentOption.toLowerCase() == 'cash on delivery') {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: _border),
+        ),
+        child: const Row(
+          children: [
+            Icon(Icons.local_shipping_outlined, color: _red, size: 25),
+            SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'You can pay when your order is delivered.',
+                style: TextStyle(color: _navy, fontSize: 13, height: 1.4),
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     PaymentMethod? selectedMethod;
-    for (var method in state.paymentMethods) {
+
+    for (final method in state.paymentMethods) {
       if (method.paymentMethod.toLowerCase() == currentOption.toLowerCase()) {
         selectedMethod = method;
         break;
@@ -560,135 +755,330 @@ class _PaymentState extends State<_PaymentContent> {
     }
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 13, 27, 42),
-        borderRadius: BorderRadius.circular(12),
+        color: _navy,
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (selectedMethod.paymentImageUrl.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: CorsSafeNetworkImage.network(
-                selectedMethod.paymentImageUrl,
-                height: 60,
+          const Row(
+            children: [
+              Icon(
+                Icons.account_balance_outlined,
+                color: Colors.white,
+                size: 21,
+              ),
+              SizedBox(width: 10),
+              Text(
+                'Payment Account Details',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          if (selectedMethod.paymentImageUrl.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: CorsSafeNetworkImage.network(
+                  selectedMethod.paymentImageUrl,
+                  height: 65,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(
+                      Icons.account_balance,
+                      size: 40,
+                      color: Colors.white,
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+          const SizedBox(height: 18),
+          _accountRow('Account Name', selectedMethod.paymentName),
+          const SizedBox(height: 14),
+          _accountRow('Account Number', selectedMethod.paymentNumber),
+        ],
+      ),
+    );
+  }
+
+  Widget _accountRow(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white60, fontSize: 12),
+        ),
+        const SizedBox(height: 5),
+        SelectableText(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  bool _showTransactionInput() {
+    return currentOption.toLowerCase() != 'cash on delivery';
+  }
+
+  Widget _imageUploadSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.receipt_long_outlined, color: _red, size: 21),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Transaction Slip',
+                  style: TextStyle(
+                    color: _navy,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Text(
+                'Required',
+                style: TextStyle(
+                  color: _red,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Upload a clear screenshot or photo of your payment receipt.',
+            style: TextStyle(color: _muted, fontSize: 12, height: 1.4),
+          ),
+          const SizedBox(height: 16),
+
+          if (_transactionImage == null)
+            InkWell(
+              onTap: _pickImage,
+              borderRadius: BorderRadius.circular(14),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 25),
+                decoration: BoxDecoration(
+                  color: _background,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: _red.withOpacity(0.4),
+                    style: BorderStyle.solid,
+                  ),
+                ),
+                child: const Column(
+                  children: [
+                    Icon(Icons.cloud_upload_outlined, color: _red, size: 38),
+                    SizedBox(height: 10),
+                    Text(
+                      'Upload Payment Slip',
+                      style: TextStyle(
+                        color: _navy,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      'Tap to take a photo or choose from gallery',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: _muted, fontSize: 11),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.file(
+                _transactionImage!,
+                width: double.infinity,
+                height: 190,
+                fit: BoxFit.contain,
                 errorBuilder: (context, error, stackTrace) {
-                  return const Icon(
-                    Icons.account_balance,
-                    size: 40,
-                    color: Colors.white,
+                  return Container(
+                    height: 100,
+                    alignment: Alignment.center,
+                    color: _background,
+                    child: const Text(
+                      'Unable to preview selected image.',
+                      style: TextStyle(color: _muted),
+                    ),
                   );
                 },
               ),
             ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                "Account Name : ",
-                style: TextStyle(
-                  fontFamily: 'Custom',
-                  color: Colors.white,
-                  fontSize: 15,
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _pickImage,
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: const Text('Change'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: _navy,
+                      side: const BorderSide(color: _border),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              Text(
-                selectedMethod.paymentName,
-                style: const TextStyle(
-                  fontFamily: 'Custom',
-                  color: Colors.white,
-                  fontSize: 15,
+                const SizedBox(width: 10),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _transactionImage = null;
+                      });
+                    },
+                    icon: const Icon(Icons.delete_outline_rounded),
+                    label: const Text('Remove'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: _red,
+                      side: const BorderSide(color: _red),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                "Account Number : ",
-                style: TextStyle(
-                  fontFamily: 'Custom',
-                  color: Colors.white,
-                  fontSize: 15,
-                ),
-              ),
-              Text(
-                selectedMethod.paymentNumber,
-                style: const TextStyle(
-                  fontFamily: 'Custom',
-                  color: Colors.white,
-                  fontSize: 15,
-                ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     );
   }
 
   Widget _confirm(ShopCheckoutState state) {
-    return Center(
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red,
-          fixedSize: const Size(200, 50),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Total to Pay',
+              style: TextStyle(
+                color: _muted,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Text(
+              _formatPrice(_grandTotal),
+              style: const TextStyle(
+                color: _navy,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        SizedBox(
+          width: double.infinity,
+          height: 54,
+          child: ElevatedButton(
+            onPressed: state.isSubmitting ? null : _processOrder,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _red,
+              foregroundColor: Colors.white,
+              disabledBackgroundColor: _red.withOpacity(0.5),
+              elevation: 2,
+              shadowColor: _red.withOpacity(0.25),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+            ),
+            child: state.isSubmitting
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.lock_outline_rounded, size: 18),
+                      SizedBox(width: 10),
+                      Text(
+                        'Confirm Payment',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
           ),
         ),
-        onPressed: state.isSubmitting ? null : _processOrder,
-        child: state.isSubmitting
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              )
-            : const Text(
-                "Confirm Payment",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontFamily: "Custom",
-                  fontSize: 16,
-                ),
-              ),
-      ),
+        const SizedBox(height: 12),
+        const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.verified_user_outlined, size: 14, color: _muted),
+            SizedBox(width: 6),
+            Text(
+              'Please review your order before confirming.',
+              style: TextStyle(color: _muted, fontSize: 11),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
   Future<void> _processOrder() async {
     if (_showTransactionInput() && _transactionImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please upload transaction slip'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 3),
-        ),
-      );
+      _showMessage('Please upload transaction slip.', isError: true);
       return;
     }
 
     final cartService = context.read<CartService>();
     final sessionService = context.read<SessionService>();
+
     final userId = sessionService.getStoredUser()?.id ?? 0;
+
     if (userId == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('User not found. Please login again.'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showMessage('User not found. Please login again.', isError: true);
       return;
     }
 
     final contactInfo = widget.contactInfo ?? {};
+
     final items = cartService.items
         .map(
           (item) => {'product_id': item.product.id, 'quantity': item.quantity},
