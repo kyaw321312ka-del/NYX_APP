@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
 
 import 'package:nyxproject/features/shop/data/repositories/shop_repository_impl.dart';
 import 'package:nyxproject/features/shop/domain/usecases/validate_shop_session.dart';
@@ -193,7 +192,7 @@ class _ContactInfoState extends State<_ContactInfoForm> {
                   height: 90,
                   width: 90,
                   decoration: BoxDecoration(
-                    color: _red.withOpacity(0.1),
+                    color: _red.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -387,7 +386,7 @@ class _ContactInfoState extends State<_ContactInfoForm> {
             height: 52,
             width: 52,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.12),
+              color: Colors.white.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(15),
             ),
             child: const Icon(
@@ -433,7 +432,7 @@ class _ContactInfoState extends State<_ContactInfoForm> {
           height: 40,
           width: 40,
           decoration: BoxDecoration(
-            color: _red.withOpacity(0.09),
+            color: _red.withValues(alpha: 0.09),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, color: _red, size: 21),
@@ -580,7 +579,7 @@ class _ContactInfoState extends State<_ContactInfoForm> {
           backgroundColor: _red,
           foregroundColor: Colors.white,
           elevation: 2,
-          shadowColor: _red.withOpacity(0.25),
+          shadowColor: _red.withValues(alpha: 0.25),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),

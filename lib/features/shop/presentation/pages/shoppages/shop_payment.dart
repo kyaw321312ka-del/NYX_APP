@@ -362,7 +362,7 @@ class _PaymentState extends State<_PaymentContent> {
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.12),
+              color: Colors.white.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(15),
             ),
             child: const Icon(
@@ -408,7 +408,7 @@ class _PaymentState extends State<_PaymentContent> {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: _red.withOpacity(0.09),
+            color: _red.withValues(alpha: 0.09),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, color: _red, size: 21),
@@ -686,7 +686,9 @@ class _PaymentState extends State<_PaymentContent> {
             return Container(
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: selected ? _red.withOpacity(0.05) : Colors.transparent,
+                color: selected
+                    ? _red.withValues(alpha: 0.05)
+                    : Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: selected ? _red : Colors.transparent),
               ),
@@ -889,7 +891,7 @@ class _PaymentState extends State<_PaymentContent> {
                   color: _background,
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: _red.withOpacity(0.4),
+                    color: _red.withValues(alpha: 0.4),
                     style: BorderStyle.solid,
                   ),
                 ),
@@ -1013,9 +1015,9 @@ class _PaymentState extends State<_PaymentContent> {
             style: ElevatedButton.styleFrom(
               backgroundColor: _red,
               foregroundColor: Colors.white,
-              disabledBackgroundColor: _red.withOpacity(0.5),
+              disabledBackgroundColor: _red.withValues(alpha: 0.5),
               elevation: 2,
-              shadowColor: _red.withOpacity(0.25),
+              shadowColor: _red.withValues(alpha: 0.25),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
